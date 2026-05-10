@@ -1,0 +1,26 @@
+.form_control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+}
+
+.form_control label {
+    margin-bottom: .6em;
+    font-weight: bold;
+    text-align: center; /* Mantém o padrão que você já está usando */
+}
+
+.form_control textarea {
+    padding: .8em;
+    border-radius: 5px;
+    border: 1px solid #767676;
+    height: 120px;       /* Altura fixa para o bloco de texto */
+    resize: none;        /* Impede o usuário de redimensionar */
+    box-sizing: border-box;
+    font-family: inherit; /* Garante que a fonte seja a mesma do resto do app */
+}
+
+.form_control textarea::placeholder {
+    color: #7b7b7b;
+    text-align: center;  /* Placeholder centralizado como nos seus inputs */
+}

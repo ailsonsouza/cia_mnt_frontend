@@ -1,0 +1,187 @@
+/* Container que simula uma folha de papel física A4 vertical */
+.page {
+    background-color: #fff;
+    width: 100%;
+    max-width: 820px; 
+    margin: 2em auto;
+    padding: 3em;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    border: 1px solid #d3d3d3;
+    border-radius: 2px;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace; /* Aparência técnica militar */
+}
+
+/* Área relativa para ancorar o selo na direita e botão na esquerda */
+.header_sheet {
+    text-align: center;
+    border-bottom: 3px double #222;
+    padding-bottom: 1.5em;
+    margin-bottom: 2em;
+    position: relative; 
+}
+
+.header_sheet h2 {
+    font-size: 1.1em;
+    margin: 0;
+    letter-spacing: 2px;
+    color: #444;
+}
+
+.header_sheet h1 {
+    font-size: 1.6em;
+    margin: 5px 0 15px 0;
+    color: #111;
+    font-weight: bold;
+}
+
+/* Botão Voltar vermelho no topo esquerdo */
+.btn_voltar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: hsl(0, 78%, 27%);
+    color: #FFF;
+    text-decoration: none;
+    padding: 0.5em 1.2em;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.btn_voltar:hover {
+    background-color: #444;
+    color: #FFF;
+}
+
+/* Etiqueta de número automático */
+.automatic_badge {
+    background-color: #f0f0f0;
+    color: #666;
+    border: 1px dashed #999;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    display: inline-block;
+    border-radius: 4px;
+}
+
+/* Selo absoluto de situação (Topo Direito) */
+.status_badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 6px 15px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border-radius: 4px;
+    color: #fff;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+.status_open {
+    background-color: #2e7d32; 
+    border: 1px solid #1b5e20;
+}
+
+.status_close {
+    background-color: #c62828; 
+    border: 1px solid #b71c1c;
+}
+
+/* Blocos divisores (Fieldsets) */
+.section_block {
+    border: 2px solid #222;
+    border-radius: 4px;
+    padding: 1.5em;
+    margin-bottom: 1.8em;
+    background-color: #fafafa;
+}
+
+.section_block legend {
+    font-weight: bold;
+    font-size: 0.9em;
+    background-color: #222;
+    color: #ffbb33;
+    padding: 4px 12px;
+    border-radius: 3px;
+}
+
+/* Alinhamento flexível dos inputs em linha */
+.row {
+    display: flex;       
+    gap: 20px;           
+    width: 100%;         
+    box-sizing: border-box;
+}
+
+.row > div {
+    flex: 1;
+}
+
+/* Áreas de texto grandes */
+.textarea_container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+/* Estilo visual dos campos desabilitados */
+.page input:disabled,
+.page select:disabled,
+.page textarea:disabled {
+    background-color: #f4f4f4 !important;
+    color: #555 !important;
+    cursor: not-allowed;
+    border-color: #aaa !important;
+}
+
+/* Área de ações do rodapé */
+.footer_actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espaço entre os botões */
+    margin-top: 2.5em;
+    border-top: 1px dashed #222;
+    padding-top: 1.5em;
+}
+
+/* Estilo padrão compartilhado de botões do rodapé */
+.footer_actions button,
+.btn_retornar {
+    background-color: #222 !important;
+    color: #ffbb33 !important;
+    font-weight: bold !important;
+    padding: 1em 2.5em !important;
+    border: 2px solid #222 !important;
+    transition: 0.3s !important;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.footer_actions button:hover,
+.btn_retornar:hover {
+    background-color: #fff !important;
+    color: #222 !important;
+}
+
+/* Botão Encerrar O.S. (Borda vermelha e fundo branco) */
+.footer_actions .btn_encerrar {
+    background-color: #fff !important;
+    color: #c62828 !important;
+    border: 2px solid #c62828 !important;
+}
+
+.footer_actions .btn_encerrar:hover {
+    background-color: #c62828 !important;
+    color: #fff !important;
+}

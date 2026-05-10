@@ -1,0 +1,31 @@
+.form_control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+    width: 100%;
+}
+
+.form_control label {
+    margin-bottom: .6em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.form_control input {
+    padding: .7em;
+    border-radius: 5px;
+    border: 1px solid;
+    box-sizing: border-box;
+    text-align: center; /* Centraliza o texto digitado */
+}
+
+.form_control input::placeholder {
+    color: #7b7b7b;
+    text-align: center;
+}
+
+/* Ajuste específico para datas no Chrome/Edge */
+.form_control input[type="date"] {
+    display: flex;
+    justify-content: center;
+}

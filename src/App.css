@@ -1,3 +1,12 @@
+body {
+  background-color: #f0f2f5; 
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  min-height: 100vh;
+}
+
+/* Remova o background-color da .App para não dar conflito */
 .App {
   text-align: center;
 }

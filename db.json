@@ -1,0 +1,181 @@
+{
+  "orders": [
+    {
+      "openDate": "2026-05-08",
+      "closingDate": "2026-05-08",
+      "category_id": "Classe V",
+      "item": "FUZIL",
+      "serialNumber": "12345",
+      "partsValue": "65.6",
+      "serviceValue": "75.9",
+      "destiny": "27º B Log",
+      "section": "wN801obXrqE",
+      "technician": "10WKVGgxCkE",
+      "manutention": "troca do apoio do ferrolho",
+      "observations": "s/a",
+      "status": "OPEN",
+      "orderNumber": "ORDEM DE SERVIÇO Nº 1",
+      "id": "SfaYTLt1YqA"
+    },
+    {
+      "openDate": "2026-09-09",
+      "closingDate": "2026-09-10",
+      "category_id": "Classe IV",
+      "item": "PORTÃO",
+      "serialNumber": "-",
+      "partsValue": "89",
+      "serviceValue": "85",
+      "destiny": "63º BI",
+      "section": "3",
+      "technician": "PhPJCSd36Zk",
+      "manutention": "solda",
+      "observations": "s/a",
+      "status": "OPEN",
+      "orderNumber": "ORDEM DE SERVIÇO Nº 2",
+      "id": "hCuWNDXWzbY"
+    },
+    {
+      "openDate": "2026-05-08",
+      "closingDate": "2026-05-09",
+      "category_id": "Classe VI",
+      "item": "SOFA",
+      "serialNumber": "-",
+      "partsValue": "75",
+      "serviceValue": "84",
+      "destiny": "27º B Log",
+      "section": "4",
+      "technician": "10WKVGgxCkE",
+      "manutention": "reparo no sofa",
+      "observations": "s/a",
+      "status": "OPEN",
+      "orderNumber": "ORDEM DE SERVIÇO Nº 3",
+      "id": "oI-MrOCbxRY"
+    },
+    {
+      "openDate": "2026-05-09",
+      "closingDate": "2026-05-08",
+      "category_id": "Classe VI",
+      "item": "SPRINTER",
+      "serialNumber": "EB54896",
+      "partsValue": "45",
+      "serviceValue": "65",
+      "destiny": "28º GAC",
+      "section": "UOqAQLxuGoA",
+      "technician": "PhPJCSd36Zk",
+      "manutention": "troca de pneu",
+      "observations": "s/a",
+      "status": "CLOSE",
+      "orderNumber": "ORDEM DE SERVIÇO Nº 4",
+      "id": "6WFtfIo6JY8"
+    }
+  ],
+  "sections": [
+    {
+      "name": "LANTERNAGEM",
+      "id": "3",
+      "chief": "SGT KEVYN",
+      "openingOrders": 140,
+      "closingOrders": 270
+    },
+    {
+      "name": "CORREARIA",
+      "id": "4",
+      "chief": "SGT MARCINIAK",
+      "openingOrders": 140,
+      "closingOrders": 270
+    },
+    {
+      "name": "2º ESCALÃO",
+      "chief": "ELIAS",
+      "openingOrders": 0,
+      "closingOrders": 0,
+      "id": "wN801obXrqE"
+    },
+    {
+      "name": "PELOTÃO PESADO",
+      "chief": "ADILSON BRASILINO",
+      "openingOrders": 0,
+      "closingOrders": 0,
+      "id": "UOqAQLxuGoA"
+    },
+    {
+      "name": "GRCP",
+      "chief": "JOEL",
+      "openingOrders": 0,
+      "closingOrders": 0,
+      "id": "Cv4mUSH2drE"
+    }
+  ],
+  "users": [
+    {
+      "name": "AILSON",
+      "section_id": "Cv4mUSH2drE",
+      "level_id": "3",
+      "password": "123",
+      "id": "xNNVeeyUWas"
+    },
+    {
+      "name": "ELIAS",
+      "section_id": "wN801obXrqE",
+      "level_id": "2",
+      "password": "456",
+      "id": "QdXDq21So1s"
+    },
+    {
+      "name": "KEVYN",
+      "section_id": "3",
+      "level_id": "1",
+      "password": "789",
+      "id": "HJliTbOfghw"
+    },
+    {
+      "name": "FERREIRA",
+      "section_id": "UOqAQLxuGoA",
+      "level_id": "2",
+      "password": "123",
+      "id": "PfdJxjF8CmY"
+    },
+    {
+      "name": "JOEL",
+      "section_id": "Cv4mUSH2drE",
+      "level_id": "2",
+      "password": "123",
+      "id": "BSvzkETbhaw"
+    }
+  ],
+  "technicians": [
+    {
+      "name": "AMORIN",
+      "section_id": "2",
+      "id": "10WKVGgxCkE"
+    },
+    {
+      "name": "KEVYN",
+      "section_id": "3",
+      "id": "PhPJCSd36Zk"
+    },
+    {
+      "name": "MARCINIAK",
+      "section_id": "4",
+      "id": "8Ac11zY4Oqk"
+    }
+  ],
+  "roles": [
+    {
+      "id": "1",
+      "name": "USER",
+      "description": "técnicos e usuários"
+    },
+    {
+      "id": "2",
+      "name": "CHIEF",
+      "description": "Chefe de seção"
+    },
+    {
+      "id": "3",
+      "name": "ADMIN",
+      "description": "Administrador do sistema"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

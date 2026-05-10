@@ -1,0 +1,29 @@
+.container {
+    max-width: 1200px; /* Mudado de width para max-width */
+    width: 95%;        /* Garante uma margem de respiro em telas pequenas */
+    display: flex;
+    justify-content: flex-start; /* Melhor para alinhar cards em várias linhas */
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 1.5%;         /* Substitui o space-between por um espaçamento fixo */
+}
+
+
+.min-height{
+    min-height: 85%;
+}
+
+.start{
+    justify-content: flex-start;
+}
+
+.column{
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.newItens{
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+}

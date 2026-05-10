@@ -1,0 +1,37 @@
+/* Container que empurra o botão para a extrema direita */
+.containerBtn {
+    display: flex;
+    justify-content: flex-end; /* Joga o botão para a direita */
+    width: 100%;               /* Ocupa a largura total limite do Container */
+    margin-bottom: 2em;        /* Espaço útil abaixo do botão */
+    padding: 0;                /* Alinha na mesma margem dos cards */
+}
+
+/* Estilização do link de botão combinando com o design do sistema */
+.newTechnician {
+    text-decoration: none;
+    background-color: #001969; /* Tom de azul padrão do sistema */
+    color: #fff;
+    font-size: .9em;
+    padding: .6em 1.2em;
+    cursor: pointer;
+    display: inline-flex;
+    width: max-content;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.newTechnician:hover {
+    background-color: #001147; /* Escurece ligeiramente ao passar o mouse */
+}
+
+/* Garante a distribuição correta de linhas e colunas flexíveis */
+.grid_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+}

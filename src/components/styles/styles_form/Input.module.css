@@ -1,0 +1,48 @@
+/* Configuração padrão (Labels acima dos inputs) */
+.form_control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.2em;
+    width: 100%;
+}
+
+.form_control label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.4em;
+    text-align: left;
+}
+
+.form_control input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px;
+    padding: 0 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-family: inherit;
+}
+
+.form_control input:focus {
+    border-color: #001969;
+    outline: none;
+}
+
+/* Modificador horizontal (ao lado do outro) */
+.form_row {
+    flex-direction: row; 
+    align-items: center;
+    gap: 1em; 
+}
+
+.form_row label {
+    margin-bottom: 0; 
+    min-width: 100px; 
+}
+
+.form_row input {
+    flex: 1; /* Corrigido de .2 para 1, permitindo que o input se expanda no espaço livre */
+}

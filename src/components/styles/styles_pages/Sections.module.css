@@ -1,0 +1,37 @@
+/* Container que segura o botão */
+.button_container {
+    display: flex;
+    justify-content: flex-end; /* Alinha o botão totalmente à direita */
+    width: 100%;               /* Preenche o limite máximo do Container */
+    margin-bottom: 2em;        /* Dá um espaçamento confortável antes dos cards */
+    padding: 0;                /* Zera paddings para colar na linha vertical do último card */
+}
+
+/* Estilização do Botão */
+.newSection {
+    text-decoration: none;
+    background-color: #001969;
+    color: #fff;
+    font-size: .9em;
+    padding: .6em 1.2em;
+    cursor: pointer;
+    display: inline-flex;
+    width: max-content;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.newSection:hover {
+    background-color: #001147;
+}
+
+/* Opcional: Garante que os cards fiquem em bloco caso o Container não faça isso */
+.grid_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+}

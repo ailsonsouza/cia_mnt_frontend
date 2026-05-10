@@ -1,0 +1,244 @@
+.home_page {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
+    padding-top: 1rem;
+}
+
+/* Nova linha de topo para alinhar a etiqueta na direita */
+.top_header_row {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.access_badge {
+    background-color: #f0f0f0;
+    color: #666;
+    border: 1px dashed #999;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.cards_container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 2.5rem;
+}
+
+.stat_card {
+    flex: 1;
+    background-color: #fff;
+    border: 2px solid #222;
+    border-radius: 5px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.stat_card h3 {
+    font-size: 0.95rem;
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.stat_card p {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.open_number { color: #c62828; }
+.closed_number { color: #2e7d32; }
+.tech_number { color: #001969; }
+
+.admin_section, .critical_section, .shortcuts_section {
+    width: 100%;
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.admin_section h2, .critical_section h2, .shortcuts_section h2 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #222;
+    border-bottom: 2px solid #222;
+    padding-bottom: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.admin_grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.admin_sec_card {
+    background-color: #fff;
+    border: 2px solid #222;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.admin_sec_card h4 {
+    margin: 0 0 10px 0;
+    background-color: #222;
+    color: #ffbb33;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 3px;
+    font-size: 0.95rem;
+}
+
+.admin_sec_data {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.admin_sec_data p { margin: 0; font-weight: bold; }
+.admin_sec_data span { color: #c62828; }
+.admin_sec_data p:last-child span { color: #2e7d32; }
+
+.table_container {
+    width: 100%;
+    background-color: #fff;
+    border: 2px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.custom_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.custom_table th {
+    background-color: #222;
+    color: #ffbb33;
+    padding: 10px;
+    text-align: left;
+    letter-spacing: 1px;
+}
+
+.custom_table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.os_col {
+    font-weight: bold;
+    color: #c62828;
+}
+
+.custom_table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.no_records {
+    padding: 15px;
+    text-align: center;
+    color: #666;
+    margin: 0;
+}
+
+.btn_group {
+    display: flex;
+    gap: 15px;
+}
+
+.shortcut_btn {
+    text-decoration: none;
+    background-color: #001969;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.shortcut_btn:hover {
+    background-color: #001147;
+}
+
+.shortcut_btn_sec {
+    text-decoration: none;
+    background-color: #fff;
+    color: #222;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    border: 2px solid #222;
+    transition: 0.3s;
+}
+
+.shortcut_btn_sec:hover {
+    background-color: #222;
+    color: #fff;
+}
+/* --- ESTILIZAÇÃO DOS BOTÕES DE ÍCONES DA TABELA --- */
+
+.actions_header {
+    text-align: right !important; /* Força o alinhamento do título da coluna para a direita */
+    padding-right: 20px !important;
+}
+
+.actions_cell {
+    display: flex;
+    justify-content: flex-end; /* Empurra os botões para a borda direita da linha */
+    align-items: center;
+    gap: 12px;                  /* Espaçamento equilibrado entre os ícones */
+    padding-right: 20px !important;
+}
+
+/* Base comum para ambos os botões de ação */
+.icon_btn_view,
+.icon_btn_edit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;         /* Torna o botão redondo ao passar o mouse */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;          /* Tamanho ideal de leitura do ícone */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Comportamento individual - Detalhes/Visualizar */
+.icon_btn_view {
+    color: #001969;             /* Azul padrão para detalhes */
+}
+
+.icon_btn_view:hover {
+    background-color: #f0f3ff;  /* Fundo sutil azulado ao pairar */
+    color: #001147;
+}
+
+/* Comportamento individual - Editar */
+.icon_btn_edit {
+    color: #ffbb33;             /* Amarelo clássico para edição */
+}
+
+.icon_btn_edit:hover {
+    background-color: #fff9eb;  /* Fundo sutil amarelado ao pairar */
+    color: #e09f1b;
+}
+
+/* Garante que o outline azul padrão do navegador não apareça no clique */
+.icon_btn_view:focus,
+.icon_btn_edit:focus {
+    outline: none;
+}

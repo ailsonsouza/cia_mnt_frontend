@@ -1,0 +1,105 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #222;
+    padding: .5em 0;
+    border-bottom: 2px solid #ffbb33; /* Linha amarela de acabamento padrão do sistema */
+}
+
+.list {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Força apenas o link Home a ficar isolado na extrema esquerda */
+.item_home {
+    margin-right: auto;
+}
+
+.item_home a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: 0.3s;
+}
+
+.item_home a:hover {
+    color: #ffbb33;
+}
+
+/* Agrupa os outros menus jogando-os em linha para a direita */
+.nav_menu_group {
+    display: flex;
+    align-items: center;
+    gap: 1.5em; /* Espaçamento padrão entre as opções do menu */
+}
+
+.item {
+    display: inline-flex;
+}
+
+.item a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.item a:hover {
+    color: #ffbb33;
+}
+
+/* --- BLOCO DE DESTAQUE DO USUÁRIO OPERADOR --- */
+.user_session_block {
+    display: flex;
+    align-items: center;
+    background-color: #111;
+    padding: 4px 6px 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    gap: 12px;
+    margin-left: 1em; /* Afasta o bloco do último link da navegação */
+}
+
+/* Texto de identificação militar */
+.user_info_label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85em;
+}
+
+.user_name {
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.user_section {
+    color: #ffbb33; /* Amarelo destaca a Seção do usuário logado */
+    font-weight: bold;
+}
+
+/* Botão Sair estilizado na cor vermelha padrão do seu sistema */
+.btn_sair {
+    background-color: hsl(0, 78%, 27%);
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: 0.3s;
+}
+
+.btn_sair:hover {
+    background-color: #ff0000; /* Fica vermelho vivo ao passar o mouse */
+}

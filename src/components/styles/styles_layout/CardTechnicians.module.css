@@ -1,0 +1,78 @@
+.cardTechnicians {
+    padding: 0px 15px 15px 15px;
+    text-align: left;
+    border-radius: 5px;
+    border: solid 2px #222;
+    margin-top: 1em;
+    box-sizing: border-box;
+    width: calc(33.33% - 15px); /* Mantém 3 técnicos por linha */
+    background-color: #fff;
+
+    /* --- PROPRIEDADES DE ANIMAÇÃO DE SAÍDA --- */
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.cardTechnicians h2 {
+    text-align: center;
+    background-color: black;
+    color: #ffbb33; 
+    border-radius: 5px;
+    font-size: 1.3em;
+    padding: 5px 0;
+    margin-top: 10px;
+}
+
+.cardTechnicians span {
+    font-weight: bold;
+}
+
+/* --- ESTILIZAÇÃO DO BLOCO DE BOTÕES --- */
+.project_card_actions {
+    display: flex;   
+    flex-direction: row; 
+    align-items: center; 
+    margin-top: 1.2em;
+    gap: 8px; /* Espaço uniforme entre as caixas de clique */
+}
+
+.project_card_actions a,
+.project_card_actions button {
+    text-decoration: none;
+    border: none;
+    background-color: #FFF;
+    color: #222;
+    font-size: .85em; 
+    padding: .6em 0.8em;
+    cursor: pointer;
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+    width: 100%; /* Divide o espaço igualmente entre os 3 botões */
+    box-sizing: border-box;
+}
+
+.project_card_actions svg {
+    margin-right: .4em;
+}
+
+.project_card_actions a:hover,
+.project_card_actions button:hover:not(.btn_excluir) {
+    background-color: #222;
+    color: #FFBB33;
+}
+
+/* --- BOTÃO EXCLUIR VERMELHO --- */
+.project_card_actions .btn_excluir {
+    border-color: #FF0000;
+    color: #FF0000;
+    background-color: #FFF;
+}
+
+.project_card_actions .btn_excluir:hover {
+    background-color: #FF0000;
+    color: #FFF;
+}

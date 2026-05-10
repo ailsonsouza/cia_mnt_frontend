@@ -1,0 +1,29 @@
+.input_group {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc; /* A linha cinza da imagem */
+    padding: 8px 0;
+    margin-bottom: 20px;
+    width: 100%;
+    
+}
+
+.icon {
+    margin-right: 10px;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.input_field {
+    border: none;        /* Remove as bordas padrão */
+    outline: none;       /* Remove o contorno ao clicar */
+    width: 100%;
+    font-size: 14px;
+    color: #666;
+    background-color: #f0f2f5; 
+}
+
+.input_field::placeholder {
+    color: #bbb;         /* Cor clara do placeholder na imagem */
+}
