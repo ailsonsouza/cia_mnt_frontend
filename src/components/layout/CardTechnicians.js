@@ -14,7 +14,7 @@ function CardTechnicians({ technician, sectionName, handleRemove }){
 
     return(
         /* ID dinâmico injetado para permitir o efeito visual de saída */
-        <div className={styles.cardTechnicians} id={`technician-card-${technician.id}`}>
+        <div className={styles.cardTechnicians} id={`technician-card-${technician?.id}`}>
             <h2>{technician?.name}</h2>
             <p><span>Seção: </span>{sectionName || "Não atribuída"}</p>
 

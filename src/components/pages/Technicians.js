@@ -10,17 +10,30 @@ function Technicians(){
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
 
     useEffect(() => {
-        fetch('http://localhost:5000/sections').then(resp => resp.json()).then(data => setSections(data))
-        fetch('http://localhost:5000/technicians').then(resp => resp.json()).then(data => setAllTechnicians(data))
+        // Ajustado para apontar para a porta do Spring Boot (8080) e rota /api
+        fetch('http://localhost:8080/api/sections')
+            .then(resp => resp.json())
+            .then(data => setSections(data))
+            .catch(err => console.log(err))
+
+        fetch('http://localhost:8080/api/technicians')
+            .then(resp => resp.json())
+            .then(data => setAllTechnicians(data))
+            .catch(err => console.log(err))
     }, [])
 
     function removeTechnician(id) {
         const cardElement = document.getElementById(`technician-card-${id}`);
-        if (cardElement) { cardElement.style.opacity = '0'; cardElement.style.transform = 'scale(0.8)'; }
+        if (cardElement) { 
+            cardElement.style.opacity = '0'; 
+            cardElement.style.transform = 'scale(0.8)'; 
+        }
 
         setTimeout(() => {
-            fetch(`http://localhost:5000/technicians/${id}`, { method: 'DELETE' })
+            // Ajustado para apontar para a porta do Spring Boot (8080) e rota /api
+            fetch(`http://localhost:8080/api/technicians/${id}`, { method: 'DELETE' })
             .then(() => setAllTechnicians(allTechnicians.filter((tech) => tech.id !== id)))
+            .catch(err => console.log(err))
         }, 400);
     }
 

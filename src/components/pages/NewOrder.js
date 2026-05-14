@@ -10,39 +10,36 @@ function NewOrder() {
     const navigate = useNavigate()
     const location = useLocation()
     const { order: currentOrder, action } = location.state || {}
-    
+
     const isNewOrder = action === 'NEWORDER' || !action
 
-    // Captura os dados do usuário autenticado guardados no localStorage no Login
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
     const isAdmin = loggedUser?.roleName === 'ADMIN';
 
-    // --- REGRA DE SEGURANÇA: Bloqueia a edição se a ação for visualizar OU se a O.S. já estiver fechada (CLOSE) ---
-    const isReadOnly = action === 'VISUALIZAR' || currentOrder?.status === 'CLOSE';
+    // Regra: 'DETALHES' trava tudo. O.S. fechada também trava tudo.
+    const isReadOnly = action === 'DETALHES' || currentOrder?.status === 'CLOSE';
 
     const categoriasOpcoes = [
-        { id: 'Classe V', name: 'Classe V' },
         { id: 'Classe IV', name: 'Classe IV' },
+        { id: 'Classe V', name: 'Classe V' },
         { id: 'Classe VI', name: 'Classe VI' },
         { id: 'LANTERNAGEM', name: 'LANTERNAGEM' },
     ]
 
     const omSubordinadasOpcoes = [
-        { id: 'Cmdo 14ª Bda Inf Mtz', name: 'Cmdo 14ª Bda Inf Mtz (Florianópolis - SC)' },
-        { id: 'Cia C 14ª Bda Inf Mtz', name: 'Cia C 14ª Bda Inf Mtz (Florianópolis - SC)' },
-        { id: '63º BI', name: '63º Batalhão de Infantaria (Florianópolis - SC)' },
-        { id: '62º BI', name: '62º Batalhão de Infantaria (Joinville - SC)' },
-        { id: '23º BI', name: '23º Batalhão de Infantaria (Blumenau - SC)' },
-        { id: '28º GAC', name: '28º Grupo de Artilharia de Campanha (Criciúma - SC)' },
-        { id: '27º B Log', name: '27º Batalhão Logístico (Curitiba - PR)' },
-        { id: '14ª Cia E Cmb', name: '14ª Companhia de Engenharia de Combate (Tubarão - SC)' },
-        { id: '14º Pel PE', name: '14º Pelotão de Polícia do Exército (Florianópolis - SC)' }
+        { id: 'Cia C 14ª Bda Inf Mtz', name: 'Cia C 14ª Bda Inf Mtz' },
+        { id: '63º BI', name: '63º BI' },
+        { id: '62º BI', name: '62º BI' },
+        { id: '23º BI', name: '23º BI' },
+        { id: '28º GAC', name: '28º GAC' },
+        { id: '27º B Log', name: '27º B Log' },
+        { id: '14ª Cia E Cmb', name: '14ª Cia E Cmb' },
+        { id: '14º Pel PE', name: '14º Pel PE' }
     ]
 
     const [sections, setSections] = useState([])
     const [allTechnicians, setAllTechnicians] = useState([])
 
-    // REGRA DE NEGÓCIO: Se for novo e NÃO for ADMIN, já inicia amarrado à seção do usuário logado
     const [order, setOrder] = useState({
         openDate: isNewOrder ? '' : (currentOrder?.openDate || ''),
         closingDate: isNewOrder ? '' : (currentOrder?.closingDate || ''),
@@ -52,6 +49,7 @@ function NewOrder() {
         partsValue: isNewOrder ? '0' : (currentOrder?.partsValue || '0'),
         serviceValue: isNewOrder ? '0' : (currentOrder?.serviceValue || '0'),
         destiny: isNewOrder ? '' : (currentOrder?.destiny || ''),
+        // REGRA DE NEGÓCIO: Se não for Admin, a seção já nasce definida e bloqueada
         section: isNewOrder ? (isAdmin ? '' : (loggedUser?.section_id || '')) : (currentOrder?.section || ''),
         technician: isNewOrder ? '' : (currentOrder?.technician || ''),
         manutention: isNewOrder ? '' : (currentOrder?.manutention || ''),
@@ -60,13 +58,12 @@ function NewOrder() {
     })
 
     useEffect(() => {
-        fetch('http://localhost:5000/sections').then(resp => resp.json()).then(data => setSections(data))
-        fetch('http://localhost:5000/technicians').then(resp => resp.json()).then(data => setAllTechnicians(data))
+        fetch('http://localhost:8080/api/sections').then(resp => resp.json()).then(data => setSections(data))
+        fetch('http://localhost:8080/api/technicians').then(resp => resp.json()).then(data => setAllTechnicians(data))
     }, [])
 
-    // --- TRAVA DE SEGURANÇA 1: BLOQUEIA MUDANÇA DE ESTADO ---
     function handleChange(e) {
-        // Se o campo for a seção e o usuário NÃO for ADMIN, ignora a alteração
+        // SEGURANÇA: Impede alteração via teclado/inspeção caso o campo esteja travado para não-admins
         if (e.target.name === 'section' && !isAdmin) {
             return;
         }
@@ -79,30 +76,32 @@ function NewOrder() {
         }
 
         const today = new Date().toISOString().split('T')[0];
-        
-        // --- TRAVA DE SEGURANÇA 2: FORÇA A SEÇÃO DO USUÁRIO NO ENCERRAMENTO ---
         const finalSectionId = isAdmin ? order.section : loggedUser?.section_id;
 
-        const payload = { 
-            ...order, 
-            status: 'CLOSE', 
+        const payload = {
+            ...order,
+            status: 'CLOSE',
             closingDate: today,
-            section: finalSectionId 
+            section: finalSectionId,
+            user_id: loggedUser?.id
         };
 
-        fetch(`http://localhost:5000/orders/${currentOrder.id}`, {
+        fetch(`http://localhost:8080/api/orders/${currentOrder.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(() => { alert("Ordem de serviço encerrada com sucesso!"); navigate('/orders'); })
-        .catch(() => alert("Falha ao tentar encerrar a ordem de serviço."));
+            .then(resp => {
+                if (!resp.ok) throw new Error();
+                alert("Ordem de serviço encerrada com sucesso!");
+                navigate('/orders');
+            })
+            .catch(() => alert("Falha ao tentar encerrar a ordem de serviço."));
     }
 
     function handleSave(e) {
         e.preventDefault()
 
-        // --- TRAVA DE SEGURANÇA 3: FORÇA A SEÇÃO DO USUÁRIO NO SALVAMENTO ---
         const finalSectionId = isAdmin ? order.section : loggedUser?.section_id;
 
         const payload = {
@@ -110,35 +109,40 @@ function NewOrder() {
             item: order.item.toUpperCase().trim(),
             serialNumber: order.serialNumber.toUpperCase().trim(),
             destiny: order.destiny,
-            section: finalSectionId // Injeta rigidamente o ID correto
+            section: finalSectionId,
+            user_id: loggedUser?.id
         }
 
         if (isNewOrder) {
-            fetch('http://localhost:5000/orders')
-                .then(resp => resp.json())
-                .then(currentOrders => {
-                    const nextNumber = currentOrders.length + 1
-                    payload.orderNumber = `ORDEM DE SERVIÇO Nº ${nextNumber}`
-                    
-                    return fetch('http://localhost:5000/orders', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    })
+            fetch('http://localhost:8080/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(resp => {
+                    if (!resp.ok) throw new Error();
+                    return resp.json();
                 })
                 .then(() => { alert("Ordem de serviço emitida!"); navigate('/orders') })
-                .catch((err) => console.log(err))
+                .catch((err) => {
+                    console.log(err);
+                    alert("Erro ao tentar emitir a ordem de serviço.");
+                })
         } else {
-            fetch(`http://localhost:5000/orders/${currentOrder.id}`, {
+            fetch(`http://localhost:8080/api/orders/${currentOrder.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(() => { alert("Ordem de serviço atualizada!"); navigate('/orders') })
+                .then(resp => {
+                    if (!resp.ok) throw new Error();
+                    alert("Ordem de serviço atualizada!");
+                    navigate('/orders');
+                })
+                .catch(() => alert("Falha ao tentar atualizar a ordem de serviço."));
         }
     }
 
-    // --- FILTRAGEM DINÂMICA DE TÉCNICOS ---
     const filteredTechnicians = allTechnicians.filter(tech => {
         const targetSection = isAdmin ? order.section : loggedUser?.section_id;
         return String(tech.section_id) === String(targetSection);
@@ -146,11 +150,10 @@ function NewOrder() {
 
     return (
         <form className={style.page} onSubmit={handleSave}>
-            
             <div className={style.header_sheet}>
                 <h2>COMPANHIA DE MANUTENÇÃO</h2>
                 <h1>{isNewOrder ? "NOVA ORDEM DE SERVIÇO" : currentOrder?.orderNumber}</h1>
-                
+
                 <Link to="/orders" className={style.btn_voltar}>VOLTAR</Link>
 
                 {isNewOrder ? (
@@ -175,73 +178,67 @@ function NewOrder() {
                 <div className={style.row}>
                     <Select name="category_id" text="Classe / Categoria" options={categoriasOpcoes} handleOnChange={handleChange} value={order.category_id} disabled={isReadOnly} required />
                     <InputNewService type='text' text='Item / Equipamento' name='item' placeholder='NOME DO ITEM' handleOnChange={handleChange} value={order.item} disabled={isReadOnly} required />
-                    <InputNewService type='text' text='N° EB / Série / Placa' name='serialNumber' placeholder='N° IDENTIFICADOR' handleOnChange={handleChange} value={order.serialNumber} disabled={isReadOnly} required />
                 </div>
-            </fieldset>
-
-            <fieldset className={style.section_block}>
-                <legend>3. ALOCAÇÃO E REQUISITANTE</legend>
                 <div className={style.row}>
-                    <Select 
-                        name="section" 
-                        text="Seção Reparadora" 
-                        options={sections} 
-                        handleOnChange={handleChange} 
-                        value={order.section} 
-                        /* Bloqueia se for visualização ou se for novo cadastro de alguém que NÃO é ADMIN */
-                        disabled={isReadOnly || (isNewOrder && !isAdmin)} 
-                        required 
-                    />
-                    <Select 
-                        name="technician" 
-                        text="Técnico Encarregado" 
-                        options={filteredTechnicians} 
-                        handleOnChange={handleChange} 
-                        value={order.technician} 
-                        disabled={isReadOnly} 
-                        required 
-                    />
-                    <Select name="destiny" text="OM Destino" options={omSubordinadasOpcoes} handleOnChange={handleChange} value={order.destiny} disabled={isReadOnly} required />
+                    <InputNewService type='text' text='Número de Série' name='serialNumber' placeholder='Nº DE SÉRIE' handleOnChange={handleChange} value={order.serialNumber} disabled={isReadOnly} required />
+                    <Select name="destiny" text="O.M. Solicitante / Destino" options={omSubordinadasOpcoes} handleOnChange={handleChange} value={order.destiny} disabled={isReadOnly} required />
                 </div>
             </fieldset>
 
             <fieldset className={style.section_block}>
-                <legend>4. CONTROLE DE CUSTOS</legend>
+                <legend>3. ATRIBUIÇÃO INTERNA</legend>
                 <div className={style.row}>
-                    <InputNewService type='number' text='Custo ND 30 (Peças) - R$' name='partsValue' placeholder='0.00' handleOnChange={handleChange} value={order.partsValue} disabled={isReadOnly} required />
-                    <InputNewService type='number' text='Custo ND 39 (Serviço) - R$' name='serviceValue' placeholder='0.00' handleOnChange={handleChange} value={order.serviceValue} disabled={isReadOnly} required />
+                    <Select
+                        name="section"
+                        text="Seção Reparadora Responsável"
+                        options={sections}
+                        handleOnChange={handleChange}
+                        value={order.section}
+                        /* 
+                           REGRA DE NEGÓCIO ATUALIZADA: 
+                           O campo fica desabilitado se for modo leitura OU se o usuário NÃO for ADMIN.
+                        */
+                        disabled={isReadOnly || !isAdmin}
+                        required
+                    />
+                    <Select
+                        name="technician"
+                        text="Mecânico / Técnico Executor"
+                        options={filteredTechnicians}
+                        handleOnChange={handleChange}
+                        value={order.technician}
+                        disabled={isReadOnly}
+                    />
                 </div>
             </fieldset>
 
             <fieldset className={style.section_block}>
-                <legend>5. REGISTROS TÉCNICOS</legend>
-                <div className={style.textarea_container}>
-                    <TextArea text='Manutenção Executada' name='manutention' placeholder='Detalhamento do serviço...' handleOnChange={handleChange} value={order.manutention} disabled={isReadOnly} required />
-                    <TextArea text='Observações Gerais' name='observations' placeholder='Anotações importantes...' handleOnChange={handleChange} value={order.observations} disabled={isReadOnly} />
+                <legend>4. VALORES E CUSTOS</legend>
+                <div className={style.row}>
+                    <InputNewService type='number' text='Custo com Peças (R$)' name='partsValue' handleOnChange={handleChange} value={order.partsValue} disabled={isReadOnly} required />
+                    <InputNewService type='number' text='Custo Mão de Obra (R$)' name='serviceValue' handleOnChange={handleChange} value={order.serviceValue} disabled={isReadOnly} required />
                 </div>
+            </fieldset>
+
+            <fieldset className={style.section_block}>
+                <legend>5. RELATÓRIOS TÉCNICOS</legend>
+                <TextArea text="Manutenção Efetuada" name="manutention" placeholder="DESCRIÇÃO DETALHADA DO REPARO REALIZADO" handleOnChange={handleChange} value={order.manutention} disabled={isReadOnly} />
+                <TextArea text="Observações Gerais" name="observations" placeholder="INFORMAÇÕES ADICIONAIS OU RECOMENDAÇÕES TÉCNICAS" handleOnChange={handleChange} value={order.observations} disabled={isReadOnly} />
             </fieldset>
 
             <div className={style.footer_actions}>
-                {isReadOnly && action === 'VISUALIZAR' ? (
-                    <Link to="/orders" className={style.btn_retornar}>RETORNAR À LISTAGEM</Link>
-                ) : (
-                    <>
-                        {/* Oculta o botão de salvar caso a ordem já esteja concluída */}
-                        {order.status === 'OPEN' && (
-                            <SubmitButton text={isNewOrder ? "EMITIR ORDEM DE SERVIÇO" : "SALVAR ALTERAÇÕES"} />
-                        )}
-                        
-                        {/* Botão de encerramento visível apenas em modo edição e com status aberto */}
-                        {!isNewOrder && order.status === 'OPEN' && (
-                            <button type="button" onClick={handleCloseOrder} className={style.btn_encerrar}>
-                                ENCERRAR O.S.
-                            </button>
-                        )}
-                    </>
+                {!isReadOnly && (
+                    <SubmitButton text={isNewOrder ? "EMITIR ORDEM" : "SALVAR ALTERAÇÕES"} />
+                )}
+
+                {!isNewOrder && action === 'EDITAR' && order.status === 'OPEN' && (
+                    <button type="button" onClick={handleCloseOrder} className={style.btn_encerrar}>
+                        CONCLUIR E FECHAR ORDEM
+                    </button>
                 )}
             </div>
         </form>
     )
 }
 
-export default NewOrder
+export default NewOrder;

@@ -13,16 +13,43 @@
     transition: opacity 0.4s ease, transform 0.4s ease; /* Cria o efeito de esmaecer e encolher suavemente */
 }
 
-.card_general h2{
-    text-align: center;
+/* --- NOVO CONTAINER PARA O TÍTULO E CÍRCULO --- */
+.title_container {
+    display: flex;
+    justify-content: space-between; /* Coloca o nome à esquerda e o círculo à direita */
+    align-items: center; /* Alinha verticalmente no centro */
     background-color: black;
     color: #ffbb33;
     border-radius: 5px;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    padding: 5px 15px; /* Padding interno do container */
+    margin-bottom: 10px; /* Espaço para o restante do card */
+    margin-top: 10px;
 }
 
-.card_general span{
+.card_general h2 {
+    margin: 0; /* Remove margens padrão do h2 */
+    text-align: left; /* Alinha o texto à esquerda dentro do container */
+    font-size: 1.5em; /* Ajuste o tamanho conforme necessário */
+}
+
+/* --- ESTILOS DO CÍRCULO DE STATUS --- */
+.status_circle {
+    width: 20px; /* Tamanho do círculo */
+    height: 20px;
+    border-radius: 50%; /* Torna um círculo perfeito */
+    border: 2px solid white; /* Borda branca para destacar no fundo preto */
+}
+
+/* --- CORES DOS STATUS --- */
+.status_active {
+    background-color: #28a745; /* Verde (sucesso) */
+}
+
+.status_inactive {
+    background-color: #dc3545; /* Vermelho (perigo/erro) */
+}
+
+.card_general span {
     font-weight: bold;
 }
 
@@ -52,7 +79,7 @@
     box-sizing: border-box;
 }
 
-.project_card_actions svg{
+.project_card_actions svg {
     margin-right: .4em;
 }
 

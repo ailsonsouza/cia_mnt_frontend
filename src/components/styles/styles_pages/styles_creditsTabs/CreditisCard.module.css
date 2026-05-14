@@ -1,0 +1,192 @@
+/* src/styles/styles_pages/styles_creditsTabs/CreditisCard.module.css */
+
+.card_general {
+    padding: 0px 15px 15px 15px;
+    text-align: left;
+    border-radius: 5px;
+    border: 2px solid #222;
+    margin-top: 1em;
+    box-sizing: border-box; 
+    width: calc(33.33% - 14px); 
+    min-width: 320px; 
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Cabeçalho Preto com Texto Dourado */
+.title_container {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    background-color: black;
+    border-radius: 5px;
+    padding: 5px 15px; 
+    margin-bottom: 10px; 
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.title_container h2 {
+    /* CORREÇÃO DO PADDING: Zerado todas as margens nativas para remover o espaço preto inferior */
+    margin: 0 !important; 
+    padding: 0 !important;
+    font-size: 1.3em; 
+    font-weight: bold;
+    /* CORREÇÃO DA COR: Alterado de #ddd para o tom dourado/laranja desejado diretamente no texto */
+    color: #ffbb33; 
+}
+
+.ncBadgeOverride {
+    padding: 3px 10px; 
+    background-color: #e2e8f0; 
+    text-align: center; 
+    font-size: 10px; 
+    font-weight: bold;
+    color: #4a5568; 
+    text-transform: uppercase; 
+    border-radius: 4px; 
+    margin: 0 15px 8px 15px;
+    font-family: Arial, sans-serif;
+}
+
+.cardBody {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 125px; 
+    padding: 5px 0;
+}
+
+.infoLeft { flex: 1; display: flex; flex-direction: column; text-align: left; }
+.infoRight { flex: 1.1; display: flex; flex-direction: column; gap: 8px; text-align: right; }
+.subInfo, .subInfoLeft { display: flex; flex-direction: column; }
+
+.cardBody label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.cardBody p {
+    margin: 0;
+    font-size: 11px; 
+    color: #333;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Bloco específico para o prazo limite */
+.prazoBlock {
+    border-top: 1px dashed #ddd;
+    padding: 8px 0 2px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.prazoBlock label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #777;
+    text-transform: uppercase;
+}
+
+.prazoBlock p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: bold;
+    color: #2b6cb0;
+}
+
+.cardFooter {
+    border-top: 1px dashed #ddd;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardFooter label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+.valueHighlight {
+    font-size: 14px;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Painel de Botões de Ações */
+.project_card_actions {
+    display: flex;   
+    flex-direction: row; 
+    align-items: center; 
+    margin-top: 0.5em;
+    gap: 8px; 
+    width: 100%;
+}
+
+.project_card_actions button {
+    text-decoration: none;
+    background-color: #FFF;
+    color: #222;
+    font-size: .75em; 
+    padding: .6em 0.5em;
+    cursor: pointer;
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+    width: 100%; 
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+.project_card_actions svg { margin-right: .4em; font-size: 1.1em; }
+.project_card_actions button:hover:not(.btn_excluir) { background-color: #222; color: #FFBB33; }
+
+.project_card_actions .btn_excluir { border-color: #FF0000; color: #FF0000; background-color: #FFF; }
+.project_card_actions .btn_excluir:hover { background-color: #FF0000; color: #FFF; }
+
+.titleLinkWrapper { text-decoration: none; width: 100%; display: block; }
+.titleLinkWrapper:hover .title_container { background-color: #1a1a1a; box-shadow: 0 2px 8px rgba(255, 187, 51, 0.3); cursor: pointer; }
+
+
+/* ==========================================================================
+   🚨 NOVA PALETA DE CORES DINÂMICA: ADAPTADA PARA O LAYOUT VERMELHO (URGENTE)
+   ========================================================================== */
+
+.card_urgente {
+    background-color: #fff5f5; 
+    border-color: #e53e3e;     
+}
+
+.card_urgente .cardBody label { color: #c53030; }
+.card_urgente .cardBody p { color: #2d3748; }
+
+.card_urgente .prazoTextoUrgente {
+    color: #e53e3e !important;
+    font-weight: 800;
+}
+
+.card_urgente .cardFooter { border-top: 1px dashed #feb2b2; }
+.card_urgente .cardFooter label { color: #9b2c2c; }
+
+.card_urgente .prazoBlock { border-top: 1px dashed #feb2b2; }
+.card_urgente .prazoBlock label { color: #9b2c2c; }
+
+.card_urgente .project_card_actions button:not(.btn_excluir) {
+    border-color: #9b2c2c;
+    color: #9b2c2c;
+}
+.card_urgente .project_card_actions button:not(.btn_excluir):hover {
+    background-color: #9b2c2c;
+    color: #ffffff;
+}

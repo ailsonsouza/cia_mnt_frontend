@@ -24,38 +24,31 @@ function Login() {
       return;
     }
 
-    fetch(`http://localhost:5000/users?name=${encodeURIComponent(credentials.login.trim())}`)
-    .then(resp => resp.json())
-    .then(usersFound => {
-      if (usersFound.length === 0) {
-        alert("Usuário não encontrado!");
-        return;
-      }
-
-      const user = usersFound[0];
-
-      if (user.password !== credentials.password) {
-        alert("Senha incorreta!");
-        return;
-      }
-
-      fetch('http://localhost:5000/roles')
-      .then(resp => resp.json())
-      .then(rolesList => {
-        const userRoleObj = rolesList.find(r => String(r.id) === String(user.level_id));
-        
-        localStorage.setItem('loggedUser', JSON.stringify({
-          id: user.id,
-          name: user.name,
-          section_id: user.section_id,
-          roleName: userRoleObj ? userRoleObj.name.toUpperCase().trim() : 'USER'
-        }));
-
-        alert(`Bem-vindo, ${user.name}!`);
-        navigate('/home');
-      });
+    // Comunica-se com o novo ecossistema isolado de autenticação do backend
+    fetch('http://localhost:8080/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        login: credentials.login.toUpperCase().trim(),
+        password: credentials.password
+      })
     })
-    .catch(() => alert("Falha na comunicação com o banco de dados."));
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error("Credenciais inválidas ou erro no servidor.");
+      }
+      return resp.json();
+    })
+    .then(loggedUserData => {
+      // Armazena as informações retornadas pelo AuthResponseDTO
+      localStorage.setItem('loggedUser', JSON.stringify(loggedUserData));
+      alert(`Bem-vindo, ${loggedUserData.name}!`);
+      navigate('/home');
+    })
+    .catch((err) => {
+      console.log(err);
+      alert("Usuário não encontrado ou senha incorreta!");
+    });
   };
 
   return (

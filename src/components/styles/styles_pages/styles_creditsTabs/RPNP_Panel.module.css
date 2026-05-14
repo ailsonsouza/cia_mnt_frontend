@@ -1,0 +1,267 @@
+/* src/styles/styles_pages/styles_creditsTabs/RPNP_Panel.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Painel superior de ações gerais */
+.actionPanel {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.btnIncluir {
+    background-color: #2b6cb0; /* Azul institucional padrão */
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease;
+}
+
+.btnIncluir:hover {
+    background-color: #1a365d;
+}
+
+.container h2 {
+    font-size: 18px;
+    color: #2d3748;
+    margin: 0;
+    font-weight: bold;
+    border-left: 4px solid #2b6cb0;
+    padding-left: 10px;
+}
+
+/* --- BARRA DE FILTROS CENTRALIZADA --- */
+.filterBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    max-width: 320px;
+}
+
+.filterGroup label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filterGroup input {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+}
+
+.filterGroup input:focus {
+    border-color: #2b6cb0;
+}
+
+/* --- GRID RESPONSIVO PARA OS CARTÕES --- */
+.cardGrid {
+    display: grid;
+    /* CORREÇÃO: Alinhado tamanho de colunas com a aba de créditos normais */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 20px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.noResults {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 0;
+    color: #a0aec0;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* --- ESTRUTURA DO MODAL POP-UP --- */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2500;
+}
+
+.modalContent {
+    background-color: #ffffff;
+    padding: 22px;
+    border-radius: 6px;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+}
+
+.modalContent h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 15px;
+    color: #2b6cb0;
+    border-bottom: 2px solid #2b6cb0;
+    padding-bottom: 6px;
+    text-transform: uppercase;
+    text-align: center;
+    border-left: none;
+    padding-left: 0;
+}
+
+.modalForm {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.formGroupFull {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modalForm label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #4a5568;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.modalForm input,
+.modalForm textarea {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+}
+
+.modalForm input:focus,
+.modalForm textarea:focus {
+    border-color: #2b6cb0;
+}
+
+/* Campos de texto de leitura/calculados desabilitados */
+.inputCalculado {
+    background-color: #edf2f7;
+    color: #2d3748;
+    border: 1px dashed #cbd5e0;
+    cursor: not-allowed;
+}
+
+/* Botões utilitários para abrir links externos (Drive) */
+.btnLinkDoc {
+    background-color: #4a5568;
+    color: #ffffff;
+    border: none;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.15s ease;
+}
+
+.btnLinkDoc:hover:not(:disabled) {
+    filter: brightness(0.85);
+}
+
+.btnLinkDoc:disabled {
+    background-color: #cbd5e0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* Rodapé do modal com botões de salvamento */
+.modalActions {
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
+}
+
+.btnSalvar {
+    background-color: #28a745;
+    color: #ffffff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: background-color 0.15s ease;
+}
+
+.btnSalvar:hover {
+    background-color: #218838;
+}
+
+.btnCancelar {
+    background-color: #6c757d;
+    color: #ffffff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: background-color 0.15s ease;
+}
+
+.btnCancelar:hover {
+    background-color: #5a6268;
+}

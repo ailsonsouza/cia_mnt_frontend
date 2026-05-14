@@ -21,12 +21,12 @@ function UserDetails() {
     const [roles, setRoles] = useState([])
 
     useEffect(() => {
-        fetch('http://localhost:5000/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setSections(data))
             .catch(err => console.log(err))
 
-        fetch('http://localhost:5000/roles', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/roles', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setRoles(data))
             .catch(err => console.log(err))
@@ -48,7 +48,7 @@ function UserDetails() {
         }
 
         if (isNew) {
-            fetch('http://localhost:5000/users', {
+            fetch('http://localhost:8080/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -57,13 +57,13 @@ function UserDetails() {
             .then(() => { alert("Usuário cadastrado!"); navigate('/users') })
             .catch(err => console.log(err))
         } else {
-            fetch(`http://localhost:5000/users/${user.id}`, {
+            fetch(`http://localhost:8080/api/users/${user.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
             .then(resp => { if (!resp.ok) throw new Error(); return resp.json() })
-            .then(() => { alert("Cadastro de usuário atualizado!"); navigate('/users') })
+            .then(() => { alert("Cadastro de usuário updated!"); navigate('/users') })
             .catch(err => console.log(err))
         }
     }

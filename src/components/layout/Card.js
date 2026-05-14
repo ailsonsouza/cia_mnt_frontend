@@ -4,21 +4,20 @@ import { BsPencil, BsEye, BsFillTrashFill, BsArrowCounterclockwise } from 'react
 
 function CardOS({ order, handleRemove, hideActions, sectionName, handleReopen }){
 
-    // Captura o usuário logado para verificar o nível de acesso (Role)
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
     const isChiefOrAdmin = loggedUser?.roleName === 'ADMIN' || loggedUser?.roleName === 'CHIEF';
 
     const remove = (e) => {
         e.preventDefault()
         if (window.confirm(`Deseja realmente excluir a ${order?.orderNumber || 'Ordem de Serviço'}?`)) {
-            handleRemove(order.id)
+            handleRemove(order?.id)
         }
     }
 
     const triggerReopen = (e) => {
         e.preventDefault()
         if (window.confirm(`Deseja reabrir a ${order?.orderNumber || 'Ordem de Serviço'}?`)) {
-            handleReopen(order.id)
+            handleReopen(order?.id)
         }
     }
 
@@ -26,7 +25,7 @@ function CardOS({ order, handleRemove, hideActions, sectionName, handleReopen })
     const isClosed = order?.status === 'CLOSE'
 
     return (
-        <div className={styles.project_card} id={`order-card-${order.id}`}>
+        <div className={styles.project_card} id={`order-card-${order?.id}`}>
             <h4>{order?.orderNumber || "ORDEM DE SERVIÇO"}</h4>
             
             <p><span>ORÇAMENTO:</span> R$ {totalBudget.toFixed(2)}</p>
@@ -46,8 +45,8 @@ function CardOS({ order, handleRemove, hideActions, sectionName, handleReopen })
                         </Link>
                     )}
 
-                    {/* Botão de visualizar/detalhes sempre visível */}
-                    <Link to="/neworder" state={{ order: order, action: 'VISUALIZAR' }}>
+                    {/* Botão de DETALHES (Visualizar) sempre visível */}
+                    <Link to="/neworder" state={{ order: order, action: 'DETALHES' }}>
                         <BsEye /> DETALHES
                     </Link>
 
@@ -70,4 +69,4 @@ function CardOS({ order, handleRemove, hideActions, sectionName, handleReopen })
     )
 }
 
-export default CardOS
+export default CardOS;

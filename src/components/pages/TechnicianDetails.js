@@ -28,9 +28,9 @@ function TechnicianDetails() {
     // Estado para as opções do select de Seções
     const [sections, setSections] = useState([])
 
-    // Carrega as Seções da API
+    // Carrega as Seções da API - Ajustado para a porta 8080 do Spring Boot
     useEffect(() => {
-        fetch('http://localhost:5000/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setSections(data))
             .catch(err => console.log(err))
@@ -49,7 +49,8 @@ function TechnicianDetails() {
         }
 
         if (isNew) {
-            fetch('http://localhost:5000/technicians', {
+            // Ajustado para a porta 8080 do Spring Boot
+            fetch('http://localhost:8080/api/technicians', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -58,7 +59,8 @@ function TechnicianDetails() {
             .then(() => { alert("Técnico cadastrado com sucesso!"); navigate('/technicians') })
             .catch(err => console.log(err))
         } else {
-            fetch(`http://localhost:5000/technicians/${technician.id}`, {
+            // Ajustado para a porta 8080 do Spring Boot e utilizando o verbo PATCH
+            fetch(`http://localhost:8080/api/technicians/${technician.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -104,10 +106,6 @@ function TechnicianDetails() {
                         name='section' 
                         value={selectedSection}
                         onChange={(e) => setSelectedSection(e.target.value)}
-                        /* 
-                          REGRA DE NEGÓCIO: O select fica bloqueado se for apenas leitura 
-                          OU se for um cadastro novo feito por alguém que NÃO é ADMIN.
-                        */
                         disabled={isReadOnly || (isNew && !isAdmin)}
                         required
                     >

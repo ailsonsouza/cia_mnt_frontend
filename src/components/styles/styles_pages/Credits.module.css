@@ -1,0 +1,28 @@
+/* src/styles/styles_pages/Credits.module.css */
+
+.container {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+}
+
+.menuGrid {
+    display: grid;
+    /* Cria 8 colunas de tamanho igual que ocupam todo o espaço disponível */
+    grid-template-columns: repeat(8, 1fr); 
+    gap: 10px; /* Espaçamento entre os botões */
+    width: 100%;
+}
+
+/* Responsividade: em telas menores, os botões podem quebrar em mais linhas */
+@media (max-width: 1024px) {
+    .menuGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .menuGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

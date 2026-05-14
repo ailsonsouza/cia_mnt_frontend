@@ -9,25 +9,25 @@ function Users() {
     const [sections, setSections] = useState([])
     const [roles, setRoles] = useState([])
 
-    // Carrega Usuários, Seções e Roles
+    // Carrega Usuários, Seções e Roles das APIs reais do Spring Boot
     useEffect(() => {
-        fetch('http://localhost:5000/users', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/users', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setUsers(data))
             .catch(err => console.log(err))
 
-        fetch('http://localhost:5000/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/sections', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setSections(data))
             .catch(err => console.log(err))
 
-        fetch('http://localhost:5000/roles', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+        fetch('http://localhost:8080/api/roles', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
             .then(resp => resp.json())
             .then(data => setRoles(data))
             .catch(err => console.log(err))
     }, [])
 
-    // Função de Exclusão com Efeito Visual
+    // Função de Exclusão com Efeito Visual comunicando com o Spring Boot
     function removeUser(id) {
         const cardElement = document.getElementById(`user-card-${id}`)
         if (cardElement) {
@@ -36,7 +36,7 @@ function Users() {
         }
 
         setTimeout(() => {
-            fetch(`http://localhost:5000/users/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+            fetch(`http://localhost:8080/api/users/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
                 .then(resp => {
                     if (!resp.ok) throw new Error()
                     setUsers(users.filter((user) => user.id !== id))

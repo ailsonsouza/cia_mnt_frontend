@@ -1,39 +1,45 @@
-import styles from '../styles/styles_layout/CardSections.module.css'
-import { BsPencil, BsEye, BsFillTrashFill } from 'react-icons/bs'
-import { Link } from 'react-router-dom'
+import styles from '../styles/styles_layout/CardSections.module.css';
+import { BsPencil, BsEye, BsFillTrashFill } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
 
-function CardSections ({ section, handleRemove }){
+function CardSections({ section, handleRemove }) {
+    const statusColors = {
+        "ACTIVE": styles.status_active,
+        "1": styles.status_active,
+        "INACTIVE": styles.status_inactive,
+        "2": styles.status_inactive
+    };
 
-    const remove = (e) => {
-        e.preventDefault()
-        if (window.confirm(`Deseja realmente excluir a seção "${section?.name}"?`)) {
-            handleRemove(section.id)
-        }
-    }
+    const isStatusActive = section?.status === "ACTIVE" || section?.status === "1";
+    const circleColorClass = statusColors[section?.status] || styles.status_inactive;
 
-    return(
-        /* Inserido o id dinâmico com o prefixo para identificação no DOM */
+    return (
         <div className={styles.card_general} id={`section-card-${section.id}`}>
-            <h2>{section?.name}</h2>
-            <p><span>Chefe:</span> {section?.chief}</p>
-            <p><span>Ordens de serviço abertas:</span> {section?.openingOrders}</p>
-            <p><span>Ordens de serviço fechadas:</span> {section?.closingOrders}</p>
+            <div className={styles.title_container}>
+                <h2>{section?.name}</h2>
+                <div 
+                    className={`${styles.status_circle} ${circleColorClass}`}
+                    title={isStatusActive ? "Ativa" : "Inativa"}
+                ></div>
+            </div>
+            
+            <p><span>Chefe:</span> {section?.chief || 'Não definido'}</p>
+            <p><span>O.S. Abertas:</span> {section?.openingOrders || 0}</p>
+            <p><span>O.S. Fechadas:</span> {section?.closingOrders || 0}</p>
 
             <div className={styles.project_card_actions}>
                 <Link to="/sectiondetails" state={{ section: section, action: 'EDITAR' }} >
-                    <BsPencil /> EDITAR 
+                    <BsPencil /> EDITAR
                 </Link>
-
-                <Link to="/sectiondetails" state={{ section: section, action: 'VISUALIZAR' }}>
+                <Link to="/sectiondetails" state={{ section: section, action: 'DETALHAR' }}>
                     <BsEye /> DETALHAR
                 </Link>
-
-                <button onClick={remove} className={styles.btn_excluir}>
+                <button onClick={() => handleRemove(section.id)} className={styles.btn_excluir}>
                     <BsFillTrashFill /> EXCLUIR
                 </button>
             </div>
         </div>
-    )
+    );
 }
 
-export default CardSections
+export default CardSections;

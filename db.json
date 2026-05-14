@@ -1,180 +1,199 @@
 {
-  "orders": [
+  "credits": [
     {
-      "openDate": "2026-05-08",
-      "closingDate": "2026-05-08",
-      "category_id": "Classe V",
-      "item": "FUZIL",
-      "serialNumber": "12345",
-      "partsValue": "65.6",
-      "serviceValue": "75.9",
-      "destiny": "27º B Log",
-      "section": "wN801obXrqE",
-      "technician": "10WKVGgxCkE",
-      "manutention": "troca do apoio do ferrolho",
-      "observations": "s/a",
-      "status": "OPEN",
-      "orderNumber": "ORDEM DE SERVIÇO Nº 1",
-      "id": "SfaYTLt1YqA"
+      "grupo": "1",
+      "item": "1",
+      "descricao": "Serviço de Mnt para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
+      "fornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpj": "07.882.449/0001-70",
+      "qtd": 3196,
+      "undMed": "Hora",
+      "valorUnitario": "44",
+      "capacidadeEmpenho": "R$ 140.624,00",
+      "valorEmpenhado": "R$ 0,00",
+      "capacidadeEmpenhoAtual": "R$ 140.624,00",
+      "rpnp160": "R$ 0,00",
+      "rpnp167": "R$ 0,00",
+      "creditos160": "R$ 0,00",
+      "creditos167": "R$ 0,00",
+      "id": "F8o43X78ZA8"
     },
     {
-      "openDate": "2026-09-09",
-      "closingDate": "2026-09-10",
-      "category_id": "Classe IV",
-      "item": "PORTÃO",
-      "serialNumber": "-",
-      "partsValue": "89",
-      "serviceValue": "85",
-      "destiny": "63º BI",
-      "section": "3",
-      "technician": "PhPJCSd36Zk",
-      "manutention": "solda",
-      "observations": "s/a",
-      "status": "OPEN",
-      "orderNumber": "ORDEM DE SERVIÇO Nº 2",
-      "id": "hCuWNDXWzbY"
-    },
-    {
-      "openDate": "2026-05-08",
-      "closingDate": "2026-05-09",
-      "category_id": "Classe VI",
-      "item": "SOFA",
-      "serialNumber": "-",
-      "partsValue": "75",
-      "serviceValue": "84",
-      "destiny": "27º B Log",
-      "section": "4",
-      "technician": "10WKVGgxCkE",
-      "manutention": "reparo no sofa",
-      "observations": "s/a",
-      "status": "OPEN",
-      "orderNumber": "ORDEM DE SERVIÇO Nº 3",
-      "id": "oI-MrOCbxRY"
-    },
-    {
-      "openDate": "2026-05-09",
-      "closingDate": "2026-05-08",
-      "category_id": "Classe VI",
-      "item": "SPRINTER",
-      "serialNumber": "EB54896",
-      "partsValue": "45",
-      "serviceValue": "65",
-      "destiny": "28º GAC",
-      "section": "UOqAQLxuGoA",
-      "technician": "PhPJCSd36Zk",
-      "manutention": "troca de pneu",
-      "observations": "s/a",
-      "status": "CLOSE",
-      "orderNumber": "ORDEM DE SERVIÇO Nº 4",
-      "id": "6WFtfIo6JY8"
+      "grupo": "1",
+      "item": "2",
+      "descricao": "\nCONTROLE DE CRÉDITOS 2026\nCONTROLE DE CRÉDITOS 2026\n\n100%\n10\nC6\n\nAquisição de peças e acessórios mecânicos para veículos leves e médios DIESEL (peso bruto até 3,5 T)\n \n  \n \t\nAquisição de peças e acessórios mecânicos para veículos leves e médios DIESEL (peso bruto até 3,5 T)\nAtivar a compatibilidade com o leitor de tela\nPara ativar o suporte para leitor de tela, pressione Ctrl+Alt+Z Para saber mais sobre atalhos de teclado, pressione Ctrl+barra",
+      "fornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpj": "07.882.449/0001-70",
+      "qtd": 573964,
+      "undMed": "UND",
+      "valorUnitario": "0,3839",
+      "capacidadeEmpenho": "R$ 220.344,78",
+      "valorEmpenhado": "R$ 0,00",
+      "capacidadeEmpenhoAtual": "R$ 220.344,78",
+      "rpnp160": "R$ 0,00",
+      "rpnp167": "R$ 0,00",
+      "creditos160": "R$ 0,00",
+      "creditos167": "R$ 0,00",
+      "id": "d2YNZ_u10bk"
     }
   ],
-  "sections": [
+  "credits_nc": [
     {
-      "name": "LANTERNAGEM",
-      "id": "3",
-      "chief": "SGT KEVYN",
-      "openingOrders": 140,
-      "closingOrders": 270
+      "nc": "2026NC405859",
+      "finalidade": "CMAT-MOTO ? Aqs Sup e insumos p/ Mnt Vtr nao Bld. Atd DIEx no 798-4a Sec/AD/5, de 26Mar26. Emph ate 30Jul26.\n\nApos Prz Rcs sera Rclh.",
+      "omAplicacao": "27º B Log",
+      "processo": "64138.00000/0000-01",
+      "fonteRecurso": "160",
+      "prazoEmpenho": "2026-05-29",
+      "linkDrive": "https://drive.google.com/file/d/1osyhBKz518-YCrVkCfdx3jVtBt4QqVZl/view?usp=drive_link",
+      "material": "Informado no momento da N.E.",
+      "fornecedor": "Informado no momento da N.E.",
+      "valor": 12000,
+      "id": "vBYVqSHT_VM"
     },
     {
-      "name": "CORREARIA",
-      "id": "4",
-      "chief": "SGT MARCINIAK",
-      "openingOrders": 140,
-      "closingOrders": 270
+      "nc": "2026NC404253",
+      "finalidade": "CMAT-MOTO ? Contratacao de Sv p/ Mnt Vtr nao Bld. Atd OS no 27,31 e 54/2026. Emph ate 31Mar26. Apos Prz Rcs\n\nsera Rclh.",
+      "omAplicacao": "27º B Log",
+      "processo": "00000.0000000/0000-01",
+      "fonteRecurso": "160",
+      "prazoEmpenho": "EMPENHO IMEDIATO",
+      "linkDrive": "https://drive.google.com/file/d/1oM2oUSxsr2ZsMPyFEswWNu5tt_fnI9-P/view?usp=drive_link",
+      "material": "Informado no momento da N.E.",
+      "fornecedor": "Informado no momento da N.E.",
+      "valor": 2000,
+      "id": "yVnUrqQdlcw"
     },
     {
-      "name": "2º ESCALÃO",
-      "chief": "ELIAS",
-      "openingOrders": 0,
-      "closingOrders": 0,
-      "id": "wN801obXrqE"
+      "nc": "2026NC401316",
+      "finalidade": "GFGRGFG",
+      "omAplicacao": "20 BIB",
+      "processo": "59565",
+      "fonteRecurso": "160",
+      "prazoEmpenho": "2026-05-18",
+      "linkDrive": "https://drive.google.com/file/d/1ya54fGsOCMzwzJ1Zr8DacHgA08RpQB-I/view?usp=drive_link",
+      "dataGeracao": "2026-05-14",
+      "material": "Informado no momento da N.E.",
+      "fornecedor": "Informado no momento da N.E.",
+      "valor": 6000,
+      "id": "Py6v61v9cgQ"
     },
     {
-      "name": "PELOTÃO PESADO",
-      "chief": "ADILSON BRASILINO",
-      "openingOrders": 0,
-      "closingOrders": 0,
-      "id": "UOqAQLxuGoA"
+      "nc": "2026NC000058",
+      "finalidade": "GASOLINA",
+      "omAplicacao": "27º BLOG",
+      "processo": "00000.00000/0000-00",
+      "fonteRecurso": "160",
+      "prazoEmpenho": "2026-05-29",
+      "linkDrive": "https://drive.google.com/file/d/119HFmAA4zl5ceSgT8PoGx9cG01CJwVTX/view?usp=drive_link",
+      "dataGeracao": "2026-05-14",
+      "material": "Informado no momento da N.E.",
+      "fornecedor": "Informado no momento da N.E.",
+      "valor": 6000,
+      "id": "zzOStn6SMnQ"
     },
     {
-      "name": "GRCP",
-      "chief": "JOEL",
-      "openingOrders": 0,
-      "closingOrders": 0,
-      "id": "Cv4mUSH2drE"
+      "nc": "2025ne167",
+      "finalidade": "DSFDFD",
+      "omAplicacao": "5689",
+      "processo": "99999",
+      "fonteRecurso": "167",
+      "prazoEmpenho": "EMPENHO IMEDIATO",
+      "linkDrive": "https://drive.google.com/file/d/1Ao130WLO34ahb4-p3XlVY5RFht2ka9ra/view",
+      "dataGeracao": "2026-05-14",
+      "material": "Informado no momento da N.E.",
+      "fornecedor": "Informado no momento da N.E.",
+      "valor": 65235,
+      "id": "nS74Q6fpiWc"
     }
   ],
-  "users": [
+  "credits_ne": [
     {
-      "name": "AILSON",
-      "section_id": "Cv4mUSH2drE",
-      "level_id": "3",
-      "password": "123",
-      "id": "xNNVeeyUWas"
+      "idNcVinculada": "yVnUrqQdlcw",
+      "numeroNE": "2026NE000064",
+      "materialNE": "Item 1 - Serviço de Mnt para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
+      "nomeFornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpjFornecedor": "07.882.449/0001-70",
+      "linkDriveNE": "https://drive.google.com/file/d/1Ao130WLO34ahb4-p3XlVY5RFht2ka9ra/view?usp=drive_link",
+      "dataGeracaoNE": "2026-05-14",
+      "modalidade": "PREGAO_HOMOLOGADO",
+      "id": "k7gMZA7G7mo"
     },
     {
-      "name": "ELIAS",
-      "section_id": "wN801obXrqE",
-      "level_id": "2",
-      "password": "456",
-      "id": "QdXDq21So1s"
-    },
-    {
-      "name": "KEVYN",
-      "section_id": "3",
-      "level_id": "1",
-      "password": "789",
-      "id": "HJliTbOfghw"
-    },
-    {
-      "name": "FERREIRA",
-      "section_id": "UOqAQLxuGoA",
-      "level_id": "2",
-      "password": "123",
-      "id": "PfdJxjF8CmY"
-    },
-    {
-      "name": "JOEL",
-      "section_id": "Cv4mUSH2drE",
-      "level_id": "2",
-      "password": "123",
-      "id": "BSvzkETbhaw"
+      "idNcVinculada": "zzOStn6SMnQ",
+      "numeroNE": "2026NE000017",
+      "materialNE": "Item 1 - Serviço de Mnt para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
+      "nomeFornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpjFornecedor": "07.882.449/0001-70",
+      "linkDriveNE": "https://drive.google.com/file/d/1rw26pE6e_UO9h2nQosytP9aV8sVhSZl8/view?usp=drive_link",
+      "dataGeracaoNE": "2026-05-14",
+      "modalidade": "PREGAO_HOMOLOGADO",
+      "id": "QENWvkfkixA"
     }
   ],
-  "technicians": [
+  "credits_nf": [
     {
-      "name": "AMORIN",
-      "section_id": "2",
-      "id": "10WKVGgxCkE"
-    },
-    {
-      "name": "KEVYN",
-      "section_id": "3",
-      "id": "PhPJCSd36Zk"
-    },
-    {
-      "name": "MARCINIAK",
-      "section_id": "4",
-      "id": "8Ac11zY4Oqk"
+      "id": "KYiMW8g8MIo",
+      "numeroNF": "635",
+      "idNeVinculada": "x9a1c3v5b",
+      "numeroNEVinculada": "2026NE000451",
+      "fornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpj": "07.882.449/0001-70",
+      "processo": "64138.00000/0000-01",
+      "valor": 30,
+      "status": "LIQUIDADA",
+      "tipoVinculo": "RPNP",
+      "linkDriveNF": "fdfdfdfdfhttps://drive.google.com/file/d/1al55pSKw-YCR3QeyyQ2ywCAtF5i8Q3qK/view?usp=drive_link"
     }
   ],
-  "roles": [
+  "credits_rpnp": [
     {
-      "id": "1",
-      "name": "USER",
-      "description": "técnicos e usuários"
+      "id": "x9a1c3v5b",
+      "fonteRecurso": "160",
+      "nc": "2026NC405859",
+      "processo": "64138.00000/0000-01",
+      "omAplicacao": "27º B Log",
+      "valorNC": 12000,
+      "finalidade": "Demanda de insumos e sobressalentes para viaturas administrativas.",
+      "linkDrive": "https://google.com",
+      "numeroNE": "2026NE000451",
+      "materialNE": "Filtros e óleos lubrificantes automotivos",
+      "nomeFornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpjFornecedor": "07.882.449/0001-70",
+      "valorAtual": 4500,
+      "linkDriveNE": "https://google.com"
     },
     {
-      "id": "2",
-      "name": "CHIEF",
-      "description": "Chefe de seção"
+      "fonteRecurso": "160",
+      "nc": "2025NC000807",
+      "processo": "64138.008322/2025-91",
+      "omAplicacao": "B ADM AP/5º RM",
+      "valorNC": 10780,
+      "finalidade": "SERVIÇO DE TROCA DE ÓLEO E FILTRO DA TRANSMISSÃO AUTOMÁTICA",
+      "linkDrive": "https://drive.google.com/file/d/1ipqG30XZYGs_ixNn7-tm-xQ0wiOq0Rhq/view?usp=drive_link",
+      "numeroNE": "2025NE000525",
+      "materialNE": "ITEM 1 - SERVIÇO DIESEL LEVE",
+      "nomeFornecedor": "BRAGUETO CENTRO AUTOMOTIVO LTDA",
+      "cnpjFornecedor": "7882449000170",
+      "valorAtual": 10.78,
+      "linkDriveNE": "https://drive.google.com/file/d/1REMSA44Ig8pLcsjFFeDlDMT0x5sMhXJd/view?usp=drive_link",
+      "id": "BKm65K1OMZk"
     },
     {
-      "id": "3",
-      "name": "ADMIN",
-      "description": "Administrador do sistema"
+      "fonteRecurso": "167",
+      "nc": " 2025NC000042",
+      "processo": "59595595",
+      "omAplicacao": "254",
+      "valorNC": 5308,
+      "finalidade": "vddfdfdfd",
+      "linkDrive": "https://docs.google.com/spreadsheets/d/1Rj8nQR1GhqL4T4K3TAqmtD9ELvptpswdw6TMtj_nDZY/edit?gid=634281379#gid=634281379",
+      "numeroNE": "2025NE000061",
+      "materialNE": "ITEM 1 - SERVIÇO DIESEL LEVE",
+      "nomeFornecedor": "BRAGUETO CENTRO AUTOMOTIVO LTDA",
+      "cnpjFornecedor": "7882449000170",
+      "valorAtual": 5308,
+      "linkDriveNE": "https://docs.google.com/spreadsheets/d/1Rj8nQR1GhqL4T4K3TAqmtD9ELvptpswdw6TMtj_nDZY/edit?gid=634281379#gid=634281379",
+      "id": "6pdhM6NH-sM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

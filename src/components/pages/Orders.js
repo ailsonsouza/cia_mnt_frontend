@@ -19,34 +19,53 @@ function Orders(){
 
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
 
-    // Função para carregar as ordens em tempo real
+    // Função para carregar as ordens em tempo real da API do Spring Boot
     const loadData = () => {
-        fetch('http://localhost:5000/orders').then(resp => resp.json()).then(data => setOrders(data))
+        fetch('http://localhost:8080/api/orders')
+            .then(resp => resp.json())
+            .then(data => setOrders(data))
+            .catch(err => console.log(err))
     }
 
     useEffect(() => {
         loadData()
-        fetch('http://localhost:5000/sections').then(resp => resp.json()).then(data => setSections(data))
+        fetch('http://localhost:8080/api/sections')
+            .then(resp => resp.json())
+            .then(data => setSections(data))
+            .catch(err => console.log(err))
     }, [])
 
     function removeOrder(id) {
         const cardElement = document.getElementById(`order-card-${id}`);
-        if (cardElement) { cardElement.style.opacity = '0'; cardElement.style.transform = 'scale(0.8)'; }
+        if (cardElement) { 
+            cardElement.style.opacity = '0'; 
+            cardElement.style.transform = 'scale(0.8)'; 
+        }
 
         setTimeout(() => {
-            fetch(`http://localhost:5000/orders/${id}`, { method: 'DELETE' })
-            .then(() => setOrders(orders.filter((order) => order.id !== id)))
+            fetch(`http://localhost:8080/api/orders/${id}`, { method: 'DELETE' })
+                .then(resp => {
+                    if (!resp.ok) throw new Error();
+                    setOrders(orders.filter((order) => order.id !== id))
+                })
+                .catch(err => {
+                    console.log(err);
+                    if (cardElement) {
+                        cardElement.style.opacity = '1';
+                        cardElement.style.transform = 'scale(1)';
+                    }
+                    alert("Não foi possível excluir a ordem de serviço.");
+                })
         }, 400);
     }
 
-    // --- NOVA FUNÇÃO PARA EXECUTAR A REABERTURA NA API ---
     function reopenOrder(id) {
         const payload = {
             status: 'OPEN',
             closingDate: '' // Zera a data de fechamento ao reabrir
         }
 
-        fetch(`http://localhost:5000/orders/${id}`, {
+        fetch(`http://localhost:8080/api/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -54,7 +73,7 @@ function Orders(){
         .then(resp => {
             if (!resp.ok) throw new Error()
             alert("Ordem de serviço reaberta com sucesso!")
-            loadData() // Recarrega os cards na tela atualizando as abas
+            loadData() 
         })
         .catch(() => alert("Falha ao tentar reabrir a ordem."))
     }
@@ -153,7 +172,7 @@ function Orders(){
                                         order={order} 
                                         handleRemove={removeOrder} 
                                         sectionName={sectionData?.name}
-                                        handleReopen={reopenOrder} /* Injeta a função de reabertura */
+                                        handleReopen={reopenOrder}
                                     />
                                 )
                             })
@@ -175,7 +194,7 @@ function Orders(){
                                         order={order} 
                                         handleRemove={removeOrder} 
                                         sectionName={sectionData?.name}
-                                        handleReopen={reopenOrder} /* Injeta a função de reabertura */
+                                        handleReopen={reopenOrder}
                                     />
                                 )
                             })
@@ -184,7 +203,6 @@ function Orders(){
                         )}
                     </div>
                 </div>
-
             </Container>
         </div>
     )

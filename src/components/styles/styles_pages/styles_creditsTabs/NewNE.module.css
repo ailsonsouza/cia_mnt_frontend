@@ -1,0 +1,158 @@
+/* src/styles/styles_pages/styles_creditsTabs/NewNE.module.css */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2500;
+}
+
+.modalContent {
+    background-color: #ffffff;
+    padding: 22px;
+    border-radius: 6px;
+    width: 550px;
+    max-width: 95%;
+    max-height: 94vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    font-family: Arial, sans-serif;
+}
+
+.modalContent h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 15px;
+    color: #1e295d; 
+    border-bottom: 2px solid #1e295d;
+    padding-bottom: 6px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.modalForm {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.formGroupFull {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modalForm label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #4a5568;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.modalForm input,
+.modalForm textarea,
+.selectModalPrimary {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.selectModalPrimary {
+    border: 2px solid #1e295d;
+    background-color: #f7fafc;
+    font-weight: bold;
+}
+
+.modalForm textarea {
+    resize: none;
+}
+
+.divider {
+    grid-column: span 2;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    background-color: #2d3748;
+    color: #ffffff;
+    padding: 5px;
+    margin: 10px 0 5px 0;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+/* Estado desabilitado cinza para dados lidos da NC */
+.inputCalculado {
+    background-color: #edf2f7;
+    color: #4a5568;
+    cursor: not-allowed;
+    border: 1px dashed #a0aec0 !important;
+}
+
+/* Estado travado fosco quando o preenchimento do pregão estiver ativo */
+.inputCalculatedText {
+    background-color: #f7fafc;
+    color: #2d3748;
+    font-weight: bold;
+    cursor: not-allowed;
+    border: 1px solid #cbd5e0;
+    opacity: 0.85;
+}
+
+.modalForm input:focus,
+.selectModalPrimary:focus {
+    border-color: #1e295d;
+}
+
+.modalActions {
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
+}
+
+.btnSalvar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.btnSalvar:hover { background-color: #218838; }
+
+.btnCancelar {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.btnCancelar:hover { background-color: #5a6268; }

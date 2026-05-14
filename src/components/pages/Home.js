@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Container from '../layout/Container';
 import styles from '../styles/styles_pages/Home.module.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { BsPencil, BsEye } from 'react-icons/bs'; // Importação dos ícones de ação
+import { BsPencil, BsEye } from 'react-icons/bs';
 
 function Home() {
     const navigate = useNavigate();
@@ -15,9 +15,10 @@ function Home() {
     const isUser = loggedUser?.roleName === 'USER';
 
     useEffect(() => {
-        fetch('http://localhost:5000/orders').then(r => r.json()).then(data => setOrders(data));
-        fetch('http://localhost:5000/sections').then(r => r.json()).then(data => setSections(data));
-        fetch('http://localhost:5000/technicians').then(r => r.json()).then(data => setTechnicians(data));
+        // Aponta todas as requisições para a porta 8080 do backend Spring Boot
+        fetch('http://localhost:8080/api/orders').then(r => r.json()).then(data => setOrders(data)).catch(err => console.log(err));
+        fetch('http://localhost:8080/api/sections').then(r => r.json()).then(data => setSections(data)).catch(err => console.log(err));
+        fetch('http://localhost:8080/api/technicians').then(r => r.json()).then(data => setTechnicians(data)).catch(err => console.log(err));
     }, []);
 
     const filteredOrders = isAdmin 
@@ -31,12 +32,10 @@ function Home() {
     const totalOpen = filteredOrders.filter(o => o.status === 'OPEN').length;
     const totalClosed = filteredOrders.filter(o => o.status === 'CLOSE').length;
 
-    // Filtra as 4 ordens abertas mais antigas para a fila de prioridades
     const criticalOrders = filteredOrders
         .filter(o => o.status === 'OPEN')
         .slice(0, 4);
 
-    // Funções de navegação rápida para os botões de ação da tabela
     const handleNavigate = (order, actionType) => {
         navigate('/neworder', { state: { order, action: actionType } });
     };
@@ -45,7 +44,6 @@ function Home() {
         <div className={styles.home_page}>
             <Container customClass="column">
                 
-                {/* Etiqueta discreta de nível de acesso no topo direito */}
                 <div className={styles.top_header_row}>
                     <div className={styles.access_badge}>
                         NÍVEL: {loggedUser?.roleName || 'N/A'}
@@ -91,7 +89,7 @@ function Home() {
                     </div>
                 )}
 
-                {/* BLOCO 3: FILA DE PRIORIDADE (Para Chief e User) */}
+                {/* BLOCO 3: FILA DE PRIORIDADE */}
                 {!isAdmin && (
                     <div className={styles.critical_section}>
                         <h2>FILA DE PRIORIDADE DA SEÇÃO</h2>
@@ -114,10 +112,10 @@ function Home() {
                                                 <td>{order.item}</td>
                                                 <td>{order.openDate}</td>
                                                 <td>{order.destiny}</td>
-                                                {/* Coluna de ícones de ação compactos no canto direito */}
                                                 <td className={styles.actions_cell}>
+                                                    {/* Corrigido para 'DETALHES', alinhando com a trava de segurança */}
                                                     <button 
-                                                        onClick={() => handleNavigate(order, 'VISUALIZAR')}
+                                                        onClick={() => handleNavigate(order, 'DETALHES')}
                                                         className={styles.icon_btn_view}
                                                         title="Visualizar Ordem de Serviço"
                                                     >
@@ -131,7 +129,6 @@ function Home() {
                                                     >
                                                         <BsPencil />
                                                     </button>
-                                                    
                                                 </td>
                                             </tr>
                                         ))}
@@ -153,9 +150,6 @@ function Home() {
                                 Emitir Nova O.S.
                             </Link>
                         )}
-                        <Link to="/orders" className={styles.shortcut_btn_sec}>
-                            Consultar Ordens
-                        </Link>
                     </div>
                 </div>
             </Container>

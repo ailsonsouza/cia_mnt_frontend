@@ -7,6 +7,7 @@ import Orders from './components/pages/Orders'
 import Sections from './components/pages/Sections'
 import Users from './components/pages/Users'
 import Technicians from './components/pages/Technicians'
+import Credits from './components/pages/Credits';
 import SectionDetails from './components/pages/SectionDetails';
 import './App.css';
 import TechnicianDetails from './components/pages/TechnicianDetails';
@@ -22,6 +23,7 @@ function AppContent() {
       {location.pathname !== '/login' && <Navbar />}
 
       <Routes>
+        <Route path="/credits" element={<Credits />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         
