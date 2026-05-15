@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/Credits160.module.css';
 import CreditsCard from './CreditsCard'; 
 
-function Credits160() {
+function Credits160({ onVerDetalhes }) { // Recebe a prop para mudar a aba no pai
     const [listaNCs, setListaNCs] = useState([]);
     const [listaNEs, setListaNEs] = useState([]);
-    const [listaNFs, setListaNFs] = useState([]); // Armazena os dados da rota 'credits_nf'
+    const [listaNFs, setListaNFs] = useState([]); 
     const [listaItensPregao, setListaItensPregao] = useState([]);
     
     // Estados para os filtros centralizados
@@ -19,10 +19,6 @@ function Credits160() {
     const [tipoEdicao, setTipoEdicao] = useState(''); 
     const [idEmEdicao, setIdEmEdicao] = useState('');
     
-    // Estados para o Modal de Detalhes Cruzados com Fluxo de Liquidação
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [itemDetalhado, setItemDetalhado] = useState(null);
-
     // Campos controlados do formulário de edição
     const [campoNumero, setCampoNumero] = useState('');
     const [campoProcesso, setCampoProcesso] = useState('');
@@ -50,7 +46,6 @@ function Credits160() {
         }
     }, [campoIsImediato]);
 
-    // Busca todas as coleções de dados sincronizadas
     const carregarDados = () => {
         fetch('http://localhost:5000/credits_nc')
             .then(res => res.json())
@@ -69,7 +64,6 @@ function Credits160() {
             })
             .catch(err => console.error("Erro ao carregar NEs:", err));
 
-        // AJUSTADO: Rota alterada para 'credits_nf' para bater com o seu db.json
         fetch('http://localhost:5000/credits_nf')
             .then(res => res.json())
             .then(data => {
@@ -89,15 +83,11 @@ function Credits160() {
         carregarDados();
     }, []);
 
-    // AJUSTADO: Alinhado com o status 'ENVIADA_LIQUIDACAO' e propriedade 'valor' do seu Invoice
     const obterFluxoFinanceiroNe = (idNe) => {
         const nfsDaNe = listaNFs.filter(nf => nf.idNeVinculada === idNe);
-        
-        // Busca o valor acumulado usando o status correto do seu fluxo
         const emLiquidacao = nfsDaNe
             .filter(nf => nf.status === 'ENVIADA_LIQUIDACAO')
             .reduce((soma, nf) => soma + (parseFloat(nf.valor) || 0), 0);
-            
         const liquidado = nfsDaNe
             .filter(nf => nf.status === 'LIQUIDADA')
             .reduce((soma, nf) => soma + (parseFloat(nf.valor) || 0), 0);
@@ -138,7 +128,6 @@ function Credits160() {
             setCampoOM(item.omAplicacao || '');
             setCampoValor(item.valor ? item.valor.toString() : '');
             setCampoLink(item.linkDrive || '');
-            
             const prazoSalvo = item.prazoEmpenho || '';
             setCampoPrazo(prazoSalvo);
             setCampoIsImediato(prazoSalvo.toUpperCase() === 'EMPENHO IMEDIATO');
@@ -146,7 +135,6 @@ function Credits160() {
             setCampoNumero(item.numeroNE || '');
             setCampoLink(item.linkDriveNE || '');
             setIdNcVinculadaANe(item.idNcVinculada || '');
-
             const ncOrigem = listaNCs.find(nc => nc.id === item.idNcVinculada);
             if (ncOrigem) {
                 setCampoProcesso(ncOrigem.processo || '');
@@ -154,7 +142,6 @@ function Credits160() {
                 setCampoOM(ncOrigem.omAplicacao || '');
                 setCampoValor(ncOrigem.valor ? ncOrigem.valor.toString() : '');
             }
-
             const itemCorrespondente = listaItensPregao.find(i => `Item ${i.item} - ${i.descricao}` === item.materialNE);
             if (itemCorrespondente) {
                 setIsModoManual(false); setIdMaterialSelecionado(itemCorrespondente.id); setDescricaoItemManual('');
@@ -166,21 +153,21 @@ function Credits160() {
         }
     };
 
+    // CORRIGIDO: Agora chama a função de troca de aba no componente pai (Credits.js)
     const handleAbrirDetalhar = (item, tipo) => {
         if (tipo === 'NC') {
             if (item.linkDrive) window.open(item.linkDrive, '_blank', 'noopener,noreferrer');
             else alert('Link do Google Drive não localizado.');
         } else {
-            const ncOrigem = listaNCs.find(nc => nc.id === item.idNcVinculada) || {};
-            const { emLiquidacao, liquidado } = obterFluxoFinanceiroNe(item.id);
-            setItemDetalhado({ ne: item, nc: ncOrigem, emLiquidacao, liquidado });
-            setIsDetailModalOpen(true);
+            // Executa a função do pai para mudar a aba ativa na mesma janela
+            if (onVerDetalhes) {
+                onVerDetalhes(item.id);
+            }
         }
     };
 
     const handleSalvarEdicao = (e) => {
         e.preventDefault();
-
         if (tipoEdicao === 'NC') {
             const ncEncontrada = listaNCs.find(n => n.id === idEmEdicao) || {};
             const dadosAltualizadosNC = {
@@ -193,17 +180,14 @@ function Credits160() {
                 prazoEmpenho: campoPrazo, 
                 valor: parseFloat(campoValor) || 0
             };
-
             fetch(`http://localhost:5000/credits_nc/${idEmEdicao}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dadosAltualizadosNC)
             }).then(() => { alert('Nota de Crédito atualizada!'); fecharModalEdicao(); });
-
         } else {
             const confirmacaoNC = window.confirm("Atenção: Você realizou alterações nos dados de origem da Nota de Crédito (NC) vinculada. Deseja confirmar essas mudanças na NC base?");
             if (!confirmacaoNC) return;
-
             const ncOriginal = listaNCs.find(n => n.id === idNcVinculadaANe) || {};
             const dadosAltualizadosNC = {
                 ...ncOriginal,
@@ -212,16 +196,13 @@ function Credits160() {
                 omAplicacao: campoOM,
                 valor: parseFloat(campoValor) || 0
             };
-
             fetch(`http://localhost:5000/credits_nc/${idNcVinculadaANe}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dadosAltualizadosNC)
             });
-
             const neEncontrada = listaNEs.find(n => n.id === idEmEdicao) || {};
             let textoMaterialFinal = isModoManual ? descricaoItemManual : (`Item ${(listaItensPregao.find(i => i.id === idMaterialSelecionado) || {}).item} - ${(listaItensPregao.find(i => i.id === idMaterialSelecionado) || {}).descricao}`);
-            
             const dadosAltualizadosNE = {
                 ...neEncontrada,
                 numeroNE: campoNumero,
@@ -230,7 +211,6 @@ function Credits160() {
                 cnpjFornecedor: campoCnpj,
                 linkDriveNE: campoLink
             };
-
             fetch(`http://localhost:5000/credits_ne/${idEmEdicao}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -241,7 +221,6 @@ function Credits160() {
 
     const fecharModalEdicao = () => { setIsEditModalOpen(false); carregarDados(); };
 
-    // Filtros unificados textuais
     const ncsFiltradas = listaNCs.filter(card => (card.nc || '').toLowerCase().includes(filtroNC.toLowerCase()) && (card.processo || '').toLowerCase().includes(filtroProcesso.toLowerCase()) && (card.omAplicacao || '').toLowerCase().includes(filtroOM.toLowerCase()) && (card.fornecedor || '').toLowerCase().includes(filtroFornecedor.toLowerCase()));
     const idsNcEmpenhadas = new Set(listaNEs.map(ne => ne.idNcVinculada));
     const ncsDisponiveis = ncsFiltradas.filter(nc => !idsNcEmpenhadas.has(nc.id));
@@ -253,7 +232,6 @@ function Credits160() {
 
     return (
         <div className={styles.container}>
-            
             <div className={styles.filterBar}>
                 <div className={styles.filterGroup}>
                     <label>Nº do Documento (NC ou NE)</label>
@@ -273,7 +251,6 @@ function Credits160() {
                 </div>
             </div>
 
-            {/* SEÇÃO 1: NCs */}
             <div className={styles.sectionDivider}>
                 <h3>Notas de Crédito (Saldo Disponível)</h3>
                 <span className={styles.badge}>{ncsDisponiveis.length}</span>
@@ -299,7 +276,6 @@ function Credits160() {
                 {ncsDisponiveis.length === 0 && <p className={styles.noResultsInline}>Nenhuma NC disponível.</p>}
             </div>
 
-            {/* SEÇÃO 2: NEs */}
             <div className={styles.sectionDivider} style={{ marginTop: '40px' }}>
                 <h3>Notas de Empenho (Crédito Aplicado)</h3>
                 <span className={styles.badge} style={{ backgroundColor: '#2b6cb0' }}>{nesRealizadas.length}</span>
@@ -308,7 +284,7 @@ function Credits160() {
                 {nesRealizadas.map((ne) => {
                     const ncOrigem = listaNCs.find(nc => nc.id === ne.idNcVinculada) || {};
                     const { emLiquidacao, liquidado } = obterFluxoFinanceiroNe(ne.id);
-                    const saldoAbatidoNe = (ncOrigem.valor || 0) - emLiquidacao - liquidado; // Abatimento matemático [Noi]
+                    const saldoAbatidoNe = (ncOrigem.valor || 0) - emLiquidacao - liquidado;
 
                     return (
                         <CreditsCard 
@@ -319,7 +295,7 @@ function Credits160() {
                             material={ne.materialNE} 
                             om={ncOrigem.omAplicacao}
                             fornecedor={ne.nomeFornecedor} 
-                            valorAtual={saldoAbatidoNe} // Exibe o valor líquido atualizado [Noi]
+                            valorAtual={saldoAbatidoNe} 
                             linkDrive={ne.linkDriveNE}
                             tempoCronologico={ne.dataGeracaoNE}
                             numeroNC={`NC Origem: ${ncOrigem.nc || 'N/D'}`}
@@ -332,7 +308,6 @@ function Credits160() {
                 {nesRealizadas.length === 0 && <p className={styles.noResultsInline}>Nenhum empenho gerado.</p>}
             </div>
 
-            {/* MODAL CO-REUTILIZÁVEL PARA EDIÇÃO AVANÇADA */}
             {isEditModalOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -360,7 +335,7 @@ function Credits160() {
                                         <label>Prazo para Empenho</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', width: '100%' }}>
                                             <input type={campoIsImediato ? "text" : "date"} value={campoPrazo} onChange={(e) => setCampoPrazo(e.target.value)} disabled={campoIsImediato} required style={{ flex: 1, padding: '8px', border: '1px solid #cbd5e0', borderRadius: '4px' }} />
-                                            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontDrop: 'bold', fontSize: '11px', cursor: 'pointer' }}>
+                                            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold', fontSize: '11px', cursor: 'pointer' }}>
                                                 <input type="checkbox" checked={campoIsImediato} onChange={(e) => setCampoIsImediato(e.target.checked)} /> Empenho Imediato
                                             </label>
                                         </div>
@@ -426,57 +401,6 @@ function Credits160() {
                                 <button type="button" className={styles.btnCancelar} onClick={() => setIsEditModalOpen(false)}>Cancelar</button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {/* MODAL DE DETALHAMENTO CRUZADO COM INDICADORES DE FLUXO FINANCEIRO ATIVOS */}
-            {isDetailModalOpen && itemDetalhado && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent} style={{ width: '600px' }}>
-                        <h2>Detalhamento da Nota de Empenho</h2>
-                        <div className={styles.modalForm}>
-                            <div style={{ gridColumn: 'span 2', backgroundColor: '#f0f4f8', padding: '12px', border: '1px solid #d9e2ec', borderRadius: '4px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#102a43' }}>DADOS DA NOTA DE CRÉDITO ORIGEM</span>
-                                    <button type="button" className={styles.btnLinkDoc} onClick={() => window.open(itemDetalhado.nc?.linkDrive, '_blank')} disabled={!itemDetalhado.nc?.linkDrive}>Ver Documento NC</button>
-                                </div>
-                                <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Nº do Processo:</strong> {itemDetalhado.nc?.processo}</p>
-                                <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>OM de Aplicação:</strong> {itemDetalhado.nc?.omAplicacao}</p>
-                                <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Finalidade:</strong> {itemDetalhado.nc?.finalidade}</p>
-                            </div>
-                            
-                            <div style={{ gridColumn: 'span 2', backgroundColor: '#fff', padding: '5px 0' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#243b53' }}>DADOS ESPECÍFICOS DA NE</span>
-                                    <button type="button" className={styles.btnLinkDoc} style={{ backgroundColor: '#2b6cb0' }} onClick={() => window.open(itemDetalhado.ne?.linkDriveNE, '_blank')} disabled={!itemDetalhado.ne?.linkDriveNE}>Ver Documento NE</button>
-                                </div>
-                                <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Material da NE:</strong> {itemDetalhado.ne?.materialNE}</p>
-                                <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Fornecedor:</strong> {itemDetalhado.ne?.nomeFornecedor} ({itemDetalhado.ne?.cnpjFornecedor})</p>
-                            </div>
-
-                            {/* EXIBIÇÃO DINÂMICA COMPLETA DOS QUATRO INDICADORES EXIGIDOS */}
-                            <div className={styles.formGroup}>
-                                <label style={{ color: '#1e295d' }}>Valor Total da NE</label>
-                                <input type="text" value={(itemDetalhado.nc?.valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} disabled className={styles.inputCalculado} style={{fontWeight: 'bold', color: '#1e295d'}} />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label style={{ color: '#1e295d' }}>Valor em Liquidação</label>
-                                <input type="text" value={itemDetalhado.emLiquidacao?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} disabled className={styles.inputCalculado} style={{fontWeight: 'bold', color: '#1e295d'}} />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label style={{ color: '#1e295d' }}>Valor Liquidado</label>
-                                <input type="text" value={itemDetalhado.liquidado?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} disabled className={styles.inputCalculado} style={{fontWeight: 'bold', color: '#1e295d'}} />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label style={{ color: '#2f855a' }}>Valor Atual Líquido</label>
-                                <input type="text" value={((itemDetalhado.nc?.valor || 0) - itemDetalhado.emLiquidacao - itemDetalhado.liquidado).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} disabled className={styles.inputCalculado} style={{fontWeight: 'bold', color: '#2f855a'}} />
-                            </div>
-
-                            <div className={styles.modalActions}>
-                                <button type="button" className={styles.btnCancelar} onClick={() => setIsDetailModalOpen(false)}>Fechar Detalhes</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             )}

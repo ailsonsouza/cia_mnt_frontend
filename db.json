@@ -1,6 +1,13 @@
 {
+  "pregaos": [
+    {
+      "id": "p1_2026",
+      "nome": "Pregão 01/2026 - Manutenção Automotiva"
+    }
+  ],
   "credits": [
     {
+      "idPregaoVinculado": "p1_2026",
       "grupo": "1",
       "item": "1",
       "descricao": "Serviço de Mnt para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
@@ -19,9 +26,10 @@
       "id": "F8o43X78ZA8"
     },
     {
+      "idPregaoVinculado": "p1_2026",
       "grupo": "1",
       "item": "2",
-      "descricao": "\nCONTROLE DE CRÉDITOS 2026\nCONTROLE DE CRÉDITOS 2026\n\n100%\n10\nC6\n\nAquisição de peças e acessórios mecânicos para veículos leves e médios DIESEL (peso bruto até 3,5 T)\n \n  \n \t\nAquisição de peças e acessórios mecânicos para veículos leves e médios DIESEL (peso bruto até 3,5 T)\nAtivar a compatibilidade com o leitor de tela\nPara ativar o suporte para leitor de tela, pressione Ctrl+Alt+Z Para saber mais sobre atalhos de teclado, pressione Ctrl+barra",
+      "descricao": "Aquisição de peças e acessórios mecânicos para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
       "fornecedor": "Bragueto Centro Automotivo LTDA",
       "cnpj": "07.882.449/0001-70",
       "qtd": 573964,
@@ -40,7 +48,7 @@
   "credits_nc": [
     {
       "nc": "2026NC405859",
-      "finalidade": "CMAT-MOTO ? Aqs Sup e insumos p/ Mnt Vtr nao Bld. Atd DIEx no 798-4a Sec/AD/5, de 26Mar26. Emph ate 30Jul26.\n\nApos Prz Rcs sera Rclh.",
+      "finalidade": "CMAT-MOTO ? Aqs Sup e insumos p/ Mnt Vtr nao Bld. Atd DIEx no 798-4a Sec/AD/5, de 26Mar26. Emph até 30Jul26.\n\nApos Prz Rcs sera Rclh.",
       "omAplicacao": "27º B Log",
       "processo": "64138.00000/0000-01",
       "fonteRecurso": "160",
@@ -93,7 +101,7 @@
       "id": "zzOStn6SMnQ"
     },
     {
-      "nc": "2025ne167",
+      "nc": "2025nc167",
       "finalidade": "DSFDFD",
       "omAplicacao": "5689",
       "processo": "99999",
@@ -128,7 +136,22 @@
       "linkDriveNE": "https://drive.google.com/file/d/1rw26pE6e_UO9h2nQosytP9aV8sVhSZl8/view?usp=drive_link",
       "dataGeracaoNE": "2026-05-14",
       "modalidade": "PREGAO_HOMOLOGADO",
-      "id": "QENWvkfkixA"
+      "id": "QENWvkfkixA",
+      "observacoes": "teste de observação"
+    },
+    {
+      "id": "qeY1w53k6og",
+      "idPregaoVinculado": "p1_2026",
+      "idNcVinculada": "vBYVqSHT_VM",
+      "idItemPregaoVinculado": "F8o43X78ZA8",
+      "numeroNE": "2026ne100001",
+      "materialNE": "Item 1 - Serviço de Mnt para veículos leves e médios DIESEL (peso bruto até 3,5 T)",
+      "nomeFornecedor": "Bragueto Centro Automotivo LTDA",
+      "cnpjFornecedor": "07.882.449/0001-70",
+      "linkDriveNE": "https://gemini.google.com/app/7b79235c538dcb24?hl=pt-BR",
+      "valorAtual": 12000,
+      "dataGeracaoNE": "2026-05-15",
+      "modalidade": "PREGAO_HOMOLOGADO"
     }
   ],
   "credits_nf": [
@@ -143,7 +166,7 @@
       "valor": 30,
       "status": "LIQUIDADA",
       "tipoVinculo": "RPNP",
-      "linkDriveNF": "fdfdfdfdfhttps://drive.google.com/file/d/1al55pSKw-YCR3QeyyQ2ywCAtF5i8Q3qK/view?usp=drive_link"
+      "linkDriveNF": "https://drive.google.com/file/d/1al55pSKw-YCR3QeyyQ2ywCAtF5i8Q3qK/view?usp=drive_link"
     }
   ],
   "credits_rpnp": [

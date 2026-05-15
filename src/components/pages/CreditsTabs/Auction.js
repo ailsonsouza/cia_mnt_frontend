@@ -1,356 +1,384 @@
-import { useState, useEffect } from 'react'
-import styles from '../../styles/styles_pages/styles_creditsTabs/Auction.module.css'
+import { useState, useEffect } from 'react';
+import styles from '../../styles/styles_pages/styles_creditsTabs/Auction.module.css';
+import {
+    BsEye, BsPlusLg, BsInfoCircleFill, BsCart4, BsCashStack,
+    BsBuilding, BsPencilSquare, BsTrash, BsPlusSquareFill, BsGearFill
+} from 'react-icons/bs';
 
-function Auction (){
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [modoModal, setModoModal] = useState('incluir') // 'incluir', 'editar' ou 'excluir'
-    const [itensTabela, setItensTabela] = useState([])
-    const [idItemSelecionado, setIdItemSelecionado] = useState('')
+function Auction() {
+    // Controle de Modais
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isPregaoMgmtOpen, setIsPregaoMgmtOpen] = useState(false);
+    const [modoModal, setModoModal] = useState('incluir');
 
-    // Estados do formulário
-    const [grupo, setGrupo] = useState('')
-    const [itemNum, setItemNum] = useState('')
-    const [descricao, setDescricao] = useState('')
-    const [fornecedor, setFornecedor] = useState('')
-    const [cnpj, setCnpj] = useState('')
-    const [qtd, setQtd] = useState(0)
-    const [undMed, setUndMed] = useState('')
-    const [valorUnitario, setValorUnitario] = useState('')
-    const [capacidadeEmpenho, setCapacidadeEmpenho] = useState('R$ 0,00')
+    // Dados do Banco
+    const [itensTabela, setItensTabela] = useState([]);
+    const [listaPregaos, setListaPregaos] = useState([]);
+    const [pregaoAtivo, setPregaoAtivo] = useState('');
+    const [itemDetalhado, setItemDetalhado] = useState(null);
+    const [todasNEs, setTodasNEs] = useState([]);
+    const [todosRPNPs, setTodosRPNPs] = useState([]);
+    const [todasNCs, setTodasNCs] = useState([]);
 
-    // 1. CARREGAMENTO INICIAL DO BANCO DE DADOS
+    // Estados do Formulário de Itens
+    const [idItemSelecionado, setIdItemSelecionado] = useState('');
+    const [grupo, setGrupo] = useState('');
+    const [itemNum, setItemNum] = useState('');
+    const [descricao, setDescricao] = useState('');
+    const [fornecedor, setFornecedor] = useState('');
+    const [cnpj, setCnpj] = useState('');
+    const [qtd, setQtd] = useState(0);
+    const [undMed, setUndMed] = useState('');
+    const [valorUnitario, setValorUnitario] = useState('');
+    const [capacidadeEmpenho, setCapacidadeEmpenho] = useState('R$ 0,00');
+
+    // Estados do Formulário de Pregão
+    const [novoNomePregao, setNovoNomePregao] = useState('');
+    const [pregaoParaEditar, setPregaoParaEditar] = useState(null);
+
+    const carregarDados = async () => {
+        try {
+            const [resP, resC, resNE, resRPNP, resNC] = await Promise.all([
+                fetch('http://localhost:5000/pregaos').then(res => res.json()),
+                fetch('http://localhost:5000/credits').then(res => res.json()),
+                fetch('http://localhost:5000/credits_ne').then(res => res.json()),
+                fetch('http://localhost:5000/credits_rpnp').then(res => res.json()),
+                fetch('http://localhost:5000/credits_nc').then(res => res.json())
+            ]);
+            setListaPregaos(resP || []);
+            setItensTabela(resC || []);
+            setTodasNEs(resNE || []);
+            setTodosRPNPs(resRPNP || []);
+            setTodasNCs(resNC || []);
+        } catch (err) {
+            console.error("Erro ao carregar dados:", err);
+        }
+    };
+
+    useEffect(() => { carregarDados(); }, []);
+
     useEffect(() => {
-        fetch('http://localhost:5000/credits')
-            .then(res => {
-                if(!res.ok) throw new Error("Erro de rede");
-                return res.json();
-            })
-            .then(data => {
-                if (Array.isArray(data)) setItensTabela(data);
-            })
-            .catch(err => console.error("Erro ao carregar dados do db.json:", err))
-    }, [])
+        const valorLimpo = parseFloat(String(valorUnitario).replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
+        const total = (parseFloat(qtd) || 0) * valorLimpo;
+        setCapacidadeEmpenho(total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+    }, [qtd, valorUnitario]);
 
-    // 2. CÁLCULO AUTOMÁTICO DA CAPACIDADE DE EMPENHO
-    useEffect(() => {
-        if (!valorUnitario) {
-            setCapacidadeEmpenho('R$ 0,00');
-            return;
-        }
-        const stringValor = String(valorUnitario);
-        const valorLimpo = parseFloat(stringValor.replace(/[^\d,.]/g, '').replace(',', '.'));
-        const quantidadeLimpa = parseFloat(qtd);
-
-        if (!isNaN(valorLimpo) && !isNaN(quantidadeLimpa)) {
-            const total = quantidadeLimpa * valorLimpo;
-            setCapacidadeEmpenho(total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-        } else {
-            setCapacidadeEmpenho('R$ 0,00');
-        }
-    }, [qtd, valorUnitario])
-
-    // 3. CARREGA DADOS DO ITEM SELECIONADO (EDIÇÃO OU EXCLUSÃO)
-    const handleMudarItemSelecionado = (id) => {
-        setIdItemSelecionado(id);
-        const itemEncontrado = itensTabela.find(i => i.id === id);
-        
-        if (itemEncontrado) {
-            setGrupo(itemEncontrado.grupo);
-            setItemNum(itemEncontrado.item);
-            setDescricao(itemEncontrado.descricao);
-            setFornecedor(itemEncontrado.fornecedor);
-            setCnpj(itemEncontrado.cnpj);
-            setQtd(itemEncontrado.qtd);
-            setUndMed(itemEncontrado.undMed);
-            setValorUnitario(itemEncontrado.valorUnitario);
-        } else {
-            limparFormulario();
-        }
-    }
-
-    // 4. FUNÇÃO AUXILIAR PARA LIMPAR CAMPOS
-    const limparFormulario = () => {
-        setGrupo('');
-        setItemNum('');
-        setDescricao('');
-        setFornecedor('');
-        setCnpj('');
-        setQtd(0);
-        setUndMed('');
-        setValorUnitario('');
-        setIdItemSelecionado('');
-    }
-
-    // 5. PROCESSAMENTO DO FORMULÁRIO (POST, PUT OU DELETE)
-    const handleSubmeterFormulario = (e) => {
+    // --- GESTÃO DE PREGÃO ---
+    const handleSalvarPregao = async (e) => {
         e.preventDefault();
+        if (!novoNomePregao) return;
 
+        const body = { nome: novoNomePregao };
+        const url = pregaoParaEditar
+            ? `http://localhost:5000/pregaos/${pregaoParaEditar.id}`
+            : 'http://localhost:5000/pregaos';
+        const method = pregaoParaEditar ? 'PUT' : 'POST';
+
+        await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pregaoParaEditar ? { ...pregaoParaEditar, ...body } : { id: Math.random().toString(36).substr(2, 9), ...body })
+        });
+
+        setNovoNomePregao('');
+        setPregaoParaEditar(null);
+        carregarDados();
+    };
+
+    const handleExcluirPregao = async (id) => {
+        const temItens = itensTabela.some(i => i.idPregaoVinculado === id);
+        if (temItens) return alert("Não é possível excluir um pregão que possui itens vinculados.");
+
+        if (window.confirm("Deseja excluir este pregão permanentemente?")) {
+            await fetch(`http://localhost:5000/pregaos/${id}`, { method: 'DELETE' });
+            if (pregaoAtivo === id) setPregaoAtivo('');
+            carregarDados();
+        }
+    };
+
+    // --- GESTÃO DE ITENS ---
+    const handleSubmeter = (e) => {
+        e.preventDefault();
         if (modoModal === 'excluir') {
-            if (!idItemSelecionado) {
-                alert("Por favor, selecione um item para excluir.");
-                return;
-            }
-
-            const confirmacao = window.confirm(`Deseja realmente excluir permanentemente o Item Nº ${itemNum}?`);
-            if (!confirmacao) return;
-
-            fetch(`http://localhost:5000/credits/${idItemSelecionado}`, {
-                method: 'DELETE'
-            })
-            .then(res => {
-                if(!res.ok) throw new Error("Erro ao deletar");
-                setItensTabela(prev => prev.filter(item => item.id !== idItemSelecionado));
-                fecharModal();
-            })
-            .catch(err => alert("Erro ao excluir item do banco: " + err));
-            
+            fetch(`http://localhost:5000/credits/${idItemSelecionado}`, { method: 'DELETE' }).then(() => { carregarDados(); fecharModal(); });
             return;
         }
-
-        if (parseFloat(qtd) <= 0 || !valorUnitario) {
-            alert("Por favor, preencha a Quantidade e o Valor Unitário corretamente.");
-            return;
-        }
-
-        const dadosItem = {
-            grupo,
-            item: itemNum,
-            descricao,
-            fornecedor,
-            cnpj,
-            qtd: parseFloat(qtd),
-            undMed,
-            valorUnitario,
-            capacidadeEmpenho,
-            valorEmpenhado: 'R$ 0,00',         
-            capacidadeEmpenhoAtual: capacidadeEmpenho, 
-            rpnp160: 'R$ 0,00',
-            rpnp167: 'R$ 0,00',
-            creditos160: 'R$ 0,00',
-            creditos167: 'R$ 0,00'
-        }
-
-        if (modoModal === 'incluir') {
-            fetch('http://localhost:5000/credits', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosItem)
-            })
-            .then(res => res.json())
-            .then(dadosSalvos => {
-                setItensTabela(prev => [...prev, dadosSalvos]);
-                fecharModal();
-            })
-            .catch(err => alert("Erro ao incluir item: " + err));
-        } else if (modoModal === 'editar') {
-            if (!idItemSelecionado) {
-                alert("Por favor, selecione um item para editar.");
-                return;
-            }
-
-            fetch(`http://localhost:5000/credits/${idItemSelecionado}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosItem)
-            })
-            .then(res => res.json())
-            .then(dadosAtualizados => {
-                setItensTabela(prev => prev.map(item => item.id === idItemSelecionado ? dadosAtualizados : item));
-                fecharModal();
-            })
-            .catch(err => alert("Erro ao atualizar item: " + err));
-        }
-    }
+        const dados = {
+            idPregaoVinculado: pregaoAtivo,
+            grupo, item: itemNum, descricao, fornecedor, cnpj,
+            qtd: parseFloat(qtd), undMed, valorUnitario, capacidadeEmpenho,
+            valorEmpenhado: 'R$ 0,00', rpnp160: 'R$ 0,00', rpnp167: 'R$ 0,00', creditos160: 'R$ 0,00', creditos167: 'R$ 0,00'
+        };
+        const url = modoModal === 'incluir' ? 'http://localhost:5000/credits' : `http://localhost:5000/credits/${idItemSelecionado}`;
+        fetch(url, { method: modoModal === 'incluir' ? 'POST' : 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }).then(() => { carregarDados(); fecharModal(); });
+    };
 
     const fecharModal = () => {
-        limparFormulario();
-        setIsModalOpen(false);
-    }
+        setIsModalOpen(false); setIdItemSelecionado(''); setGrupo(''); setItemNum('');
+        setDescricao(''); setFornecedor(''); setCnpj(''); setQtd(0); setUndMed(''); setValorUnitario('');
+    };
 
-    const camposDesabilitados = modoModal === 'excluir';
+    const parseCurrency = (value) => {
+        if (typeof value === 'number') return value;
+        if (!value) return 0;
+        return parseFloat(value.replace("R$", "").replace(/\./g, "").replace(",", ".")) || 0;
+    };
 
-    return(
+    const calcularTotaisItem = (item) => {
+        const identificador = `Item ${item.item} -`;
+        const r160 = todosRPNPs.filter(r => r.fonteRecurso === "160" && r.materialNE.includes(identificador)).reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+        const r167 = todosRPNPs.filter(r => r.fonteRecurso === "167" && r.materialNE.includes(identificador)).reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+
+        const nesDesteItem = todasNEs.filter(ne => ne.materialNE.includes(identificador));
+        const c160 = nesDesteItem.reduce((acc, ne) => {
+            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+            return nc?.fonteRecurso === "160" ? acc + (ne.valorAtual || 0) : acc;
+        }, 0);
+        const c167 = nesDesteItem.reduce((acc, ne) => {
+            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+            return nc?.fonteRecurso === "167" ? acc + (ne.valorAtual || 0) : acc;
+        }, 0);
+
+        const capTotal = parseCurrency(item.capacidadeEmpenho);
+        const capAtual = capTotal - (r160 + r167 + c160 + c167);
+
+        return {
+            r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            r167: r167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            c160: c160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            c167: c167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            credTotal: (c160 + c167).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            capAtual: capAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        };
+    };
+
+    const itensFiltrados = itensTabela.filter(i => i.idPregaoVinculado === pregaoAtivo);
+
+    return (
         <div className={styles.mainContainer}>
-            <div className={styles.actionPanel}>
-                <button 
-                    className={`${styles.actionBtn} ${styles.btnIncluir}`}
-                    onClick={() => { setModoModal('incluir'); setIsModalOpen(true); }}
-                >
-                    INCLUIR ITEM
-                </button>
-                <button 
-                    className={`${styles.actionBtn} ${styles.btnEditar}`}
-                    onClick={() => { setModoModal('editar'); setIsModalOpen(true); }}
-                >
-                    EDITAR ITEM
-                </button>
-                <button 
-                    className={`${styles.actionBtn} ${styles.btnExcluir}`}
-                    onClick={() => { setModoModal('excluir'); setIsModalOpen(true); }}
-                >
-                    EXCLUIR ITEM
-                </button>
+            <div className={styles.toolbar}>
+                <div className={styles.selector}>
+                    <label>PREGÃO ATIVO:</label>
+                    <select className={styles.selectToolbar} value={pregaoAtivo} onChange={(e) => setPregaoAtivo(e.target.value)}>
+                        <option value="">-- Selecione um Pregão --</option>
+                        {listaPregaos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
+                    </select>
+                    <button onClick={() => setIsPregaoMgmtOpen(true)} className={styles.btnAddPregao} title="Gerenciar Pregões">
+                        <BsGearFill />
+                    </button>
+                </div>
+                <div className={styles.actionButtons}>
+                    <button className={styles.btnActionIncluir} onClick={() => { setModoModal('incluir'); setIsModalOpen(true); }} disabled={!pregaoAtivo}>+ ITEM</button>
+                    <button className={styles.btnActionEditar} onClick={() => { setModoModal('editar'); setIsModalOpen(true); }} disabled={!pregaoAtivo}><BsPencilSquare /> EDITAR</button>
+                    <button className={styles.btnActionExcluir} onClick={() => { setModoModal('excluir'); setIsModalOpen(true); }} disabled={!pregaoAtivo}><BsTrash /> EXCLUIR</button>
+                </div>
             </div>
 
-            <div className={styles.tableContainer}>
-                <table className={styles.customTable}>
-                    <thead>
-                        <tr className={styles.mainHeader}>
-                            <th className={styles.colPequena}>Grupo</th>
-                            <th className={styles.colPequena}>Item</th>
-                            <th className={styles.colDescricao}>Descrição</th>
-                            <th className={styles.colGrande}>Fornecedor</th>
-                            <th className={styles.colGrande}>CNPJ</th>
-                            <th className={styles.colPequena}>Qtd</th>
-                            <th className={styles.colPequena}>Und. Med.</th>
-                            <th className={styles.colPequena}>Valor Unt</th>
-                            <th className={styles.colMedia}>Capacidade de Empenho</th>
-                            <th className={styles.colMedia}>Valor Empenhado</th>
-                            <th className={styles.colMedia}>Capacidade de Empenho Atual</th>
-                            <th className={styles.colMedia}>RPNP - 160</th>
-                            <th className={styles.colMedia}>RPNP - 167</th>
-                            <th className={styles.colMedia}>CRÉDITOS - 160</th>
-                            <th className={styles.colMedia}>CRÉDITOS - 167</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {/* Realiza a ordenação crescente por Grupo e desempata por Item antes de renderizar */}
-                        {[...itensTabela]
-                            .sort((a, b) => {
-                                const grupoA = Number(a.grupo) || 0;
-                                const grupoB = Number(b.grupo) || 0;
-                                
-                                if (grupoA !== grupoB) {
-                                    return grupoA - grupoB; // Ordena por Grupo crescente
-                                }
-                                
-                                const itemA = Number(a.item) || 0;
-                                const itemB = Number(b.item) || 0;
-                                return itemA - itemB; // Desempata por Item crescente
-                            })
-                            .map((item) => (
-                                <tr key={item.id}>
-                                    <td>{item.grupo}</td>
-                                    <td>{item.item}</td>
-                                    <td>{item.descricao}</td>
-                                    <td>{item.fornecedor}</td>
-                                    <td>{item.cnpj}</td>
-                                    <td>{item.qtd}</td>
-                                    <td>{item.undMed}</td>
-                                    <td>{item.valorUnitario}</td>
-                                    <td>{item.capacidadeEmpenho}</td>
-                                    <td>{item.valorEmpenhado}</td>
-                                    <td>{item.capacidadeEmpenhoAtual}</td>
-                                    <td>{item.rpnp160}</td>
-                                    <td>{item.rpnp167}</td>
-                                    <td>{item.creditos160}</td>
-                                    <td>{item.creditos167}</td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
+            <div className={styles.tableWrapper}>
+                {pregaoAtivo ? (
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th className={styles.colMini}>G</th>
+                                <th className={styles.colMini}>Item</th>
+                                <th className={styles.colDescricao}>Descrição</th>
+                                <th className={styles.colFornecedor}>Fornecedor</th>
+                                <th className={styles.colValor}>Capacidade Atual</th>
+                                <th className={styles.colValor}>RPNP 160</th>
+                                <th className={styles.colValor}>RPNP 167</th>
+                                <th className={styles.colValor}>CRED TOTAL</th>
+                                <th className={styles.colAcoes}>Ver</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {itensFiltrados.map(item => {
+                                const totais = calcularTotaisItem(item);
+                                return (
+                                    <tr key={item.id}>
+                                        <td className={styles.textCenter}>{item.grupo}</td>
+                                        <td className={styles.textCenter}>{item.item}</td>
+                                        <td className={styles.wrapText}>{item.descricao}</td>
+                                        <td className={styles.wrapText}>{item.fornecedor}</td>
+                                        <td className={styles.valorCol}>{totais.capAtual}</td>
+                                        <td className={styles.valorCol}>{totais.r160}</td>
+                                        <td className={styles.valorCol}>{totais.r167}</td>
+                                        <td className={styles.valorCol}>{totais.credTotal}</td>
+                                        <td className={styles.textCenter}>
+                                            <button className={styles.btnIconEye} onClick={() => { setItemDetalhado({ ...item, ...totais }); setIsViewModalOpen(true); }}>
+                                                <BsEye />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                ) : (
+                    <div className={styles.placeholder}>Selecione um pregão para gerenciar os itens.</div>
+                )}
             </div>
 
-            {isModalOpen && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <h2>
-                            {modoModal === 'incluir' && 'Incluir Novo Item'}
-                            {modoModal === 'editar' && 'Editar Item Existente'}
-                            {modoModal === 'excluir' && 'Excluir Item'}
-                        </h2>
-                        
-                        <form className={styles.modalForm} onSubmit={handleSubmeterFormulario}>
-                            
-                            {modoModal !== 'incluir' && (
-                                <div className={styles.formGroupFull}>
-                                    <label style={{ color: modoModal === 'excluir' ? '#dc3545' : '#007bff' }}>
-                                        Selecione o Item para {modoModal === 'excluir' ? 'Exclusão' : 'Edição'} (Pelo Número)
-                                    </label>
-                                    <select 
-                                        value={idItemSelecionado} 
-                                        onChange={(e) => handleMudarItemSelecionado(e.target.value)}
-                                        required
-                                        className={modoModal === 'excluir' ? styles.selectExcluir : styles.selectEditar}
-                                    >
-                                        <option value="">-- Escolha o número do item --</option>
-                                        {/* Exibe também o select ordenado para facilitar a localização do usuário */}
-                                        {[...itensTabela]
-                                            .sort((a, b) => (Number(a.grupo) || 0) - (Number(b.grupo) || 0) || (Number(a.item) || 0) - (Number(b.item) || 0))
-                                            .map(i => (
-                                                <option key={i.id} value={i.id}>G: {i.grupo} | Item Nº {i.item} - {i.descricao.substring(0, 25)}...</option>
-                                            ))
-                                        }
-                                    </select>
+            {/* MODAL 1: GESTÃO DE PREGÕES */}
+            {isPregaoMgmtOpen && (
+                <div className={styles.overlay}>
+                    <div className={styles.modalPregao}>
+                        <div className={styles.modalViewHeader} style={{ backgroundColor: '#4a5568' }}>
+                            <BsGearFill />
+                            <h3>GERENCIAR PREGÕES</h3>
+                        </div>
+                        <div className={styles.viewContent}>
+                            <form onSubmit={handleSalvarPregao} className={styles.formPregaoRapido}>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.mainLabel}>{pregaoParaEditar ? 'EDITAR NOME DO PREGÃO' : 'CADASTRAR NOVO PREGÃO'}</label>
+                                    <div className={styles.inputRow}>
+                                        <input
+                                            className={styles.inputFieldPregao}
+                                            value={novoNomePregao}
+                                            onChange={(e) => setNovoNomePregao(e.target.value)}
+                                            placeholder="Digite a identificação do pregão..."
+                                            required
+                                        />
+                                        <button type="submit" className={styles.btnSubmitPregao}>
+                                            {pregaoParaEditar ? 'ATUALIZAR' : 'ADICIONAR'}
+                                        </button>
+                                        {pregaoParaEditar && (
+                                            <button type="button" onClick={() => { setPregaoParaEditar(null); setNovoNomePregao(''); }} className={styles.btnCancelMini}>X</button>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
+                            </form>
 
-                            <div className={styles.formGroup}>
-                                <label>Grupo</label>
-                                <input type="text" value={grupo} onChange={(e) => setGrupo(e.target.value)} required disabled={camposDesabilitados} />
+                            <div className={styles.listaPregaosExistentes}>
+                                <h4>PREGÕES CADASTRADOS</h4>
+                                {listaPregaos.map(p => (
+                                    <div key={p.id} className={styles.itemPregaoLista}>
+                                        <span>{p.nome}</span>
+                                        <div className={styles.btnsPregaoLista}>
+                                            <button onClick={() => { setPregaoParaEditar(p); setNovoNomePregao(p.nome); }}><BsPencilSquare /></button>
+                                            <button onClick={() => handleExcluirPregao(p.id)} className={styles.btnDelPregao}><BsTrash /></button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                        </div>
+                        <div className={styles.modalViewFooter}>
+                            <button className={styles.btnFecharPregao} onClick={() => { setIsPregaoMgmtOpen(false); setPregaoParaEditar(null); setNovoNomePregao(''); }}>FECHAR</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                            <div className={styles.formGroup}>
-                                <label>Item</label>
-                                <input type="text" value={itemNum} onChange={(e) => setItemNum(e.target.value)} required disabled={camposDesabilitados} />
+            {/* MODAL 2: FORMULÁRIO DE ITENS */}
+            {isModalOpen && (
+                <div className={styles.overlay}>
+                    <div className={`${styles.modalForm} ${styles[modoModal]}`}>
+                        <div className={styles.modalFormHeader}>
+                            {modoModal === 'incluir' && <BsPlusSquareFill />}
+                            {modoModal === 'editar' && <BsPencilSquare />}
+                            {modoModal === 'excluir' && <BsTrash />}
+                            <h3>{modoModal.toUpperCase()} ITEM DE PREGÃO</h3>
+                        </div>
+                        <form onSubmit={handleSubmeter} className={styles.formStyled}>
+                            <div className={styles.formContent}>
+                                {modoModal !== 'incluir' && (
+                                    <div className={styles.formSection}>
+                                        <label className={styles.mainLabel}>SELECIONE O ITEM NO BANCO</label>
+                                        <select className={styles.selectInput} value={idItemSelecionado} onChange={(e) => {
+                                            const id = e.target.value;
+                                            setIdItemSelecionado(id);
+                                            const i = itensTabela.find(x => x.id === id);
+                                            if (i) { setGrupo(i.grupo); setItemNum(i.item); setDescricao(i.descricao); setFornecedor(i.fornecedor); setCnpj(i.cnpj); setQtd(i.qtd); setUndMed(i.undMed); setValorUnitario(i.valorUnitario); }
+                                        }} required>
+                                            <option value="">-- Escolha o item para alteração --</option>
+                                            {itensFiltrados.map(i => <option key={i.id} value={i.id}>G: {i.grupo} | Item {i.item} - {i.descricao.substring(0, 50)}...</option>)}
+                                        </select>
+                                    </div>
+                                )}
+                                <div className={styles.formSection}>
+                                    <div className={styles.inputGrid}>
+                                        <div className={styles.inputGroup}><label>Grupo</label><input className={styles.inputField} type="text" value={grupo} onChange={e => setGrupo(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                        <div className={styles.inputGroup}><label>Nº do Item</label><input className={styles.inputField} type="text" value={itemNum} onChange={e => setItemNum(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                        <div className={styles.inputGroup}><label>Unidade</label><input className={styles.inputField} type="text" value={undMed} onChange={e => setUndMed(e.target.value)} disabled={modoModal === 'excluir'} placeholder="Ex: UND..." required /></div>
+                                    </div>
+                                </div>
+                                <div className={styles.formSection}>
+                                    <div className={styles.inputGroup}><label>Descrição Completa</label><textarea className={styles.textareaField} value={descricao} onChange={e => setDescricao(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                </div>
+                                <div className={styles.formSection}>
+                                    <div className={styles.inputGrid}>
+                                        <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}><label>Fornecedor (Razão Social)</label><input className={styles.inputField} type="text" value={fornecedor} onChange={e => setFornecedor(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                        <div className={styles.inputGroup}><label>CNPJ</label><input className={styles.inputField} type="text" value={cnpj} onChange={e => setCnpj(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                    </div>
+                                </div>
+                                <div className={styles.formSection}>
+                                    <div className={styles.inputGrid}>
+                                        <div className={styles.inputGroup}><label>Quantidade</label><input className={styles.inputField} type="number" value={qtd} onChange={e => setQtd(e.target.value)} disabled={modoModal === 'excluir'} required /></div>
+                                        <div className={styles.inputGroup}><label>Valor Unitário (R$)</label><input className={styles.inputField} type="text" value={valorUnitario} onChange={e => setValorUnitario(e.target.value)} disabled={modoModal === 'excluir'} placeholder="45.50" required /></div>
+                                        <div className={styles.inputGroup}><label>Capacidade Calculada</label><div className={styles.calcDisplay}>{capacidadeEmpenho}</div></div>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div className={styles.formGroupFull}>
-                                <label>Descrição</label>
-                                <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} required disabled={camposDesabilitados}></textarea>
-                            </div>
-
-                            <div className={styles.formGroupFull}>
-                                <label>Fornecedor</label>
-                                <input type="text" value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} required disabled={camposDesabilitados} />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label>CNPJ</label>
-                                <input type="text" value={cnpj} onChange={(e) => setCnpj(e.target.value)} required disabled={camposDesabilitados} />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label>Qtd</label>
-                                <input type="number" value={qtd} onChange={(e) => setQtd(e.target.value)} required disabled={camposDesabilitados} />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label>Und. Med.</label>
-                                <input type="text" value={undMed} onChange={(e) => setUndMed(e.target.value)} required disabled={camposDesabilitados} />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label>Valor Und.</label>
-                                <input type="text" placeholder="Ex: 45.50" value={valorUnitario} onChange={(e) => setValorUnitario(e.target.value)} required disabled={camposDesabilitados} />
-                            </div>
-
-                            <div className={styles.formGroupFull}>
-                                <label>Capacidade de Empenho</label>
-                                <input type="text" value={capacidadeEmpenho} disabled className={styles.inputCalculado} />
-                            </div>
-
-                            <div className={styles.modalActions}>
-                                <button 
-                                    type="submit" 
-                                    className={modoModal === 'excluir' ? styles.btnConfirmarExcluir : styles.btnSalvar}
-                                >
-                                    {modoModal === 'incluir' && 'Salvar Item'}
-                                    {modoModal === 'editar' && 'Atualizar Item'}
-                                    {modoModal === 'excluir' && 'Confirmar Exclusão'}
-                                </button>
-
-                                <button type="button" className={styles.btnCancelar} onClick={fecharModal}>
-                                    Cancelar
+                            <div className={styles.formFooter}>
+                                <button type="button" onClick={fecharModal} className={styles.btnCancel}>CANCELAR</button>
+                                <button type="submit" className={styles.btnSubmit}>
+                                    {modoModal === 'incluir' && 'CADASTRAR ITEM'}
+                                    {modoModal === 'editar' && 'SALVAR ALTERAÇÕES'}
+                                    {modoModal === 'excluir' && 'CONFIRMAR EXCLUSÃO'}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {/* MODAL 3: DETALHAMENTO */}
+            {isViewModalOpen && itemDetalhado && (
+                <div className={styles.overlay}>
+                    <div className={styles.modalView}>
+                        <div className={styles.modalViewHeader} style={{ backgroundColor: '#1a365d' }}>
+                            <BsInfoCircleFill />
+                            <h3>DETALHAMENTO DO ITEM - {itemDetalhado.item}</h3>
+                        </div>
+                        <div className={styles.viewContent}>
+                            <div className={styles.viewSection}>
+                                <div className={styles.sectionHeader}><BsCart4 /> <h4>DADOS DO ITEM E QUANTITATIVOS</h4></div>
+                                <div className={styles.viewGrid}>
+                                    <div className={styles.viewItem}><label>Grupo</label><span>{itemDetalhado.grupo}</span></div>
+                                    <div className={styles.viewItem}><label>Item Nº</label><span>{itemDetalhado.item}</span></div>
+                                    <div className={styles.viewItem}><label>Quantidade</label><span>{itemDetalhado.qtd}</span></div>
+                                    <div className={styles.viewItem}><label>Und. Medida</label><span>{itemDetalhado.undMed}</span></div>
+                                    <div className={styles.viewItem}><label>Valor Unitário</label><span className={styles.valDestaque}>R$ {itemDetalhado.valorUnitario}</span></div>
+                                </div>
+                                <div className={styles.viewItem} style={{ marginTop: '15px' }}><label>Descrição do Item</label><p className={styles.descBox}>{itemDetalhado.descricao}</p></div>
+                            </div>
+                            <div className={styles.viewSection}>
+                                <div className={styles.sectionHeader}><BsBuilding /> <h4>INFORMAÇÕES DO FORNECEDOR</h4></div>
+                                <div className={styles.viewGrid}>
+                                    <div className={styles.viewItem} style={{ gridColumn: 'span 2' }}><label>Razão Social</label><span>{itemDetalhado.fornecedor}</span></div>
+                                    <div className={styles.viewItem}><label>CNPJ</label><span>{itemDetalhado.cnpj}</span></div>
+                                </div>
+                            </div>
+                            <div className={styles.viewSection}>
+                                <div className={styles.sectionHeader}><BsCashStack /> <h4>CONTROLE DE SALDOS E EMPENHOS</h4></div>
+                                <div className={styles.viewGrid}>
+                                    <div className={styles.viewItem}><label>Capacidade Total</label><span>{itemDetalhado.capacidadeEmpenho}</span></div>
+                                    <div className={styles.viewItem}><label>Capacidade Atual</label><span className={styles.financeValBold}>{itemDetalhado.capAtual}</span></div>
+                                </div>
+                                <div className={styles.viewGrid} style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #edf2f7' }}>
+                                    <div className={styles.viewItem}><label>RPNP 160</label><span>{itemDetalhado.r160}</span></div>
+                                    <div className={styles.viewItem}><label>RPNP 167</label><span>{itemDetalhado.r167}</span></div>
+                                    <div className={styles.viewItem}><label>CRED 160</label><span>{itemDetalhado.c160}</span></div>
+                                    <div className={styles.viewItem}><label>CRED 167</label><span>{itemDetalhado.c167}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.modalViewFooter}><button onClick={() => setIsViewModalOpen(false)}>FECHAR RELATÓRIO</button></div>
+                    </div>
+                </div>
+            )}
         </div>
-    )
+    );
 }
 
-export default Auction
+export default Auction;

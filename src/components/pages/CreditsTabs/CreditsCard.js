@@ -24,21 +24,19 @@ function CreditsCard({
 
     // LÓGICA DE ALERTA VISUAL: Identifica se o prazo exige layout vermelho de urgência (Exclusivo de NC)
     const verificarUrgenciaNC = () => {
-        if (tempoCronologico) return false; // Se for uma NE com tempo cronológico, ignora a urgência de prazo
+        if (tempoCronologico) return false; 
         if (!prazoEmpenho) return false;
         if (prazoEmpenho.toUpperCase() === 'EMPENHO IMEDIATO') return true;
 
         const dataPrazo = new Date(prazoEmpenho);
         const dataAtual = new Date();
         
-        // Zera as frações de hora para comparação precisa de dias inteiros
         dataPrazo.setHours(0, 0, 0, 0);
         dataAtual.setHours(0, 0, 0, 0);
 
         const diferencaEmMilissegundos = dataPrazo - dataAtual;
         const diferencaEmDias = Math.ceil(diferencaEmMilissegundos / (1000 * 60 * 60 * 24));
 
-        // Ativa se faltarem menos de 6 dias para expirar o prazo
         return diferencaEmDias < 6;
     };
 
@@ -61,13 +59,10 @@ function CreditsCard({
     };
 
     const isUrgente = verificarUrgenciaNC();
-    
-    // Injeta de forma reativa a classe vermelha de urgência no container do cartão
     const classeContainer = isUrgente 
         ? `${styles.card_general} ${styles.card_urgente}` 
         : styles.card_general;
 
-    // Converte a string de data ISO (AAAA-MM-DD) do input para o formato nacional (DD/MM/AAAA)
     const formatarPrazoExibicao = (prazo) => {
         if (!prazo) return 'Não informado';
         if (prazo.toUpperCase() === 'EMPENHO IMEDIATO') return prazo.toUpperCase();
@@ -81,7 +76,6 @@ function CreditsCard({
 
     return(
         <div className={classeContainer}>
-            {/* O Cabeçalho funciona como um link clicável seguro para o Drive */}
             <a 
                 href={linkDrive || '#'} 
                 target="_blank" 
@@ -94,16 +88,13 @@ function CreditsCard({
                 </div>
             </a>
 
-            {/* Se o card for de uma NE, exibe a identificação da NC Origem logo abaixo do título */}
             {numeroNC && (
                 <div className={styles.ncBadgeOverride}>
                     {numeroNC}
                 </div>
             )}
 
-            {/* Corpo estruturado em duas colunas (Esquerda: Processos | Direita: Informações Técnicas) */}
             <div className={styles.cardBody}>
-                {/* Lado Esquerdo: Metadados Administrativos */}
                 <div className={styles.infoLeft}>
                     <div className={styles.subInfoLeft}>
                         <label>Nº do Processo</label>
@@ -115,7 +106,6 @@ function CreditsCard({
                     </div>
                 </div>
 
-                {/* Lado Direito: Informações sobre os itens e fornecedores */}
                 <div className={styles.infoRight}>
                     <div className={styles.subInfo}>
                         <label>Material da NE (Item)</label>
@@ -132,7 +122,6 @@ function CreditsCard({
                 </div>
             </div>
 
-            {/* AJUSTADO: Seção Inferior Dinâmica protegida por renderização condicional estrita */}
             {(tempoCronologico || prazoEmpenho) && (
                 <div className={styles.prazoBlock}>
                     {tempoCronologico ? (
@@ -153,13 +142,11 @@ function CreditsCard({
                 </div>
             )}
 
-            {/* Divisória de valor intermediária */}
             <div className={styles.cardFooter}>
                 <label>VALOR ATUAL</label>
                 <span className={styles.valueHighlight}>{valorFormatado}</span>
             </div>
 
-            {/* Painel de ações integrado na base do card */}
             <div className={styles.project_card_actions}>
                 <button type="button" onClick={onEdit}>
                     <BsPencil /> EDITAR
