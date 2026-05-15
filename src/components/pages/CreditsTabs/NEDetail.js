@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/NEDetail.module.css';
-import { BsSave } from 'react-icons/bs'; // Certifique-se de ter react-icons instalado
+import { BsSave } from 'react-icons/bs';
 
 function NEDetail({ idNe, onVoltar }) {
     const [dados, setDados] = useState(null);
@@ -17,8 +17,8 @@ function NEDetail({ idNe, onVoltar }) {
         dataAtual.setHours(0, 0, 0, 0);
         const diff = Math.floor((dataAtual - dataNE) / (1000 * 60 * 60 * 24));
         
-        if (diff === 0) return "Empenhado hoje - Detalhamento Técnico";
-        return `Empenhado há ${diff} ${diff === 1 ? 'dia' : 'dias'} - Detalhamento Técnico`;
+        if (diff === 0) return "Empenhado hoje";
+        return `Empenhado há ${diff} ${diff === 1 ? 'dia' : 'dias'}`;
     };
 
     useEffect(() => {
@@ -49,12 +49,28 @@ function NEDetail({ idNe, onVoltar }) {
 
     const salvarObservacoes = async () => {
         setSalvandoObs(true);
+        
+        // Gerando o carimbo de data e hora
+        const agora = new Date();
+        const dataAtualizacao = agora.toLocaleDateString('pt-BR') + ' às ' + 
+                               agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
         try {
             await fetch(`http://localhost:5000/${dados.tipo}/${idNe}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ observacoes })
+                body: JSON.stringify({ 
+                    observacoes,
+                    ultimaAtualizacaoObs: dataAtualizacao 
+                })
             });
+
+            // Atualiza o estado local para exibir a data imediatamente
+            setDados(prev => ({
+                ...prev,
+                ne: { ...prev.ne, ultimaAtualizacaoObs: dataAtualizacao }
+            }));
+
             alert('Observação salva!');
         } catch (err) {
             alert('Erro ao salvar.');
@@ -97,9 +113,16 @@ function NEDetail({ idNe, onVoltar }) {
                     <div className={styles.row}><label>Material / Item:</label><p>{dados.ne.materialNE}</p></div>
                     <div className={styles.row}><label>Finalidade:</label><p>{dados.nc?.finalidade}</p></div>
 
-                    {/* Observações com o mesmo layout de ROW */}
+                    {/* Observações com carimbo de data atualizado */}
                     <div className={styles.row}>
-                        <label>Observações:</label>
+                        <div className={styles.labelObsContainer}>
+                            <label>Observações:</label>
+                            {dados.ne.ultimaAtualizacaoObs && (
+                                <span className={styles.dataDestaque}>
+                                    {dados.ne.ultimaAtualizacaoObs}
+                                </span>
+                            )}
+                        </div>
                         <div className={styles.obsWrapper}>
                             <textarea 
                                 className={styles.textareaObs}
@@ -145,7 +168,7 @@ function NEDetail({ idNe, onVoltar }) {
                                 <td>{nf.numeroNF}</td>
                                 <td>{parseFloat(nf.valor).toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</td>
                                 <td><span className={`${styles.badgeStatus} ${styles[nf.status]}`}>{nf.status.replace('_', ' ')}</span></td>
-                                <td><button className={styles.btnTabela} onClick={() => window.open(nf.linkDrive, '_blank')}>VISUALIZAR PDF</button></td>
+                                <td><button className={styles.btnTabela} onClick={() => window.open(nf.linkDriveNF, '_blank')}>VISUALIZAR PDF</button></td>
                             </tr>
                         ))}
                     </tbody>

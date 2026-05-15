@@ -1,17 +1,21 @@
 import styles from '../styles/styles_layout/CardSections.module.css';
-import { BsPencil, BsEye, BsFillTrashFill } from 'react-icons/bs';
+import { BsPencil, BsEye, BsFillTrashFill, BsCheckCircleFill, BsShieldLockFill } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
 
 function CardSections({ section, handleRemove }) {
     const statusColors = {
         "ACTIVE": styles.status_active,
-        "1": styles.status_active,
         "INACTIVE": styles.status_inactive,
-        "2": styles.status_inactive
     };
 
-    const isStatusActive = section?.status === "ACTIVE" || section?.status === "1";
+    const isStatusActive = section?.status === "ACTIVE";
     const circleColorClass = statusColors[section?.status] || styles.status_inactive;
+
+    const formatModuleName = (mod) => {
+        if (mod === 'ORDEM_SERVICO') return 'O.S.';
+        if (mod === 'CONTROLE_CREDITOS') return 'Créditos';
+        return mod;
+    };
 
     return (
         <div className={styles.card_general} id={`section-card-${section.id}`}>
@@ -26,6 +30,30 @@ function CardSections({ section, handleRemove }) {
             <p><span>Chefe:</span> {section?.chief || 'Não definido'}</p>
             <p><span>O.S. Abertas:</span> {section?.openingOrders || 0}</p>
             <p><span>O.S. Fechadas:</span> {section?.closingOrders || 0}</p>
+
+            <div className={styles.modules_container}>
+                <span>ACESSOS HABILITADOS:</span>
+                <div className={styles.modules_list}>
+                    {section?.modules && section.modules.length > 0 ? (
+                        section.modules.map((mod, index) => (
+                            <div key={index} className={styles.module_group}>
+                                <span className={styles.module_badge}>
+                                    <BsCheckCircleFill className={styles.module_icon} />
+                                    {formatModuleName(mod)}
+                                </span>
+                                {/* Exibe o nível se for o módulo de créditos */}
+                                {mod === 'CONTROLE_CREDITOS' && section.creditLevel !== 'NENHUM' && (
+                                    <span className={styles.level_badge}>
+                                        <BsShieldLockFill /> {section.creditLevel}
+                                    </span>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <span className={styles.no_modules}>Sem permissões</span>
+                    )}
+                </div>
+            </div>
 
             <div className={styles.project_card_actions}>
                 <Link to="/sectiondetails" state={{ section: section, action: 'EDITAR' }} >

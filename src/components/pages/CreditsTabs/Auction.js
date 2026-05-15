@@ -126,32 +126,55 @@ function Auction() {
     };
 
     const calcularTotaisItem = (item) => {
-        const identificador = `Item ${item.item} -`;
-        const r160 = todosRPNPs.filter(r => r.fonteRecurso === "160" && r.materialNE.includes(identificador)).reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
-        const r167 = todosRPNPs.filter(r => r.fonteRecurso === "167" && r.materialNE.includes(identificador)).reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+    // Identificador padrão usado nas NEs (Ex: "Item 1 -")
+    const identificador = `Item ${item.item} -`;
+    // Descrição limpa do item para bater com o formato dos RPNPs
+    const descricaoItem = item.descricao ? item.descricao.trim() : "";
 
-        const nesDesteItem = todasNEs.filter(ne => ne.materialNE.includes(identificador));
-        const c160 = nesDesteItem.reduce((acc, ne) => {
-            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
-            return nc?.fonteRecurso === "160" ? acc + (ne.valorAtual || 0) : acc;
-        }, 0);
-        const c167 = nesDesteItem.reduce((acc, ne) => {
-            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
-            return nc?.fonteRecurso === "167" ? acc + (ne.valorAtual || 0) : acc;
-        }, 0);
-
-        const capTotal = parseCurrency(item.capacidadeEmpenho);
-        const capAtual = capTotal - (r160 + r167 + c160 + c167);
-
-        return {
-            r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            r167: r167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            c160: c160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            c167: c167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            credTotal: (c160 + c167).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            capAtual: capAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-        };
+    // Filtro flexível para RPNPs: aceita o prefixo do item ou a descrição direta
+    const filtrarRPNP = (r, fonte) => {
+        if (r.fonteRecurso !== fonte) return false;
+        const textoMaterial = r.materialNE ? r.materialNE.trim() : "";
+        return textoMaterial.includes(identificador) || textoMaterial === descricaoItem;
     };
+
+    // Cálculos de RPNP (Fontes 160 e 167)
+    const r160 = todosRPNPs
+        .filter(r => filtrarRPNP(r, "160"))
+        .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+
+    const r167 = todosRPNPs
+        .filter(r => filtrarRPNP(r, "167"))
+        .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+
+    // Cálculos de NEs / Créditos (Fontes 160 e 167)
+    const nesDesteItem = todasNEs.filter(ne => ne.materialNE && ne.materialNE.includes(identificador));
+    
+    const c160 = nesDesteItem.reduce((acc, ne) => {
+        const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+        return nc?.fonteRecurso === "160" ? acc + (ne.valorAtual || 0) : acc;
+    }, 0);
+
+    const c167 = nesDesteItem.reduce((acc, ne) => {
+        const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+        return nc?.fonteRecurso === "167" ? acc + (ne.valorAtual || 0) : acc;
+    }, 0);
+
+    // Cálculos dos Saldos Globais
+    const capTotal = parseCurrency(item.capacidadeEmpenho);
+    const capAtual = capTotal - (r160 + r167 + c160 + c167);
+
+    // Retorno com formatação em Moeda (BRL)
+    return {
+        r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        r167: r167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        c160: c160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        c167: c167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        credTotal: (c160 + c167).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        capAtual: capAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    };
+};
+
 
     const itensFiltrados = itensTabela.filter(i => i.idPregaoVinculado === pregaoAtivo);
 
@@ -187,7 +210,8 @@ function Auction() {
                                 <th className={styles.colValor}>Capacidade Atual</th>
                                 <th className={styles.colValor}>RPNP 160</th>
                                 <th className={styles.colValor}>RPNP 167</th>
-                                <th className={styles.colValor}>CRED TOTAL</th>
+                                <th className={styles.colValor}>CRED 160</th>
+                                <th className={styles.colValor}>CRED 167</th>
                                 <th className={styles.colAcoes}>Ver</th>
                             </tr>
                         </thead>
@@ -203,7 +227,8 @@ function Auction() {
                                         <td className={styles.valorCol}>{totais.capAtual}</td>
                                         <td className={styles.valorCol}>{totais.r160}</td>
                                         <td className={styles.valorCol}>{totais.r167}</td>
-                                        <td className={styles.valorCol}>{totais.credTotal}</td>
+                                        <td className={styles.valorCol}>{totais.c160}</td>
+                                        <td className={styles.valorCol}>{totais.c167}</td>
                                         <td className={styles.textCenter}>
                                             <button className={styles.btnIconEye} onClick={() => { setItemDetalhado({ ...item, ...totais }); setIsViewModalOpen(true); }}>
                                                 <BsEye />
@@ -321,7 +346,7 @@ function Auction() {
                             </div>
                             <div className={styles.formFooter}>
                                 <button type="button" onClick={fecharModal} className={styles.btnCancel}>CANCELAR</button>
-                                <button type="submit" className={styles.btnSubmit}>
+                                <button type="submit" className={`${styles.btnSubmit} ${styles[modoModal]}`}>
                                     {modoModal === 'incluir' && 'CADASTRAR ITEM'}
                                     {modoModal === 'editar' && 'SALVAR ALTERAÇÕES'}
                                     {modoModal === 'excluir' && 'CONFIRMAR EXCLUSÃO'}

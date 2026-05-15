@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/Credits160.module.css';
 import CreditsCard from './CreditsCard'; 
 
-function Credits167() {
+function Credits167({ onVerDetalhes }) {
     const [listaNCs, setListaNCs] = useState([]);
     const [listaNEs, setListaNEs] = useState([]);
     const [listaNFs, setListaNFs] = useState([]); 
@@ -170,10 +170,10 @@ function Credits167() {
             if (item.linkDrive) window.open(item.linkDrive, '_blank', 'noopener,noreferrer');
             else alert('Link do Google Drive não localizado.');
         } else {
-            const ncOrigem = listaNCs.find(nc => nc.id === item.idNcVinculada) || {};
-            const { emLiquidacao, liquidado } = obterFluxoFinanceiroNe(item.id);
-            setItemDetalhado({ ne: item, nc: ncOrigem, emLiquidacao, liquidado });
-            setIsDetailModalOpen(true);
+            // Executa a função do pai para mudar a aba ativa na mesma janela
+            if (onVerDetalhes) {
+                onVerDetalhes(item.id);
+            }
         }
     };
 

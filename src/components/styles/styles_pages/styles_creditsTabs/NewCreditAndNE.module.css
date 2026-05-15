@@ -113,3 +113,43 @@
 
 .btnSubmit { background-color: #2f855a; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
 .btnSubmit:hover { opacity: 0.9; }
+
+.prazoContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.prazoContainer input[type="date"] {
+    flex: 1;
+}
+
+.checkboxLabel_Small {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #1e295d;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.checkboxLabel_Small input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.inputImediatoAtivo {
+    background-color: #f1f5f9;
+    color: #2b6cb0;
+    font-weight: bold;
+    text-align: center;
+    border: 1px dashed #cbd5e0 !important;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+}

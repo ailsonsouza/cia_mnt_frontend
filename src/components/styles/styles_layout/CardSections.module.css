@@ -2,55 +2,82 @@
     padding: 0px 15px 15px 15px;
     text-align: left;
     border-radius: 5px;
-    border: solid 2px;
+    border: solid 2px #222;
     margin-top: 1em;
     box-sizing: border-box; 
     width: calc(33.33% - 15px); 
-
-    /* --- PROPRIEDADES DE ANIMAÇÃO DE SAÍDA --- */
     opacity: 1;
     transform: scale(1);
-    transition: opacity 0.4s ease, transform 0.4s ease; /* Cria o efeito de esmaecer e encolher suavemente */
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    background-color: #fff;
 }
 
-/* --- NOVO CONTAINER PARA O TÍTULO E CÍRCULO --- */
 .title_container {
     display: flex;
-    justify-content: space-between; /* Coloca o nome à esquerda e o círculo à direita */
-    align-items: center; /* Alinha verticalmente no centro */
+    justify-content: space-between; 
+    align-items: center; 
     background-color: black;
     color: #ffbb33;
     border-radius: 5px;
-    padding: 5px 15px; /* Padding interno do container */
-    margin-bottom: 10px; /* Espaço para o restante do card */
+    padding: 8px 15px; 
+    margin-bottom: 15px; 
     margin-top: 10px;
 }
 
 .card_general h2 {
-    margin: 0; /* Remove margens padrão do h2 */
-    text-align: left; /* Alinha o texto à esquerda dentro do container */
-    font-size: 1.5em; /* Ajuste o tamanho conforme necessário */
+    margin: 0; 
+    font-size: 1.3em; 
+    text-transform: uppercase;
 }
 
-/* --- ESTILOS DO CÍRCULO DE STATUS --- */
 .status_circle {
-    width: 20px; /* Tamanho do círculo */
-    height: 20px;
-    border-radius: 50%; /* Torna um círculo perfeito */
-    border: 2px solid white; /* Borda branca para destacar no fundo preto */
+    width: 16px; 
+    height: 16px;
+    border-radius: 50%; 
+    border: 2px solid white; 
 }
 
-/* --- CORES DOS STATUS --- */
-.status_active {
-    background-color: #28a745; /* Verde (sucesso) */
+.status_active { background-color: #28a745; }
+.status_inactive { background-color: #dc3545; }
+
+.card_general span { font-weight: bold; }
+
+.modules_container {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
 }
 
-.status_inactive {
-    background-color: #dc3545; /* Vermelho (perigo/erro) */
+.modules_container span {
+    font-size: 0.75em;
+    display: block;
+    margin-bottom: 8px;
+    color: #64748b;
 }
 
-.card_general span {
-    font-weight: bold;
+.modules_list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.module_badge {
+    display: flex;
+    align-items: center;
+    background-color: #f0f4f8;
+    color: #1a365d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7em !important;
+    font-weight: 800 !important;
+    border: 1px solid #d1d9e6;
+    text-transform: uppercase;
+}
+
+.module_icon {
+    font-size: 0.9em;
+    margin-right: 4px;
+    color: #28a745;
 }
 
 .project_card_actions {
@@ -64,23 +91,19 @@
 .project_card_actions a,
 .project_card_actions button {
     text-decoration: none;
-    border: none;
     background-color: #FFF;
     color: #222;
-    font-size: .85em; 
-    padding: .6em 0.8em;
+    font-size: .75em; 
+    padding: .6em 0.5em;
     cursor: pointer;
     border: 1px solid #222;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.5s;
+    transition: 0.3s;
     width: 100%; 
     box-sizing: border-box;
-}
-
-.project_card_actions svg {
-    margin-right: .4em;
+    font-weight: bold;
 }
 
 .project_card_actions a:hover,
@@ -89,14 +112,35 @@
     color: #FFBB33;
 }
 
-/* --- ESTILO DO BOTÃO DE EXCLUIR --- */
 .project_card_actions .btn_excluir {
     border-color: #FF0000;
     color: #FF0000;
-    background-color: #FFF;
 }
 
 .project_card_actions .btn_excluir:hover {
     background-color: #FF0000;
     color: #FFF;
+}
+
+/* No CardSections.module.css, adicione ou atualize: */
+
+.module_group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.level_badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65em;
+    color: #e53e3e; /* Vermelho para destacar o nível de poder */
+    font-weight: 900;
+    text-transform: uppercase;
+    background: #fff5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #feb2b2;
+    width: fit-content;
 }

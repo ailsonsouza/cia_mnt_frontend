@@ -50,7 +50,7 @@ function Credits() {
             case 'creditos160': return 'GESTÃO ORÇAMENTÁRIA - 160212';
             case 'creditos167': return 'GESTÃO ORÇAMENTÁRIA - 167212';
             case 'nota_fiscal': return 'CONTROLE DE NOTAS FISCAIS';
-            case 'detalhe_ne': return 'DETALHAMENTO TÉCNICO DA NOTA DE EMPENHO';
+            case 'detalhe_ne': return 'DETALHAMENTO TÉCNICO';
             default: return 'CRÉDITOS';
         }
     };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import styles from '../../styles/styles_pages/styles_creditsTabs/NewNE.module.css'
-import { BsPlusSquareFill, BsInfoCircleFill, BsFileEarmarkTextFill, BsBuilding } from 'react-icons/bs'
+import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
+import { BsPlusSquareFill, BsInfoCircleFill, BsFileEarmarkTextFill, BsBuilding, BsCalendarDate } from 'react-icons/bs'
 
 function NewNE({ onClose, onSuccess }) {
     // Listas do banco de dados
@@ -21,8 +21,11 @@ function NewNE({ onClose, onSuccess }) {
     const [nomeFornecedor, setNomeFornecedor] = useState('')
     const [cnpjFornecedor, setCnpjFornecedor] = useState('')
     const [linkDriveNE, setLinkDriveNE] = useState('')
-
     const [isModoManual, setIsModoManual] = useState(false)
+
+    // Estados para Data de Geração
+    const [dataGeracaoNE, setDataGeracaoNE] = useState('')
+    const [isHoje, setIsHoje] = useState(true)
 
     // 1. CARREGAMENTO INICIAL
     useEffect(() => {
@@ -46,7 +49,17 @@ function NewNE({ onClose, onSuccess }) {
         fetchData();
     }, []);
 
-    // 2. MONITORAMENTO DA NC SELECIONADA
+    // 2. LÓGICA DA DATA DE GERAÇÃO (HOJE)
+    useEffect(() => {
+        if (isHoje) {
+            const hoje = new Date().toISOString().split('T')[0];
+            setDataGeracaoNE(hoje);
+        } else {
+            setDataGeracaoNE('');
+        }
+    }, [isHoje]);
+
+    // 3. MONITORAMENTO DA NC SELECIONADA
     useEffect(() => {
         if (!idNcSelecionada) {
             setNcDados({ processo: '', finalidade: '', omAplicacao: '', valor: 0, valorFormatado: 'R$ 0,00' });
@@ -64,7 +77,7 @@ function NewNE({ onClose, onSuccess }) {
         }
     }, [idNcSelecionada, listaNCs]);
 
-    // 3. SELEÇÃO DE MATERIAL
+    // 4. SELEÇÃO DE MATERIAL
     const handleMudarMaterial = (valorSelect) => {
         setIdMaterialSelecionado(valorSelect);
         if (valorSelect === 'OUTRO') {
@@ -80,7 +93,7 @@ function NewNE({ onClose, onSuccess }) {
         }
     }
 
-    // 4. SALVAR
+    // 5. SALVAR
     const handleSalvarNE = (e) => {
         e.preventDefault();
         let materialFinal = isModoManual ? descricaoItemManual : "";
@@ -100,7 +113,7 @@ function NewNE({ onClose, onSuccess }) {
             cnpjFornecedor,
             linkDriveNE,
             valorAtual: ncDados.valor,
-            dataGeracaoNE: new Date().toISOString().split('T')[0],
+            dataGeracaoNE: dataGeracaoNE,
             modalidade: isModoManual ? 'FORA_DO_PREGAO_MANUAL' : 'PREGAO_HOMOLOGADO'
         };
 
@@ -168,14 +181,32 @@ function NewNE({ onClose, onSuccess }) {
                                     <label>Número da N.E.</label>
                                     <input type="text" placeholder="Ex: 2026NE000142" className={styles.inputField} value={numeroNE} onChange={(e) => setNumeroNE(e.target.value)} required />
                                 </div>
+
                                 <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                                    <label>Data de Geração</label>
+                                    <div className={styles.prazoContainer}>
+                                        <input 
+                                            type="date" 
+                                            className={isHoje ? styles.inputImediatoAtivo : styles.inputField}
+                                            value={dataGeracaoNE} 
+                                            onChange={(e) => setDataGeracaoNE(e.target.value)} 
+                                            disabled={isHoje}
+                                            required 
+                                        />
+                                        <label className={styles.checkboxLabel_Small}>
+                                            <input type="checkbox" checked={isHoje} onChange={(e) => setIsHoje(e.target.checked)} />
+                                            Hoje
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className={styles.inputGroup} style={{ gridColumn: 'span 3' }}>
                                     <label>Material / Item do Pregão</label>
                                     <select className={styles.selectInput} value={idMaterialSelecionado} onChange={(e) => handleMudarMaterial(e.target.value)} required disabled={!idPregaoSelecionado}>
                                         <option value="">-- Selecione o item homologado --</option>
                                         {itensFiltrados.map(item => <option key={item.id} value={item.id}>Item {item.item} - {item.descricao.substring(0, 50)}...</option>)}
                                         <option value="OUTRO" style={{ color: '#c53030', fontWeight: 'bold' }}>+ OUTRA MODALIDADE (CARONA/DISPENSA)</option>
                                     </select>
-
                                 </div>
                             </div>
                             {isModoManual && (
@@ -194,16 +225,16 @@ function NewNE({ onClose, onSuccess }) {
                             <div className={styles.inputGrid}>
                                 <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
                                     <label>Razão Social</label>
-                                    <input type="text" className={styles.inputField} value={nomeFornecedor} onChange={(e) => setNomeFornecedor(e.target.value)} disabled={!isModoManual} required />
+                                    <input type="text" className={isModoManual ? styles.inputField : styles.inputField} style={!isModoManual ? {backgroundColor: '#f1f5f9', color: '#64748b', borderStyle: 'dashed'} : {}} value={nomeFornecedor} onChange={(e) => setNomeFornecedor(e.target.value)} disabled={!isModoManual} required />
                                 </div>
                                 <div className={styles.inputGroup}>
                                     <label>CNPJ</label>
-                                    <input type="text" className={styles.inputField} value={cnpjFornecedor} onChange={(e) => setCnpjFornecedor(e.target.value)} disabled={!isModoManual} required />
+                                    <input type="text" className={isModoManual ? styles.inputField : styles.inputField} style={!isModoManual ? {backgroundColor: '#f1f5f9', color: '#64748b', borderStyle: 'dashed'} : {}} value={cnpjFornecedor} onChange={(e) => setCnpjFornecedor(e.target.value)} disabled={!isModoManual} required />
                                 </div>
-                            </div>
-                            <div className={styles.inputGroup} style={{ marginTop: '15px' }}>
-                                <label>Link do Google Drive (Documento PDF)</label>
-                                <input type="url" placeholder="https://drive.google.com/..." className={styles.inputField} value={linkDriveNE} onChange={(e) => setLinkDriveNE(e.target.value)} required />
+                                <div className={styles.inputGroup} style={{ gridColumn: 'span 3' }}>
+                                    <label>Link do Google Drive (Documento PDF)</label>
+                                    <input type="url" placeholder="https://drive.google.com/..." className={styles.inputField} value={linkDriveNE} onChange={(e) => setLinkDriveNE(e.target.value)} required />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -218,4 +249,4 @@ function NewNE({ onClose, onSuccess }) {
     )
 }
 
-export default NewNE
+export default NewNE;

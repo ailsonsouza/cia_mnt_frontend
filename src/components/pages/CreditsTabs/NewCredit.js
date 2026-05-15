@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import styles from '../../styles/styles_pages/styles_creditsTabs/NewCredit.module.css'
+import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
+import { BsPlusSquareFill, BsInfoCircleFill, BsCalendarCheck, BsLink45Deg } from 'react-icons/bs'
 
 function NewCredit({ onClose, onSuccess }) {
     const [nc, setNc] = useState('')
@@ -21,11 +22,13 @@ function NewCredit({ onClose, onSuccess }) {
     }, [isImediato])
 
     const handleSalvarCredito = (e) => {
-        e.preventDefault()
-
-        // Captura a data exata do momento do cadastro no formato ISO (AAAA-MM-DD)
+        e.preventDefault();
         const hoje = new Date();
         const dataGeracaoStr = hoje.toISOString().split('T')[0];
+
+        const valorApenasNumerosEVirgula = valor.replace(/[^\d,]/g, '');
+        const valorComPontoDecimal = valorApenasNumerosEVirgula.replace(',', '.');
+        const valorNumericoFinal = parseFloat(valorComPontoDecimal) || 0;
 
         const novoCredito = {
             nc,
@@ -35,11 +38,11 @@ function NewCredit({ onClose, onSuccess }) {
             fonteRecurso,
             prazoEmpenho,
             linkDrive,
-            dataGeracao: dataGeracaoStr, // Persiste a data de geração para cálculo de dias decorridos
+            dataGeracao: dataGeracaoStr,
             material: "Informado no momento da N.E.",
             fornecedor: "Informado no momento da N.E.",
-            valor: parseFloat(valor.replace(/[^\d,.]/g, '').replace(',', '.')) || 0
-        }
+            valor: valorNumericoFinal
+        };
 
         fetch('http://localhost:5000/credits_nc', {
             method: 'POST',
@@ -47,150 +50,114 @@ function NewCredit({ onClose, onSuccess }) {
             body: JSON.stringify(novoCredito)
         })
         .then(res => {
-            if (!res.ok) throw new Error()
-            return res.json()
+            if (!res.ok) throw new Error();
+            return res.json();
         })
         .then(() => {
-            alert('Nota de Crédito salva com sucesso!')
-            
-            // Dispara o callback de atualização imediata da tela de fundo se ele existir
-            if (typeof onSuccess === 'function') {
-                onSuccess();
-            }
-            
-            fecharE_Limpar()
+            if (typeof onSuccess === 'function') onSuccess();
+            fecharE_Limpar();
         })
-        .catch(() => {
-            alert('Não foi possível salvar no db.json. O json-server está rodando?')
-        })
-    }
+        .catch(() => alert('Erro ao salvar no banco de dados.'));
+    };
 
     const fecharE_Limpar = () => {
-        setNc('')
-        setFinalidade('')
-        setOmAplicacao('')
-        setProcesso('')
-        setValor('')
-        setFonteRecurso('160')
-        setPrazoEmpenho('')
-        setLinkDrive('')
-        setIsImediato(false)
-        onClose()
+        setNc(''); setFinalidade(''); setOmAplicacao(''); setProcesso('');
+        setValor(''); setFonteRecurso('160'); setPrazoEmpenho('');
+        setLinkDrive(''); setIsImediato(false);
+        onClose();
     }
 
     return (
         <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-                <h2>Inserir Nota de Crédito (NC)</h2>
+            <div className={styles.modalForm}>
+                <div className={styles.modalHeader}>
+                    <BsPlusSquareFill />
+                    <h3>INSERIR NOTA DE CRÉDITO (NC)</h3>
+                </div>
                 
-                <form className={styles.modalForm} onSubmit={handleSalvarCredito}>
-                    <div className={styles.formGroup}>
-                        <label>Número da NC</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: 2025NC000807" 
-                            value={nc} 
-                            onChange={(e) => setNc(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>Valor do Crédito (R$)</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: 15450.00" 
-                            value={valor} 
-                            onChange={(e) => setValor(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>UG</label>
-                        <select 
-                            value={fonteRecurso} 
-                            onChange={(e) => setFonteRecurso(e.target.value)}
-                            className={styles.selectModal}
-                            required
-                        >
-                            <option value="160">160212</option>
-                            <option value="167">167212</option>
-                        </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>OM de Aplicação</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: B ADM AP/5º RM" 
-                            value={omAplicacao} 
-                            onChange={(e) => setOmAplicacao(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.formGroupFull}>
-                        <label>Número do Processo</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: 64138.008322/2025-91" 
-                            value={processo} 
-                            onChange={(e) => setProcesso(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.formGroupFull}>
-                        <label>Link do Arquivo no Google Drive</label>
-                        <input 
-                            type="url" 
-                            placeholder="https://google.com..." 
-                            value={linkDrive} 
-                            onChange={(e) => setLinkDrive(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.formGroupFull}>
-                        <label>Prazo para Empenho</label>
-                        <div className={styles.prazoContainer}>
-                            <input 
-                                type={isImediato ? "text" : "date"} 
-                                value={prazoEmpenho} 
-                                onChange={(e) => setPrazoEmpenho(e.target.value)} 
-                                disabled={isImediato}
-                                required 
-                                className={isImediato ? styles.inputImediatoAtivo : ''}
-                            />
-                            <label className={styles.checkboxLabel}>
-                                <input 
-                                    type="checkbox" 
-                                    checked={isImediato}
-                                    onChange={(e) => setIsImediato(e.target.checked)}
-                                />
-                                Empenho Imediato
-                            </label>
+                <form className={styles.formStyled} onSubmit={handleSalvarCredito}>
+                    <div className={styles.formContent}>
+                        
+                        {/* SEÇÃO 1: DADOS BÁSICOS */}
+                        <div className={styles.formSection}>
+                            <div className={styles.sectionHeader}>
+                                <BsInfoCircleFill /> <h4>1. IDENTIFICAÇÃO E ORIGEM</h4>
+                            </div>
+                            <div className={styles.inputGrid}>
+                                <div className={styles.inputGroup}>
+                                    <label>Número da NC</label>
+                                    <input type="text" placeholder="Ex: 2025NC000807" className={styles.inputField} value={nc} onChange={(e) => setNc(e.target.value)} required />
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <label>Valor (R$)</label>
+                                    <input type="text" placeholder="Ex: 15.450,00" className={styles.inputField} value={valor} onChange={(e) => setValor(e.target.value)} required />
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <label>UG (Fonte)</label>
+                                    <select className={styles.selectInput} value={fonteRecurso} onChange={(e) => setFonteRecurso(e.target.value)} required>
+                                        <option value="160">160212</option>
+                                        <option value="167">167212</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+
+                        {/* SEÇÃO 2: DETALHES TÉCNICOS */}
+                        <div className={styles.formSection}>
+                            <div className={styles.sectionHeader}>
+                                <BsCalendarCheck /> <h4>2. DETALHES TÉCNICOS E PRAZOS</h4>
+                            </div>
+                            <div className={styles.inputGrid}>
+                                <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                                    <label>OM de Aplicação</label>
+                                    <input type="text" placeholder="Ex: B ADM AP/5º RM" className={styles.inputField} value={omAplicacao} onChange={(e) => setOmAplicacao(e.target.value)} required />
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <label>Número do Processo</label>
+                                    <input type="text" placeholder="Ex: 64138.008322/2025-91" className={styles.inputField} value={processo} onChange={(e) => setProcesso(e.target.value)} required />
+                                </div>
+                                
+                                <div className={styles.inputGroup} style={{ gridColumn: 'span 3' }}>
+                                    <label>Prazo para Empenho</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                        <input 
+                                            type={isImediato ? "text" : "date"} 
+                                            className={styles.inputField}
+                                            style={{ flex: 1, textAlign: isImediato ? 'center' : 'left' }}
+                                            value={prazoEmpenho} 
+                                            onChange={(e) => setPrazoEmpenho(e.target.value)} 
+                                            disabled={isImediato}
+                                            required 
+                                        />
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: '800', color: '#2b6cb0', textTransform: 'uppercase' }}>
+                                            <input type="checkbox" checked={isImediato} onChange={(e) => setIsImediato(e.target.checked)} style={{ width: '16px', height: '16px' }} />
+                                            Empenho Imediato
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* SEÇÃO 3: DOCUMENTAÇÃO E FINALIDADE */}
+                        <div className={styles.formSection}>
+                            <div className={styles.sectionHeader}>
+                                <BsLink45Deg /> <h4>3. DOCUMENTAÇÃO E FINALIDADE</h4>
+                            </div>
+                            <div className={styles.inputGroup} style={{ marginBottom: '15px' }}>
+                                <label>Link do Google Drive (Documento NC)</label>
+                                <input type="url" placeholder="https://drive.google.com/..." className={styles.inputField} value={linkDrive} onChange={(e) => setLinkDrive(e.target.value)} required />
+                            </div>
+                            <div className={styles.inputGroup}>
+                                <label>Finalidade Detalhada</label>
+                                <textarea className={styles.textareaField} placeholder="Descreva a finalidade desta Nota de Crédito..." value={finalidade} onChange={(e) => setFinalidade(e.target.value)} required />
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div className={styles.formGroupFull}>
-                        <label>Finalidade</label>
-                        <textarea 
-                            placeholder="Descreva a finalidade detalhada desta Nota de Crédito..." 
-                            value={finalidade} 
-                            onChange={(e) => setFinalidade(e.target.value)} 
-                            required 
-                        />
-                    </div>
-
-                    <div className={styles.modalActions}>
-                        <button type="submit" className={styles.btnSalvar}>
-                            Salvar Crédito
-                        </button>
-                        <button type="button" className={styles.btnCancelar} onClick={fecharE_Limpar}>
-                            Cancelar
-                        </button>
+                    <div className={styles.formFooter}>
+                        <button type="button" className={styles.btnCancel} onClick={fecharE_Limpar}>CANCELAR</button>
+                        <button type="submit" className={styles.btnSubmit}>CADASTRAR CRÉDITO</button>
                     </div>
                 </form>
             </div>

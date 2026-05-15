@@ -37,18 +37,18 @@ function Sections(){
                     cardElement.style.opacity = '1';
                     cardElement.style.transform = 'scale(1)';
                 }
-                alert("Não foi possível excluir a seção. Verifique dependências.");
+                alert("Não foi possível excluir a seção. Verifique se existem ordens ou técnicos vinculadas.");
             });
         }, 400);
     }
 
     return(
         <div className={styles.sections_page}>
-            <h1>SEÇÕES</h1>
+            <h1>GERENCIAMENTO DE SEÇÕES</h1>
             <Container customClass="column"> 
                 <div className={styles.button_container}>
                     <Link to="/sectiondetails" state={{ action: 'NEWSECTION' }} className={styles.newSection}>
-                        NOVA SEÇÃO
+                        CADASTRAR NOVA SEÇÃO
                     </Link>
                 </div>
                 <div className={styles.grid_container}>
