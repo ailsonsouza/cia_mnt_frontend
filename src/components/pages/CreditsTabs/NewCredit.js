@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
 import { BsPlusSquareFill, BsInfoCircleFill, BsCalendarCheck, BsLink45Deg } from 'react-icons/bs'
+import { useAuth } from '../../context/AuthContext'
 
 function NewCredit({ onClose, onSuccess }) {
+    const { usuarioAtual } = useAuth();
+    
     const [nc, setNc] = useState('')
     const [finalidade, setFinalidade] = useState('')
     const [omAplicacao, setOmAplicacao] = useState('')
@@ -12,6 +15,22 @@ function NewCredit({ onClose, onSuccess }) {
     const [prazoEmpenho, setPrazoEmpenho] = useState('')
     const [isImediato, setIsImediato] = useState(false)
     const [linkDrive, setLinkDrive] = useState('')
+
+    // Função para gerar UUID simplificado
+    const gerarUUID = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
+    // Função para gerar código único no formato: SECAO-UUID (8 primeiros caracteres)
+    const gerarCodigoUnico = (secao) => {
+        const uuid = gerarUUID();
+        const uuidCurto = uuid.substring(0, 8);
+        return `${secao}-${uuidCurto}`;
+    };
 
     useEffect(() => {
         if (isImediato) {
@@ -30,8 +49,14 @@ function NewCredit({ onClose, onSuccess }) {
         const valorComPontoDecimal = valorApenasNumerosEVirgula.replace(',', '.');
         const valorNumericoFinal = parseFloat(valorComPontoDecimal) || 0;
 
+        // Gera o código único para esta NC
+        const codigoUnico = gerarCodigoUnico(usuarioAtual.secao);
+
         const novoCredito = {
             nc,
+            codigoUnico,
+            codigoOrigemPermanente: codigoUnico,
+            documentoAnterior: null,
             finalidade,
             omAplicacao,
             processo,
@@ -41,7 +66,8 @@ function NewCredit({ onClose, onSuccess }) {
             dataGeracao: dataGeracaoStr,
             material: "Informado no momento da N.E.",
             fornecedor: "Informado no momento da N.E.",
-            valor: valorNumericoFinal
+            valor: valorNumericoFinal,
+            detentor: usuarioAtual.secao  // ← DETENTOR = quem criou/está com o crédito
         };
 
         fetch('http://localhost:5000/credits_nc', {
@@ -54,6 +80,7 @@ function NewCredit({ onClose, onSuccess }) {
             return res.json();
         })
         .then(() => {
+            alert(`Nota de Crédito cadastrada com sucesso!\nCódigo: ${codigoUnico}`);
             if (typeof onSuccess === 'function') onSuccess();
             fecharE_Limpar();
         })

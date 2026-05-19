@@ -1,0 +1,204 @@
+.card_general {
+    padding: 0px 15px 15px 15px;
+    text-align: left;
+    border-radius: 5px;
+    border: 2px solid #222;
+    margin-top: 1em;
+    box-sizing: border-box; 
+    width: calc(33.33% - 14px); 
+    min-width: 320px; 
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Cabeçalho Preto com Texto Dourado */
+.title_container {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    background-color: black;
+    border-radius: 5px;
+    padding: 5px 15px; 
+    margin-bottom: 10px; 
+    margin-top: 10px;
+    transition: background-color 0.3s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.titleLinkWrapper { 
+    text-decoration: none !important; 
+    width: 100%; 
+    display: block; 
+}
+
+.titleLinkWrapper h2,
+.title_container h2 {
+    margin: 0 !important; 
+    padding: 0 !important;
+    font-size: 1.3em; 
+    font-weight: bold;
+    color: #ffbb33 !important;
+    text-align: center;
+}
+
+.cardBody {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 100px; 
+    padding: 5px 0;
+}
+
+.infoLeft { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    text-align: left; 
+}
+
+.infoRight { 
+    flex: 1.2; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    text-align: right; 
+}
+
+.cardBody label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.cardBody p {
+    margin: 0;
+    font-size: 11px; 
+    color: #333;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.valorDestaque {
+    font-size: 14px !important;
+    color: #28a745 !important;
+    font-weight: 800 !important;
+}
+
+.prazoBlock {
+    border-top: 1px dashed #ddd;
+    padding: 8px 0 2px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.prazoBlock label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #777;
+    text-transform: uppercase;
+}
+
+.prazoBlock p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: bold;
+    color: #2b6cb0;
+}
+
+.project_card_actions {
+    display: flex;   
+    flex-direction: row; 
+    align-items: center; 
+    margin-top: 0.5em;
+    gap: 5px; 
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.project_card_actions button {
+    background-color: #FFF;
+    color: #222;
+    font-size: .65em; 
+    padding: .6em 0.3em;
+    cursor: pointer;
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.5s;
+    flex: 1;
+    min-width: 70px;
+    box-sizing: border-box;
+    font-weight: bold;
+    gap: 4px;
+}
+
+.project_card_actions svg { 
+    font-size: 0.9em; 
+}
+
+.project_card_actions button:hover:not(.btn_excluir) { 
+    background-color: #222; 
+    color: #FFBB33; 
+}
+
+.project_card_actions .btn_excluir { 
+    border-color: #FF0000; 
+    color: #FF0000; 
+    background-color: #FFF; 
+}
+
+.project_card_actions .btn_excluir:hover { 
+    background-color: #FF0000; 
+    color: #FFF; 
+}
+
+.titleLinkWrapper:hover .title_container { 
+    background-color: #1a1a1a; 
+    box-shadow: 0 2px 8px rgba(255, 187, 51, 0.4); 
+}
+
+/* Cores Urgentes */
+.card_urgente {
+    background-color: #fff5f5; 
+    border-color: #e53e3e;     
+}
+
+.card_urgente .prazoTextoUrgente { 
+    color: #e53e3e !important; 
+    font-weight: 800; 
+}
+
+.card_urgente .project_card_actions button:not(.btn_excluir) { 
+    border-color: #9b2c2c; 
+    color: #9b2c2c; 
+}
+
+.card_urgente .project_card_actions button:not(.btn_excluir):hover { 
+    background-color: #9b2c2c; 
+    color: #ffffff; 
+}
+
+.card_disabled {
+    opacity: 0.7;
+    background-color: #f8fafc;
+    border-color: #cbd5e0;
+}
+
+.disabledMessage {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #fef3c7;
+    color: #d97706;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 4px;
+    text-transform: uppercase;
+}

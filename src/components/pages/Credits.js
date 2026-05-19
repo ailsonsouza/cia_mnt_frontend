@@ -2,36 +2,36 @@ import { useState, useEffect } from 'react'
 import styles from '../styles/styles_pages/Credits.module.css'
 import ActionButton from '../form/ActionButton'
 import Auction from './CreditsTabs/Auction'
-import Creditis160 from './CreditsTabs/Creditis160'
-import Credits167 from './CreditsTabs/Credits167'
+import CreditsPanel from './CreditsTabs/CreditsPanel'
 import NewCredit from './CreditsTabs/NewCredit'
 import NewNE from './CreditsTabs/NewNE'
 import Invoice from './CreditsTabs/Invoice'
 import RPNP from './CreditsTabs/RPNP'
 import NEDetail from './CreditsTabs/NEDetail'
+import { useAuth } from '../context/AuthContext'  // ← ADICIONE ESTA LINHA
 
 function Credits() {
+    const { usuarioAtual } = useAuth();  // ← ADICIONE ESTA LINHA
+    
     const [abaAtiva, setAbaAtiva] = useState(null)
-    const [abaAnterior, setAbaAnterior] = useState(null) // Armazena a aba de origem
+    const [abaAnterior, setAbaAnterior] = useState(null)
     const [isNcModalOpen, setIsNcModalOpen] = useState(false)
     const [isNeModalOpen, setIsNeModalOpen] = useState(false)
     const [idNeDetalhada, setIdNeDetalhada] = useState(null)
 
-    // Função para mudar para a "aba" de detalhamento salvando a origem
     const abrirDetalhes = (id) => {
-        setAbaAnterior(abaAtiva); // Salva a aba atual antes de mudar
+        setAbaAnterior(abaAtiva);
         setIdNeDetalhada(id);
         setAbaAtiva('detalhe_ne');
     };
 
-    // Função para retornar à aba correta
     const voltarParaOrigem = () => {
         if (abaAnterior) {
             setAbaAtiva(abaAnterior);
         } else {
-            setAbaAtiva('creditos160'); // Fallback caso não haja memória
+            setAbaAtiva('creditos160');
         }
-        setAbaAnterior(null); // Limpa a memória após voltar
+        setAbaAnterior(null);
     };
 
     const forcarAtualizacaoAba = () => {
@@ -55,14 +55,41 @@ function Credits() {
         }
     };
 
-    // Função para limpar a memória de navegação ao clicar nos botões principais do menu
     const gerenciarTrocaAbaManual = (novaAba) => {
         setAbaAtiva(novaAba);
         setAbaAnterior(null);
     };
 
+    // Função para obter a cor do nível do usuário
+    const getNivelCor = (nivel) => {
+        switch (nivel) {
+            case 'DESCENTRALIZADORA': return '#1e295d';
+            case 'INTERMEDIARIA': return '#2b6cb0';
+            case 'REQUISITANTE': return '#38a169';
+            default: return '#718096';
+        }
+    };
+
     return (
         <div className={styles.container}>
+            {/* Badge de usuário logado - fixo no canto */}
+            <div style={{
+                position: 'fixed',
+                bottom: '10px',
+                right: '10px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                zIndex: 9999,
+                fontFamily: 'monospace',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                backgroundColor: getNivelCor(usuarioAtual.nivel),
+                color: 'white'
+            }}>
+                📋 {usuarioAtual.secao} - {usuarioAtual.nivel}
+            </div>
+
             <div className={styles.menuGrid}>
                 <ActionButton text="PREGÃO" handleOnClick={() => gerenciarTrocaAbaManual('pregao')} />
                 <ActionButton text="RPNP 160" handleOnClick={() => gerenciarTrocaAbaManual('rpnp160')} />
@@ -94,14 +121,18 @@ function Credits() {
                 )}
                 
                 {abaAtiva === 'creditos160' && (
-                    <Creditis160 
-                        onVerDetalhes={abrirDetalhes} 
+                    <CreditsPanel 
+                        fonteAlvo="160"
+                        ugAlvo="160212"
+                        onVerDetalhes={abrirDetalhes}
                     />
                 )}
                 
                 {abaAtiva === 'creditos167' && (
-                    <Credits167 
-                        onVerDetalhes={abrirDetalhes} 
+                    <CreditsPanel 
+                        fonteAlvo="167"
+                        ugAlvo="167212"
+                        onVerDetalhes={abrirDetalhes}
                     />
                 )}
                 

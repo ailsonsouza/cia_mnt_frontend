@@ -1,0 +1,230 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 4000;
+}
+
+.modalForm {
+    background: white;
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalHeader {
+    padding: 20px 25px;
+    background-color: #1e295d;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.formContent {
+    padding: 25px;
+    background-color: #f8fafc;
+}
+
+.infoBox {
+    background-color: #ebf8ff;
+    border-left: 4px solid #2b6cb0;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.infoIcon {
+    color: #2b6cb0;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.infoText {
+    font-size: 0.85rem;
+    color: #2d3748;
+    line-height: 1.4;
+}
+
+.infoText strong {
+    color: #1e295d;
+}
+
+.infoText span {
+    font-size: 0.75rem;
+    color: #4a5568;
+}
+
+.formSection {
+    margin-bottom: 20px;
+}
+
+.mainLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.opcoesGrid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.opcaoBtn {
+    flex: 1;
+    padding: 12px;
+    background-color: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.opcaoBtn:hover {
+    border-color: #2b6cb0;
+    background-color: #f7fafc;
+}
+
+.opcaoSelecionada {
+    border-color: #2b6cb0;
+    background-color: #ebf8ff;
+}
+
+.opcaoLabel {
+    display: block;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #2d3748;
+}
+
+.opcaoNivel {
+    display: block;
+    font-size: 0.6rem;
+    color: #718096;
+    margin-top: 4px;
+}
+
+.valorInputWrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.moedaSimbolo {
+    padding: 12px 15px;
+    background-color: #f1f5f9;
+    font-weight: 800;
+    color: #4a5568;
+    border-right: 1px solid #e2e8f0;
+}
+
+.valorInput {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    outline: none;
+}
+
+.valorInput:focus {
+    background-color: #fff;
+}
+
+.valorDisponivel {
+    font-size: 0.7rem;
+    color: #718096;
+    margin-top: 8px;
+    text-align: right;
+}
+
+.erroBox {
+    background-color: #fff5f5;
+    border: 1px solid #fc8181;
+    color: #c53030;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    margin-top: 15px;
+}
+
+.formFooter {
+    padding: 15px 25px;
+    background: #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btnCancel {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnCancel:hover {
+    background: #475569;
+}
+
+.btnConfirm {
+    background-color: #2f855a;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btnConfirm:hover {
+    opacity: 0.9;
+}
