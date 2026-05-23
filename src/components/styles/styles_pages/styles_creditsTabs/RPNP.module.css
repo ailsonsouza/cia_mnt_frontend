@@ -14,16 +14,70 @@
     text-transform: uppercase;
 }
 
+/* SELETOR DE UG */
+.ugSelectorContainer {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.ugInfo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.ugLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #4a5568;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.ugToggle {
+    display: flex;
+    gap: 8px;
+    background-color: #edf2f7;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.ugOption {
+    padding: 6px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #4a5568;
+}
+
+.ugOption.active {
+    background-color: #2b6cb0;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ugOption:hover:not(.active) {
+    background-color: #e2e8f0;
+    color: #2d3748;
+}
+
 /* Painel superior com botão alinhado à direita idêntico ao modelo adotado */
 .actionPanel {
     display: flex;
     justify-content: flex-end;
     width: 100%;
-    margin-bottom: -10px; /* Ajuste sutil de margem para aproximar da barra */
+    margin-bottom: -10px;
 }
 
 .btnIncluir {
-    background-color: #28a745; /* Verde padrão adotado nas inclusões */
+    background-color: #28a745;
     color: #ffffff;
     padding: 10px 20px;
     font-size: 11px;
@@ -42,14 +96,14 @@
 /* --- BARRA DE FILTROS CENTRALIZADA --- */
 .filterBar {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
     gap: 20px;
     background-color: #f8f9fa;
     padding: 15px 20px;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    margin-bottom: 30px; 
+    margin-bottom: 30px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -58,8 +112,8 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    flex: 1; 
-    max-width: 300px; 
+    flex: 1;
+    max-width: 300px;
 }
 
 .filterGroup label {
@@ -82,14 +136,18 @@
     box-sizing: border-box;
 }
 
-/* --- GRID DE EXIBIÇÃO: CORRIGIDO DE GRID PARA FLEXBOX IGUAL AO CREDITS160 --- */
+.filterGroup input:focus {
+    border-color: #2b6cb0;
+}
+
+/* --- GRID DE EXIBIÇÃO --- */
 .cardGrid {
-    display: flex;               
-    flex-wrap: wrap;             
-    gap: 20px;                   
-    width: 100%;                 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
     box-sizing: border-box;
-    justify-content: flex-start; 
+    justify-content: flex-start;
 }
 
 .noResults {
@@ -120,7 +178,7 @@
     background-color: #ffffff;
     padding: 25px;
     border-radius: 6px;
-    width: 650px; /* Largura expandida para suportar as duas seções horizontais */
+    width: 650px;
     max-width: 95%;
     max-height: 90vh;
     overflow-y: auto;
@@ -146,17 +204,17 @@
     gap: 12px;
 }
 
-.formGroup { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px; 
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.formGroupFull { 
-    grid-column: span 2; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px; 
+.formGroupFull {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .modalForm label {
@@ -179,6 +237,11 @@
     font-family: inherit;
 }
 
+.modalForm input:focus,
+.modalForm textarea:focus {
+    border-color: #2b6cb0;
+}
+
 .modalActions {
     grid-column: span 2;
     display: flex;
@@ -189,28 +252,36 @@
     padding-top: 15px;
 }
 
-.btnSalvar { 
-    background-color: #28a745; 
-    color: white; 
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-weight: bold; 
+.btnSalvar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
     text-transform: uppercase;
     font-size: 12px;
 }
 
-.btnCancelar { 
-    background-color: #6c757d; 
-    color: white; 
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-weight: bold; 
+.btnSalvar:hover {
+    background-color: #218838;
+}
+
+.btnCancelar {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
     text-transform: uppercase;
     font-size: 12px;
+}
+
+.btnCancelar:hover {
+    background-color: #5a6268;
 }
 
 .btnLinkDoc {
@@ -233,4 +304,48 @@
 .btnLinkDoc:disabled {
     background-color: #cbd5e0;
     cursor: not-allowed;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .ugInfo {
+        justify-content: flex-start;
+    }
+    
+    .filterBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filterGroup {
+        max-width: 100%;
+    }
+    
+    .modalForm {
+        grid-template-columns: 1fr;
+    }
+    
+    .formGroupFull {
+        grid-column: span 1;
+    }
+    
+    .modalActions {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .ugOption {
+        padding: 4px 12px;
+        font-size: 0.7rem;
+    }
+    
+    .btnIncluir {
+        padding: 8px 16px;
+        font-size: 10px;
+    }
+    
+    .modalContent {
+        padding: 15px;
+    }
 }

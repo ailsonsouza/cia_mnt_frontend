@@ -202,3 +202,20 @@
     border-radius: 4px;
     text-transform: uppercase;
 }
+.btn_devolver {
+    border-color: #2b6cb0 !important;
+    color: #2b6cb0 !important;
+    background-color: #FFF !important;
+}
+
+.btn_devolver:hover {
+    background-color: #2b6cb0 !important;
+    color: #FFF !important;
+}
+
+.btn_disabled {
+    border-color: #cbd5e0 !important;
+    color: #a0aec0 !important;
+    background-color: #f1f5f9 !important;
+    cursor: not-allowed !important;
+}

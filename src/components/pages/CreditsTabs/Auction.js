@@ -104,11 +104,26 @@ function Auction() {
             fetch(`http://localhost:5000/credits/${idItemSelecionado}`, { method: 'DELETE' }).then(() => { carregarDados(); fecharModal(); });
             return;
         }
+        
+        const valorUnitarioNumero = parseFloat(String(valorUnitario).replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
+        const capacidadeCalculada = (parseFloat(qtd) || 0) * valorUnitarioNumero;
+        
         const dados = {
             idPregaoVinculado: pregaoAtivo,
-            grupo, item: itemNum, descricao, fornecedor, cnpj,
-            qtd: parseFloat(qtd), undMed, valorUnitario, capacidadeEmpenho,
-            valorEmpenhado: 'R$ 0,00', rpnp160: 'R$ 0,00', rpnp167: 'R$ 0,00', creditos160: 'R$ 0,00', creditos167: 'R$ 0,00'
+            grupo, 
+            item: itemNum, 
+            descricao, 
+            fornecedor, 
+            cnpj,
+            qtd: parseFloat(qtd) || 0, 
+            undMed, 
+            valorUnitario: valorUnitarioNumero,
+            capacidadeEmpenho: capacidadeCalculada,
+            valorEmpenhado: 'R$ 0,00', 
+            rpnp160: 'R$ 0,00', 
+            rpnp167: 'R$ 0,00', 
+            creditos160: 'R$ 0,00', 
+            creditos167: 'R$ 0,00'
         };
         const url = modoModal === 'incluir' ? 'http://localhost:5000/credits' : `http://localhost:5000/credits/${idItemSelecionado}`;
         fetch(url, { method: modoModal === 'incluir' ? 'POST' : 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }).then(() => { carregarDados(); fecharModal(); });
@@ -125,56 +140,47 @@ function Auction() {
         return parseFloat(value.replace("R$", "").replace(/\./g, "").replace(",", ".")) || 0;
     };
 
+    // NOVA FUNÇÃO: Calcular totais usando IDs fortes
     const calcularTotaisItem = (item) => {
-    // Identificador padrão usado nas NEs (Ex: "Item 1 -")
-    const identificador = `Item ${item.item} -`;
-    // Descrição limpa do item para bater com o formato dos RPNPs
-    const descricaoItem = item.descricao ? item.descricao.trim() : "";
+        // Usa o ID do item do pregão para vincular aos RPNPs
+        const idItemPregao = item.id;
+        
+        // Filtra RPNPs pelo idItemPregaoVinculado (campo fortalecido)
+        const r160 = todosRPNPs
+            .filter(r => r.fonteRecurso === "160" && r.idItemPregaoVinculado === idItemPregao)
+            .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
 
-    // Filtro flexível para RPNPs: aceita o prefixo do item ou a descrição direta
-    const filtrarRPNP = (r, fonte) => {
-        if (r.fonteRecurso !== fonte) return false;
-        const textoMaterial = r.materialNE ? r.materialNE.trim() : "";
-        return textoMaterial.includes(identificador) || textoMaterial === descricaoItem;
+        const r167 = todosRPNPs
+            .filter(r => r.fonteRecurso === "167" && r.idItemPregaoVinculado === idItemPregao)
+            .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
+
+        // Filtra NEs pelo idItemPregaoVinculado
+        const nesDesteItem = todasNEs.filter(ne => ne.idItemPregaoVinculado === idItemPregao);
+        
+        // Busca as NCs vinculadas às NEs para saber a fonte de recurso
+        const c160 = nesDesteItem.reduce((acc, ne) => {
+            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+            return nc?.fonteRecurso === "160" ? acc + (ne.valorAtual || 0) : acc;
+        }, 0);
+
+        const c167 = nesDesteItem.reduce((acc, ne) => {
+            const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
+            return nc?.fonteRecurso === "167" ? acc + (ne.valorAtual || 0) : acc;
+        }, 0);
+
+        // Cálculos dos Saldos Globais
+        const capTotal = parseCurrency(item.capacidadeEmpenho);
+        const capAtual = capTotal - (r160 + r167 + c160 + c167);
+
+        return {
+            r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            r167: r167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            c160: c160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            c167: c167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            credTotal: (c160 + c167).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            capAtual: capAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        };
     };
-
-    // Cálculos de RPNP (Fontes 160 e 167)
-    const r160 = todosRPNPs
-        .filter(r => filtrarRPNP(r, "160"))
-        .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
-
-    const r167 = todosRPNPs
-        .filter(r => filtrarRPNP(r, "167"))
-        .reduce((acc, curr) => acc + (curr.valorAtual || 0), 0);
-
-    // Cálculos de NEs / Créditos (Fontes 160 e 167)
-    const nesDesteItem = todasNEs.filter(ne => ne.materialNE && ne.materialNE.includes(identificador));
-    
-    const c160 = nesDesteItem.reduce((acc, ne) => {
-        const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
-        return nc?.fonteRecurso === "160" ? acc + (ne.valorAtual || 0) : acc;
-    }, 0);
-
-    const c167 = nesDesteItem.reduce((acc, ne) => {
-        const nc = todasNCs.find(nc => nc.id === ne.idNcVinculada);
-        return nc?.fonteRecurso === "167" ? acc + (ne.valorAtual || 0) : acc;
-    }, 0);
-
-    // Cálculos dos Saldos Globais
-    const capTotal = parseCurrency(item.capacidadeEmpenho);
-    const capAtual = capTotal - (r160 + r167 + c160 + c167);
-
-    // Retorno com formatação em Moeda (BRL)
-    return {
-        r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        r167: r167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        c160: c160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        c167: c167.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        credTotal: (c160 + c167).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        capAtual: capAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    };
-};
-
 
     const itensFiltrados = itensTabela.filter(i => i.idPregaoVinculado === pregaoAtivo);
 

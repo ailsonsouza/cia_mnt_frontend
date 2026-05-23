@@ -3,7 +3,7 @@
     justify-content: space-between;
     background-color: #222;
     padding: .5em 0;
-    border-bottom: 2px solid #ffbb33; /* Linha amarela de acabamento padrão do sistema */
+    border-bottom: 2px solid #ffbb33;
 }
 
 .list {
@@ -15,7 +15,6 @@
     padding: 0;
 }
 
-/* Força apenas o link Home a ficar isolado na extrema esquerda */
 .item_home {
     margin-right: auto;
 }
@@ -32,11 +31,10 @@
     color: #ffbb33;
 }
 
-/* Agrupa os outros menus jogando-os em linha para a direita */
 .nav_menu_group {
     display: flex;
     align-items: center;
-    gap: 1.5em; /* Espaçamento padrão entre as opções do menu */
+    gap: 1.5em;
 }
 
 .item {
@@ -55,7 +53,76 @@
     color: #ffbb33;
 }
 
-/* --- BLOCO DE DESTAQUE DO USUÁRIO OPERADOR --- */
+/* ============================================
+   DROPDOWN DO CRÉDITOS
+   ============================================ */
+.item_dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.dropdown_trigger {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+    padding: 8px 0;
+}
+
+.dropdown_trigger:hover {
+    color: #ffbb33;
+}
+
+.dropdown_menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 4px;
+    min-width: 180px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown_item {
+    display: block;
+    padding: 10px 16px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown_item:hover {
+    background-color: #ffbb33;
+    color: #222;
+}
+
+.dropdown_divider {
+    height: 1px;
+    background-color: #444;
+    margin: 4px 0;
+}
+
+/* ============================================
+   BLOCO DO USUÁRIO
+   ============================================ */
 .user_session_block {
     display: flex;
     align-items: center;
@@ -64,10 +131,9 @@
     border-radius: 4px;
     border: 1px solid #444;
     gap: 12px;
-    margin-left: 1em; /* Afasta o bloco do último link da navegação */
+    margin-left: 1em;
 }
 
-/* Texto de identificação militar */
 .user_info_label {
     display: flex;
     flex-direction: row;
@@ -83,11 +149,10 @@
 }
 
 .user_section {
-    color: #ffbb33; /* Amarelo destaca a Seção do usuário logado */
+    color: #ffbb33;
     font-weight: bold;
 }
 
-/* Botão Sair estilizado na cor vermelha padrão do seu sistema */
 .btn_sair {
     background-color: hsl(0, 78%, 27%);
     color: #fff;
@@ -101,5 +166,5 @@
 }
 
 .btn_sair:hover {
-    background-color: #ff0000; /* Fica vermelho vivo ao passar o mouse */
+    background-color: #ff0000;
 }

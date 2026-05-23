@@ -14,8 +14,9 @@
 .modalForm {
     background: white;
     border-radius: 12px;
-    width: 500px;
+    width: 550px;
     max-width: 90%;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -41,6 +42,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-shrink: 0;
 }
 
 .modalHeader h3 {
@@ -54,6 +56,8 @@
 .formContent {
     padding: 25px;
     background-color: #f8fafc;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .infoBox {
@@ -167,10 +171,28 @@
     font-weight: 600;
     color: #2d3748;
     outline: none;
+    font-family: inherit;
 }
 
 .valorInput:focus {
     background-color: #fff;
+}
+
+.valorInput[type="text"], 
+.valorInput[type="url"], 
+.valorInput[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
+textarea.valorInput {
+    resize: vertical;
+    font-family: inherit;
 }
 
 .valorDisponivel {
@@ -197,6 +219,7 @@
     justify-content: flex-end;
     gap: 15px;
     border-top: 1px solid #e2e8f0;
+    flex-shrink: 0;
 }
 
 .btnCancel {
@@ -227,4 +250,120 @@
 
 .btnConfirm:hover {
     opacity: 0.9;
+}
+
+/* Estilos para inputs dentro do modal */
+.modalForm input[type="text"],
+.modalForm input[type="url"],
+.modalForm input[type="date"],
+.modalForm textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.modalForm input:focus,
+.modalForm textarea:focus {
+    outline: none;
+    border-color: #2b6cb0;
+    box-shadow: 0 0 0 1px #2b6cb0;
+}
+
+/* Grid para dois campos lado a lado */
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.formGridFull {
+    grid-column: span 2;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .modalForm {
+        width: 95%;
+    }
+    
+    .formGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .formGridFull {
+        grid-column: span 1;
+    }
+    
+    .opcoesGrid {
+        flex-direction: column;
+    }
+    
+    .modalHeader h3 {
+        font-size: 0.85rem;
+    }
+}
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #2b6cb0;
+    cursor: pointer;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #ebf8ff;
+    border-radius: 6px;
+}
+
+.checkboxLabel input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkboxLabel:hover {
+    background-color: #e2f0ff;
+}
+
+.carregandoText {
+    padding: 12px;
+    text-align: center;
+    color: #718096;
+    font-size: 0.8rem;
+    background-color: #f8fafc;
+    border-radius: 6px;
+}
+
+.selectDestino {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: white;
+    color: #2d3748;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.selectDestino:hover {
+    border-color: #2b6cb0;
+}
+
+.selectDestino:focus {
+    outline: none;
+    border-color: #2b6cb0;
+    box-shadow: 0 0 0 1px #2b6cb0;
+}
+
+.selectDestino option {
+    padding: 10px;
 }

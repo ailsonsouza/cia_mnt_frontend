@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/NEDetail.module.css';
-import { BsSave } from 'react-icons/bs';
+import { BsSave, BsArrowLeftRight } from 'react-icons/bs';
 
 function NEDetail({ idNe, onVoltar }) {
     const [dados, setDados] = useState(null);
@@ -8,6 +8,7 @@ function NEDetail({ idNe, onVoltar }) {
     const [carregando, setCarregando] = useState(true);
     const [observacoes, setObservacoes] = useState('');
     const [salvandoObs, setSalvandoObs] = useState(false);
+    const [ncOrigem, setNcOrigem] = useState(null);
 
     const obterTextoEmpenhado = (dataGeracao) => {
         if (!dataGeracao) return "DETALHAMENTO TÉCNICO E FLUXO DE LIQUIDAÇÃO";
@@ -32,10 +33,31 @@ function NEDetail({ idNe, onVoltar }) {
                 ]);
 
                 const neData = resNE.id ? resNE : resRPNP;
-                const ncOrigem = resNC.find(nc => nc.id === neData.idNcVinculada) || neData;
-                const nfsVinculadas = resNF.filter(nf => nf.idNeVinculada === idNe);
+                const tipo = resNE.id ? 'NE' : 'RPNP';
+                
+                // Buscar NC de origem
+                const ncOrigemData = resNC.find(nc => nc.id === neData.idNcVinculada);
+                
+                // Se a NC for uma transferência, buscar a original
+                let ncOriginalData = null;
+                if (ncOrigemData && ncOrigemData.documentoAnterior) {
+                    const resOriginal = await fetch(`http://localhost:5000/credits_nc?codigoUnico=${ncOrigemData.documentoAnterior}`);
+                    const originalData = await resOriginal.json();
+                    if (originalData.length > 0) {
+                        ncOriginalData = originalData[0];
+                    }
+                }
+                
+                // CORREÇÃO: Filtrar NFs corretamente
+                const nfsVinculadas = Array.isArray(resNF) 
+                    ? resNF.filter(nf => nf.idNeVinculada === idNe)
+                    : [];
 
-                setDados({ ne: neData, nc: ncOrigem, tipo: resNE.id ? 'credits_ne' : 'credits_rpnp' });
+                setDados({ ne: neData, tipo });
+                setNcOrigem({
+                    ...ncOrigemData,
+                    original: ncOriginalData
+                });
                 setObservacoes(neData.observacoes || '');
                 setListaNFs(nfsVinculadas);
                 setCarregando(false);
@@ -50,13 +72,13 @@ function NEDetail({ idNe, onVoltar }) {
     const salvarObservacoes = async () => {
         setSalvandoObs(true);
         
-        // Gerando o carimbo de data e hora
         const agora = new Date();
         const dataAtualizacao = agora.toLocaleDateString('pt-BR') + ' às ' + 
                                agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
         try {
-            await fetch(`http://localhost:5000/${dados.tipo}/${idNe}`, {
+            const endpoint = dados?.tipo === 'NE' ? 'credits_ne' : 'credits_rpnp';
+            await fetch(`http://localhost:5000/${endpoint}/${idNe}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -65,7 +87,6 @@ function NEDetail({ idNe, onVoltar }) {
                 })
             });
 
-            // Atualiza o estado local para exibir a data imediatamente
             setDados(prev => ({
                 ...prev,
                 ne: { ...prev.ne, ultimaAtualizacaoObs: dataAtualizacao }
@@ -82,10 +103,15 @@ function NEDetail({ idNe, onVoltar }) {
     if (carregando) return <div className={styles.loader}>Carregando...</div>;
     if (!dados) return <div className={styles.error}>Não encontrado.</div>;
 
-    const valorTotalNe = dados.ne.valorAtual || dados.nc?.valor || 0;
+    const valorTotalNe = dados.ne.valorAtual || 0;
     const emLiquidacao = listaNFs.filter(nf => nf.status === 'ENVIADA_LIQUIDACAO').reduce((s, n) => s + (parseFloat(n.valor) || 0), 0);
     const liquidado = listaNFs.filter(nf => nf.status === 'LIQUIDADA').reduce((s, n) => s + (parseFloat(n.valor) || 0), 0);
     const saldoLiquido = valorTotalNe - emLiquidacao - liquidado;
+
+    const formatarMoeda = (valor) => {
+        if (typeof valor !== 'number') return 'R$ 0,00';
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
 
     return (
         <div className={styles.container}>
@@ -94,26 +120,63 @@ function NEDetail({ idNe, onVoltar }) {
                 <div className={styles.infoPrincipal}>
                     <h2>{dados.ne.numeroNE}</h2>
                     <p>{obterTextoEmpenhado(dados.ne.dataGeracaoNE)}</p>
+                    <span className={styles.tipoBadge}>{dados.tipo}</span>
                 </div>
                 <div className={styles.buttonGroup}>
-                    <button className={styles.btnDriveNC} onClick={() => window.open(dados.nc?.linkDrive || dados.ne.linkDrive, '_blank')}>VER NC</button>
-                    <button className={styles.btnDriveNE} onClick={() => window.open(dados.ne.linkDriveNE, '_blank')}>VER NE</button>
+                    {ncOrigem && (
+                        <button className={styles.btnDriveNC} onClick={() => window.open(ncOrigem.linkDrive, '_blank')}>
+                            VER NC ORIGEM
+                        </button>
+                    )}
+                    <button className={styles.btnDriveNE} onClick={() => window.open(dados.ne.linkDriveNE, '_blank')}>
+                        VER {dados.tipo}
+                    </button>
                 </div>
             </div>
+
+            {/* RASTRO DA NC DE ORIGEM */}
+            {ncOrigem && (
+                <div className={styles.rastroContainer}>
+                    <h3>📋 ORIGEM DO CRÉDITO</h3>
+                    <div className={styles.rastroInfo}>
+                        <div className={styles.rastroItem}>
+                            <span className={styles.rastroLabel}>NC de Origem:</span>
+                            <strong>{ncOrigem.nc}</strong>
+                            <span className={styles.rastroDetalhe}>
+                                {ncOrigem.detentor} | {formatarMoeda(ncOrigem.valor)}
+                            </span>
+                        </div>
+                        {ncOrigem.original && (
+                            <div className={styles.rastroItem}>
+                                <span className={styles.rastroLabel}>
+                                    <BsArrowLeftRight /> Crédito Original:
+                                </span>
+                                <strong>{ncOrigem.original.nc}</strong>
+                                <span className={styles.rastroDetalhe}>
+                                    {ncOrigem.original.detentor} | {formatarMoeda(ncOrigem.original.valor)}
+                                </span>
+                            </div>
+                        )}
+                        <div className={styles.rastroItem}>
+                            <span className={styles.rastroLabel}>Código Único:</span>
+                            <span>{ncOrigem.codigoUnico}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className={styles.gridDetalhes}>
                 <div className={styles.cardInfo}>
                     <h3>Informações Técnicas</h3>
-                    <div className={styles.row}><label>NUP:</label><span>{dados.nc?.processo || 'N/D'}</span></div>
+                    <div className={styles.row}><label>NUP:</label><span>{dados.ne.processo || 'N/D'}</span></div>
                     <div className={styles.row}>
                         <label>Fornecedor:</label>
-                        <span>{`${dados.ne.cnpjFornecedor} - ${dados.ne.nomeFornecedor}`}</span>
+                        <span>{`${dados.ne.cnpjFornecedor || ''} - ${dados.ne.nomeFornecedor || ''}`}</span>
                     </div>
-                    <div className={styles.row}><label>OM Aplicada:</label><span>{dados.nc?.omAplicacao}</span></div>
+                    <div className={styles.row}><label>OM Aplicada:</label><span>{dados.ne.omAplicacao}</span></div>
                     <div className={styles.row}><label>Material / Item:</label><p>{dados.ne.materialNE}</p></div>
-                    <div className={styles.row}><label>Finalidade:</label><p>{dados.nc?.finalidade}</p></div>
+                    <div className={styles.row}><label>Finalidade:</label><p>{dados.ne.finalidade}</p></div>
 
-                    {/* Observações com carimbo de data atualizado */}
                     <div className={styles.row}>
                         <div className={styles.labelObsContainer}>
                             <label>Observações:</label>
@@ -144,10 +207,22 @@ function NEDetail({ idNe, onVoltar }) {
 
                 <div className={styles.cardFinanceiro}>
                     <h3>Fluxo de Saldos</h3>
-                    <div className={styles.metric}><label>Valor Total Empenhado</label><span className={styles.valPadrao}>{valorTotalNe.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</span></div>
-                    <div className={styles.metric}><label>Total em Liquidação</label><span className={styles.valAlerta}>{emLiquidacao.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</span></div>
-                    <div className={styles.metric}><label>Total Liquidado</label><span className={styles.valAlerta}>{liquidado.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</span></div>
-                    <div className={styles.metricHighlight}><label>SALDO ATUAL LÍQUIDO</label><span className={styles.valSaldo}>{saldoLiquido.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</span></div>
+                    <div className={styles.metric}>
+                        <label>Valor Total {dados.tipo}</label>
+                        <span className={styles.valPadrao}>{formatarMoeda(valorTotalNe)}</span>
+                    </div>
+                    <div className={styles.metric}>
+                        <label>Total em Liquidação</label>
+                        <span className={styles.valAlerta}>{formatarMoeda(emLiquidacao)}</span>
+                    </div>
+                    <div className={styles.metric}>
+                        <label>Total Liquidado</label>
+                        <span className={styles.valAlerta}>{formatarMoeda(liquidado)}</span>
+                    </div>
+                    <div className={styles.metricHighlight}>
+                        <label>SALDO ATUAL LÍQUIDO</label>
+                        <span className={styles.valSaldo}>{formatarMoeda(saldoLiquido)}</span>
+                    </div>
                 </div>
             </div>
 
@@ -166,11 +241,29 @@ function NEDetail({ idNe, onVoltar }) {
                         {listaNFs.map(nf => (
                             <tr key={nf.id}>
                                 <td>{nf.numeroNF}</td>
-                                <td>{parseFloat(nf.valor).toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</td>
-                                <td><span className={`${styles.badgeStatus} ${styles[nf.status]}`}>{nf.status.replace('_', ' ')}</span></td>
-                                <td><button className={styles.btnTabela} onClick={() => window.open(nf.linkDriveNF, '_blank')}>VISUALIZAR PDF</button></td>
+                                <td>{formatarMoeda(parseFloat(nf.valor))}</td>
+                                <td>
+                                    <span className={`${styles.badgeStatus} ${styles[nf.status]}`}>
+                                        {nf.status ? nf.status.replace('_', ' ') : 'NAO_ENVIADA'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button 
+                                        className={styles.btnTabela} 
+                                        onClick={() => nf.linkDriveNF && window.open(nf.linkDriveNF, '_blank')}
+                                    >
+                                        VISUALIZAR PDF
+                                    </button>
+                                </td>
                             </tr>
                         ))}
+                        {listaNFs.length === 0 && (
+                            <tr>
+                                <td colSpan="4" className={styles.emptyRow}>
+                                    Nenhuma Nota Fiscal vinculada a este {dados.tipo}.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -1,28 +1,84 @@
-/* src/styles/styles_pages/Credits.module.css */
+/* Credits.module.css - Mantendo o estilo original */
 
-.container {
+.creditsContainer {
     width: 100%;
-    padding: 20px;
-    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+    box-sizing: border-box;
 }
 
-.menuGrid {
-    display: grid;
-    /* Cria 8 colunas de tamanho igual que ocupam todo o espaço disponível */
-    grid-template-columns: repeat(8, 1fr); 
-    gap: 10px; /* Espaçamento entre os botões */
-    width: 100%;
+/* BARRA DE TÍTULO ORIGINAL (sem fundo, texto centralizado) */
+.titleBarOriginal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
 }
 
-/* Responsividade: em telas menores, os botões podem quebrar em mais linhas */
-@media (max-width: 1024px) {
-    .menuGrid {
-        grid-template-columns: repeat(4, 1fr);
+.pageTitleOriginal {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2d3748;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    flex: 1;
+    padding-top: 1rem;
+}
+
+/* ÍCONES DE AÇÃO - APENAS ÍCONES, SEM TEXTO */
+.actionIconsOriginal {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.iconBtnOriginal {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconBtnOriginal:hover {
+    background-color: #f1f5f9;
+    color: #2b6cb0;
+    transform: scale(1.05);
+}
+
+/* ÁREA DE CONTEÚDO */
+.contentAreaOriginal {
+    padding: 0 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .titleBarOriginal {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 15px;
     }
-}
-
-@media (max-width: 600px) {
-    .menuGrid {
-        grid-template-columns: repeat(2, 1fr);
+    
+    .pageTitleOriginal {
+        font-size: 1rem;
+    }
+    
+    .actionIconsOriginal {
+        gap: 15px;
+    }
+    
+    .iconBtnOriginal {
+        font-size: 1.1rem;
+        padding: 4px;
+    }
+    
+    .contentAreaOriginal {
+        padding: 0 15px;
     }
 }

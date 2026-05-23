@@ -1,19 +1,21 @@
 import styles from '../../styles/styles_layout/CreditsCardNC.module.css';
-import { BsPencil, BsEye, BsFillTrashFill, BsSend, BsCashStack, BsArrowLeftRight, BsCheckCircle } from 'react-icons/bs';
+import { BsPencil, BsEye, BsFillTrashFill, BsArrowLeftRight, BsCashStack, BsArrowReturnLeft } from 'react-icons/bs';
 
 function CreditsCardNC({ 
     numeroNC, 
     valor, 
     prazoEmpenho, 
-    finalidade,
+    finalidade, 
     detentor,
     linkDrive,
+    podeExcluir = true,  // ← Indica se o usuário pode excluir
     onEdit, 
     onDetail, 
     onDelete,
     onTransferir,
     onEmpenhar,
     onReceber,
+    onDevolver,  // ← NOVO: função para devolver
     mostrarBotaoReceber = false
 }){
     // Formata o valor principal para o padrão de moeda brasileiro BRL
@@ -74,12 +76,10 @@ function CreditsCardNC({
                         <label>VALOR</label>
                         <p className={styles.valorDestaque}>{valorFormatado}</p>
                     </div>
-                    {detentor && (
-                        <div className={styles.subInfoLeft} style={{ marginTop: '10px' }}>
-                            <label>DETENTOR</label>
-                            <p>{detentor}</p>
-                        </div>
-                    )}
+                    <div className={styles.subInfoLeft} style={{ marginTop: '10px' }}>
+                        <label>DETENTOR</label>
+                        <p>{detentor || 'Não informado'}</p>
+                    </div>
                 </div>
 
                 <div className={styles.infoRight}>
@@ -100,31 +100,39 @@ function CreditsCardNC({
             )}
 
             <div className={styles.project_card_actions}>
-
                 {mostrarBotaoReceber ? (
-                    // MODO RECEBER - apenas o botão RECEBER
                     <button type="button" onClick={onReceber} className={styles.btnReceber}>
-                        <BsCheckCircle /> RECEBER
+                        ✓ RECEBER
                     </button>
                 ) : (
-                    // MODO NORMAL - todos os botões
-                    <> 
-                <button type="button" onClick={onEdit}>
-                    <BsPencil /> EDITAR
-                </button>
-                <button type="button" onClick={onDetail}>
-                    <BsEye /> DETALHAR
-                </button>
-                <button type="button" onClick={onTransferir}>
-                    <BsArrowLeftRight /> TRANSFERIR
-                </button>
-                <button type="button" onClick={onEmpenhar}>
-                    <BsCashStack /> EMPENHAR
-                </button>
-                <button type="button" onClick={onDelete} className={styles.btn_excluir}>
-                    <BsFillTrashFill /> EXCLUIR
-                </button>
-                </>
+                    <>
+                        <button type="button" onClick={onEdit}>
+                            <BsPencil /> EDITAR
+                        </button>
+                        <button type="button" onClick={onDetail}>
+                            <BsEye /> DETALHAR
+                        </button>
+                        <button type="button" onClick={onTransferir}>
+                            <BsArrowLeftRight /> TRANSFERIR
+                        </button>
+                        <button type="button" onClick={onEmpenhar}>
+                            <BsCashStack /> EMPENHAR
+                        </button>
+                        {/* Mostra DEVOLVER se existir a função, senão mostra EXCLUIR */}
+                        {onDevolver ? (
+                            <button type="button" onClick={onDevolver} className={styles.btn_devolver}>
+                                <BsArrowReturnLeft /> DEVOLVER
+                            </button>
+                        ) : podeExcluir ? (
+                            <button type="button" onClick={onDelete} className={styles.btn_excluir}>
+                                <BsFillTrashFill /> EXCLUIR
+                            </button>
+                        ) : (
+                            <button type="button" className={styles.btn_disabled} disabled>
+                                <BsFillTrashFill /> EXCLUIR
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         </div>

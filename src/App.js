@@ -19,25 +19,27 @@ function AppContent() {
 
   return (
     < div className="App">
-      {/* Lógica: Se não for a rota /login, mostra o Navbar */}
       {location.pathname !== '/login' && <Navbar />}
 
       <Routes>
+        {/* ROTA PARA CRÉDITOS - suporta todas as abas */}
+        <Route path="/credits/:aba" element={<Credits />} />
         <Route path="/credits" element={<Credits />} />
+        
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
-        
-        {/* Adicione as outras rotas que você tem no Navbar aqui também */}
         
         <Route path="/newOrder" element={<NewOrder />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/sections" element={<Sections />} />
         <Route path="/users" element={<Users />} />
         <Route path="/technicians" element={<Technicians />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        
         <Route path="/sectiondetails" element={<SectionDetails />} />
         <Route path="/techniciandetails" element={<TechnicianDetails />} />
         <Route path="/userdetails" element={<UserDetails />} />
+        
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
   );
@@ -52,4 +54,3 @@ function App() {
 }
 
 export default App;
-

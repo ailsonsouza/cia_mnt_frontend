@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
+
 import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
+
+import { useState, useEffect } from 'react'
 import { BsPlusSquareFill, BsInfoCircleFill, BsCalendarCheck, BsLink45Deg } from 'react-icons/bs'
 import { useAuth } from '../../context/AuthContext'
 
@@ -8,8 +10,6 @@ function NewCredit({ onClose, onSuccess }) {
     
     const [nc, setNc] = useState('')
     const [finalidade, setFinalidade] = useState('')
-    const [omAplicacao, setOmAplicacao] = useState('')
-    const [processo, setProcesso] = useState('')
     const [valor, setValor] = useState('')
     const [fonteRecurso, setFonteRecurso] = useState('160')
     const [prazoEmpenho, setPrazoEmpenho] = useState('')
@@ -29,7 +29,8 @@ function NewCredit({ onClose, onSuccess }) {
     const gerarCodigoUnico = (secao) => {
         const uuid = gerarUUID();
         const uuidCurto = uuid.substring(0, 8);
-        return `${secao}-${uuidCurto}`;
+        const sigla = secao === 'TESOURARIA' ? 'TES' : (secao === 'COL' ? 'COL' : 'GRCP');
+        return `${sigla}-${uuidCurto}`;
     };
 
     useEffect(() => {
@@ -58,16 +59,13 @@ function NewCredit({ onClose, onSuccess }) {
             codigoOrigemPermanente: codigoUnico,
             documentoAnterior: null,
             finalidade,
-            omAplicacao,
-            processo,
             fonteRecurso,
             prazoEmpenho,
             linkDrive,
             dataGeracao: dataGeracaoStr,
-            material: "Informado no momento da N.E.",
-            fornecedor: "Informado no momento da N.E.",
             valor: valorNumericoFinal,
-            detentor: usuarioAtual.secao  // ← DETENTOR = quem criou/está com o crédito
+            detentor: usuarioAtual.secao,
+            statusRecebimento: null
         };
 
         fetch('http://localhost:5000/credits_nc', {
@@ -88,9 +86,13 @@ function NewCredit({ onClose, onSuccess }) {
     };
 
     const fecharE_Limpar = () => {
-        setNc(''); setFinalidade(''); setOmAplicacao(''); setProcesso('');
-        setValor(''); setFonteRecurso('160'); setPrazoEmpenho('');
-        setLinkDrive(''); setIsImediato(false);
+        setNc(''); 
+        setFinalidade('');
+        setValor('');
+        setFonteRecurso('160');
+        setPrazoEmpenho('');
+        setLinkDrive('');
+        setIsImediato(false);
         onClose();
     }
 
@@ -108,7 +110,7 @@ function NewCredit({ onClose, onSuccess }) {
                         {/* SEÇÃO 1: DADOS BÁSICOS */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
-                                <BsInfoCircleFill /> <h4>1. IDENTIFICAÇÃO E ORIGEM</h4>
+                                <BsInfoCircleFill /> <h4>1. IDENTIFICAÇÃO E VALOR</h4>
                             </div>
                             <div className={styles.inputGrid}>
                                 <div className={styles.inputGroup}>
@@ -129,21 +131,12 @@ function NewCredit({ onClose, onSuccess }) {
                             </div>
                         </div>
 
-                        {/* SEÇÃO 2: DETALHES TÉCNICOS */}
+                        {/* SEÇÃO 2: PRAZO E DOCUMENTAÇÃO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
-                                <BsCalendarCheck /> <h4>2. DETALHES TÉCNICOS E PRAZOS</h4>
+                                <BsCalendarCheck /> <h4>2. PRAZO E DOCUMENTAÇÃO</h4>
                             </div>
                             <div className={styles.inputGrid}>
-                                <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
-                                    <label>OM de Aplicação</label>
-                                    <input type="text" placeholder="Ex: B ADM AP/5º RM" className={styles.inputField} value={omAplicacao} onChange={(e) => setOmAplicacao(e.target.value)} required />
-                                </div>
-                                <div className={styles.inputGroup}>
-                                    <label>Número do Processo</label>
-                                    <input type="text" placeholder="Ex: 64138.008322/2025-91" className={styles.inputField} value={processo} onChange={(e) => setProcesso(e.target.value)} required />
-                                </div>
-                                
                                 <div className={styles.inputGroup} style={{ gridColumn: 'span 3' }}>
                                     <label>Prazo para Empenho</label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -162,17 +155,17 @@ function NewCredit({ onClose, onSuccess }) {
                                         </label>
                                     </div>
                                 </div>
+                                <div className={styles.inputGroup} style={{ gridColumn: 'span 3' }}>
+                                    <label>Link do Google Drive (Documento NC)</label>
+                                    <input type="url" placeholder="https://drive.google.com/..." className={styles.inputField} value={linkDrive} onChange={(e) => setLinkDrive(e.target.value)} required />
+                                </div>
                             </div>
                         </div>
 
-                        {/* SEÇÃO 3: DOCUMENTAÇÃO E FINALIDADE */}
+                        {/* SEÇÃO 3: FINALIDADE */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
-                                <BsLink45Deg /> <h4>3. DOCUMENTAÇÃO E FINALIDADE</h4>
-                            </div>
-                            <div className={styles.inputGroup} style={{ marginBottom: '15px' }}>
-                                <label>Link do Google Drive (Documento NC)</label>
-                                <input type="url" placeholder="https://drive.google.com/..." className={styles.inputField} value={linkDrive} onChange={(e) => setLinkDrive(e.target.value)} required />
+                                <BsLink45Deg /> <h4>3. FINALIDADE DO CRÉDITO</h4>
                             </div>
                             <div className={styles.inputGroup}>
                                 <label>Finalidade Detalhada</label>

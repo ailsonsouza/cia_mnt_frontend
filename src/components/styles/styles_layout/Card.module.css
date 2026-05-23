@@ -93,3 +93,13 @@
     color: #000;
 }
 
+.btn_cancelar {
+    border-color: #c53030 !important;
+    color: #c53030 !important;
+    background-color: #FFF !important;
+}
+
+.btn_cancelar:hover {
+    background-color: #c53030 !important;
+    color: #FFF !important;
+}

@@ -1,0 +1,849 @@
+.container {
+    padding: 25px;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* CABEÇALHO */
+.headerActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btnVoltar {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btnVoltar:hover {
+    background-color: #2d3748;
+}
+
+.infoPrincipal h2 {
+    color: #1a365d;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.infoPrincipal p {
+    color: #2b6cb0;
+    margin: 5px 0 0 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.btnDrive {
+    background-color: #2b6cb0;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: filter 0.2s;
+}
+
+.btnDrive:hover {
+    filter: brightness(1.1);
+}
+
+/* GRID DE INFORMAÇÕES */
+.gridDetalhes {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.cardInfo, .cardFinanceiro {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.cardInfo h3, .cardFinanceiro h3, .distribuicaoContainer h3 {
+    margin-top: 0;
+    color: #2d3748;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    border-left: 5px solid #2b6cb0;
+    padding-left: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.row {
+    display: flex;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 10px;
+    align-items: flex-start;
+}
+
+.row label {
+    font-weight: 700;
+    color: #64748b;
+    width: 140px;
+    min-width: 140px;
+    font-size: 0.85rem;
+}
+
+.row span, .row p {
+    color: #1e293b;
+    font-size: 0.9rem;
+    flex: 1;
+    margin: 0;
+}
+
+.finalidadeTexto {
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.prazoImediato {
+    color: #e53e3e !important;
+    font-weight: 800;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.metric label {
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.valPadrao {
+    color: #1a365d;
+    font-weight: 700;
+}
+
+.valAlerta {
+    color: #1e295d;
+    font-weight: 700;
+}
+
+.metricHighlight {
+    margin-top: 15px;
+    padding: 20px;
+    background-color: #f0fff4;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #c6f6d5;
+}
+
+.metricHighlight label {
+    font-weight: 800;
+    color: #22543d;
+    font-size: 0.95rem;
+}
+
+.valSaldo {
+    font-size: 1.6rem;
+    color: #2f855a;
+    font-weight: 900;
+}
+
+/* DISTRIBUIÇÃO POR SEÇÃO */
+.distribuicaoContainer {
+    margin-top: 20px;
+}
+
+.distribuicaoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.distribuicaoCard {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: box-shadow 0.2s;
+}
+
+.distribuicaoCard:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.distribuicaoHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 12px;
+}
+
+.secaoIcon {
+    font-size: 1.3rem;
+}
+
+.secaoNome {
+    font-size: 1rem;
+    color: #2b6cb0;
+    flex: 1;
+}
+
+.distribuicaoValor {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #2f855a;
+}
+
+.distribuicaoData {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 0.8rem;
+}
+
+.distribuicaoData label {
+    font-weight: 700;
+    color: #64748b;
+}
+
+.distribuicaoData span {
+    color: #4a5568;
+}
+
+/* OBSERVAÇÕES */
+.observacoesSection {
+    background-color: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.observacoesHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.observacoesHeader label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.btnEditObs, .btnSaveObs {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    cursor: pointer;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.btnEditObs:hover {
+    background-color: #ebf8ff;
+}
+
+.btnSaveObs {
+    background-color: #2f855a;
+    color: white;
+}
+
+.btnSaveObs:hover {
+    background-color: #276749;
+}
+
+.observacoesTextarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.observacoesTexto {
+    font-size: 0.85rem;
+    color: #4a5568;
+    font-style: italic;
+    padding: 8px;
+    background-color: white;
+    border-radius: 6px;
+}
+
+/* NEs DA DISTRIBUIÇÃO */
+.nesDistribuicao {
+    margin-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
+}
+
+.nesDistribuicaoHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.nesDistribuicaoHeader label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #2b6cb0;
+    text-transform: uppercase;
+}
+
+.nesCountBadge {
+    background-color: #2b6cb0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.nesTableWrapper {
+    overflow-x: auto;
+}
+
+.nesTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.nesTable th {
+    background-color: #f1f5f9;
+    color: #475569;
+    text-align: left;
+    padding: 10px;
+    font-weight: 700;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.nesTable td {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+}
+
+.linkNE {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.8rem;
+}
+
+.linkNE:hover {
+    color: #1e295d;
+}
+
+.valorCell {
+    font-weight: 600;
+    color: #2f855a;
+    white-space: nowrap;
+}
+
+.materialCell {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.finalidadeCell {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ESTADOS VAZIOS */
+.emptyDistribuicao {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+    border: 1px dashed #cbd5e0;
+    color: #a0aec0;
+}
+
+.loader {
+    text-align: center;
+    padding: 100px;
+    font-weight: 800;
+    color: #2b6cb0;
+}
+
+.error {
+    text-align: center;
+    padding: 60px;
+    color: #e53e3e;
+    font-weight: 700;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .gridDetalhes {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .headerActions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .row {
+        flex-direction: column;
+    }
+    
+    .row label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .distribuicaoHeader {
+        flex-wrap: wrap;
+    }
+    
+    .nesTable {
+        font-size: 0.7rem;
+    }
+    
+    .nesTable th, .nesTable td {
+        padding: 6px;
+    }
+    
+    .materialCell, .finalidadeCell {
+        max-width: 120px;
+    }
+}
+
+/* Estilos para a tabela de empenhos */
+.empenhosContainer {
+    margin-top: 30px;
+}
+
+.empenhosContainer h3 {
+    color: #2d3748;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    border-left: 5px solid #2b6cb0;
+    padding-left: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.empenhosTableWrapper {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+}
+
+.empenhosTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.empenhosTable th {
+    background-color: #f8fafc;
+    color: #475569;
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.empenhosTable td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+}
+
+.empenhoRow {
+    background-color: white;
+}
+
+.empenhoRow:hover {
+    background-color: #f8fafc;
+}
+
+.linkNE {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.8rem;
+    padding: 0;
+}
+
+.linkNE:hover {
+    color: #1e295d;
+}
+
+.valorCell {
+    font-weight: 600;
+    color: #2f855a;
+    white-space: nowrap;
+}
+
+.valorCell.zerado {
+    color: #e53e3e;
+}
+
+.observacaoCell {
+    max-width: 250px;
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+/* Subitens - NFs */
+.nfsSubRow {
+    background-color: #f8fafc;
+}
+
+.nfsSubRow td {
+    padding: 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.nfsContainer {
+    padding: 15px 15px 15px 30px;
+    background-color: #f8fafc;
+}
+
+.nfsHeader {
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2b6cb0;
+    text-transform: uppercase;
+}
+
+.nfsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+}
+
+.nfsTable th {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    padding: 8px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.nfsTable td {
+    padding: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.linkNF {
+    color: #2b6cb0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.linkNF:hover {
+    color: #1e295d;
+}
+
+.situacaoBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.situacaoLiquidada {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.situacaoEmLiquidacao {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.situacaoNaoEnviada {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Ajustes para o fluxo de distribuição */
+.distribuicaoLabel {
+    padding-left: 20px !important;
+    font-weight: 500 !important;
+    color: #4a5568 !important;
+}
+
+.emptyRow {
+    text-align: center;
+    padding: 40px;
+    color: #a0aec0;
+    font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .empenhosTable {
+        font-size: 0.7rem;
+    }
+    
+    .empenhosTable th, .empenhosTable td {
+        padding: 8px;
+    }
+    
+    .nfsContainer {
+        padding: 10px 10px 10px 20px;
+    }
+    
+    .nfsTable {
+        font-size: 0.65rem;
+    }
+    
+    .observacaoCell {
+        max-width: 150px;
+    }
+}
+
+/* ==========================================================================
+   RASTRO DE TRANSFERÊNCIAS - NOVO
+   ========================================================================== */
+
+.rastroContainer {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rastroContainer h3 {
+    background: linear-gradient(135deg, #1e295d 0%, #2b6cb0 100%);
+    color: white;
+    margin: 0;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rastroLinha {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.rastroItem {
+    flex: 1;
+    min-width: 200px;
+}
+
+.rastroOrigem, .rastroAtual, .rastroDestino {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.rastroOrigem:hover, .rastroAtual:hover, .rastroDestino:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.rastroLabel {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.rastroOrigem strong, .rastroAtual strong, .rastroDestino strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #1a365d;
+    margin-bottom: 4px;
+}
+
+.rastroDetalhe {
+    display: block;
+    font-size: 0.7rem;
+    color: #4a5568;
+}
+
+.rastroSeta {
+    font-size: 1.5rem;
+    color: #cbd5e0;
+    font-weight: bold;
+}
+
+.rastroTransferencia {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.rastroTransferencia:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.linkRastro {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    padding: 0;
+    margin-right: 8px;
+}
+
+.linkRastro:hover {
+    color: #1e295d;
+}
+
+/* Badge de crédito transferido */
+.badgeTransferencia {
+    display: inline-block;
+    background-color: #ed8936;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-top: 6px;
+}
+
+/* Badges para tipos de documento */
+.tipoBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tipoNE {
+    background-color: #2b6cb0;
+    color: white;
+}
+
+.tipoRPNP {
+    background-color: #ed8936;
+    color: white;
+}
+
+/* Ajustes para a tabela de empenhos com o novo campo Tipo */
+.empenhosTable th:first-child {
+    width: 80px;
+    text-align: center;
+}
+
+.tipoBadge {
+    display: inline-block;
+    text-align: center;
+    min-width: 50px;
+}
+
+/* Responsividade para o rastro */
+@media (max-width: 768px) {
+    .rastroLinha {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .rastroSeta {
+        text-align: center;
+        transform: rotate(90deg);
+    }
+    
+    .rastroItem {
+        min-width: auto;
+    }
+}

@@ -256,3 +256,151 @@
 .loader { text-align: center; padding: 100px; font-weight: 800; color: #2b6cb0; }
 .error { text-align: center; padding: 60px; color: #e53e3e; font-weight: 700; }
 .empty { text-align: center; padding: 40px; color: #94a3b8; }
+
+/* ==========================================================================
+   RASTRO DA NC DE ORIGEM - NOVO
+   ========================================================================== */
+
+.rastroContainer {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rastroContainer h3 {
+    background: linear-gradient(135deg, #1e295d 0%, #2b6cb0 100%);
+    color: white;
+    margin: 0;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rastroInfo {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rastroItem {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #2b6cb0;
+}
+
+.rastroLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 130px;
+}
+
+.rastroItem strong {
+    font-size: 0.9rem;
+    color: #1a365d;
+}
+
+.rastroDetalhe {
+    font-size: 0.75rem;
+    color: #4a5568;
+    margin-left: auto;
+}
+
+/* Badge de tipo do documento (NE/RPNP) */
+.tipoBadge {
+    display: inline-block;
+    background-color: #2b6cb0;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-left: 10px;
+    text-transform: uppercase;
+}
+
+/* Ajustes para o cabeçalho */
+.infoPrincipal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.infoPrincipal h2 {
+    margin: 0;
+}
+
+.infoPrincipal p {
+    margin: 0;
+}
+
+/* Botões do cabeçalho */
+.buttonGroup {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .rastroItem {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .rastroLabel {
+        min-width: auto;
+    }
+    
+    .rastroDetalhe {
+        margin-left: 0;
+    }
+    
+    .infoPrincipal {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .headerActions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .buttonGroup {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* Empty row para tabela de NFs */
+.emptyRow {
+    text-align: center;
+    padding: 30px;
+    color: #a0aec0;
+    font-style: italic;
+}

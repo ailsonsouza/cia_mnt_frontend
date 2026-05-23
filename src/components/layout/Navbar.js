@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 function Navbar(){
     const navigate = useNavigate()
     const [sections, setSections] = useState([])
+    const [isCreditsDropdownOpen, setIsCreditsDropdownOpen] = useState(false)
     const loggedUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
 
     useEffect(() => {
@@ -15,19 +16,26 @@ function Navbar(){
             .catch(err => console.log("Erro ao carregar permissões:", err))
     }, [])
 
-    // Localiza o objeto da seção do usuário logado
     const userSectionObj = sections.find(s => String(s.id) === String(loggedUser?.section_id));
     
     const isAdmin = loggedUser?.roleName === 'ADMIN';
     
-    // CORREÇÃO: Usamos o operador ?. (Optional Chaining) 
-    // Se userSectionObj for undefined, ele retorna undefined em vez de estourar erro.
     const hasOsAccess = isAdmin || userSectionObj?.modules?.includes('ORDEM_SERVICO');
     const hasCreditAccess = isAdmin || userSectionObj?.modules?.includes('CONTROLE_CREDITOS');
+
+    useEffect(() => {
+        const closeDropdown = () => setIsCreditsDropdownOpen(false)
+        document.addEventListener('click', closeDropdown)
+        return () => document.removeEventListener('click', closeDropdown)
+    }, [])
 
     function handleLogout() {
         localStorage.removeItem('loggedUser');
         navigate('/login');
+    }
+
+    const handleDropdownClick = (e) => {
+        e.stopPropagation()
     }
 
     return(
@@ -39,7 +47,36 @@ function Navbar(){
                     <div className={styles.nav_menu_group}>
                         
                         {hasCreditAccess && (
-                            <li className={styles.item}><Link to="/credits">Créditos</Link></li>
+                            <li 
+                                className={styles.item_dropdown}
+                                onMouseEnter={() => setIsCreditsDropdownOpen(true)}
+                                onMouseLeave={() => setIsCreditsDropdownOpen(false)}
+                            >
+                                <span className={styles.dropdown_trigger}>Créditos</span>
+                                {isCreditsDropdownOpen && (
+                                    <div 
+                                        className={styles.dropdown_menu}
+                                        onClick={handleDropdownClick}
+                                    >
+                                        <Link to="/credits/pregao" className={styles.dropdown_item}>
+                                            📋 PREGÃO
+                                        </Link>
+                                        <Link to="/credits/rpnp" className={styles.dropdown_item}>
+                                            📄 RPNP
+                                        </Link>
+                                        <Link to="/credits/ano_atual" className={styles.dropdown_item}>
+                                            🎯 ANO ATUAL
+                                        </Link>
+                                        <Link to="/credits/nota_fiscal" className={styles.dropdown_item}>
+                                            🧾 NOTAS FISCAIS
+                                        </Link>
+                                        <div className={styles.dropdown_divider}></div>
+                                        <Link to="/credits/relatorio" className={styles.dropdown_item}>
+                                            📊 RELATÓRIOS
+                                        </Link>
+                                    </div>
+                                )}
+                            </li>
                         )}
 
                         {hasOsAccess && (
@@ -60,11 +97,8 @@ function Navbar(){
                                 <div className={styles.user_info_label}>
                                     <span className={styles.user_name}>{loggedUser.name}</span>
                                     <span className={styles.user_section}>
-                                        {/* Proteção para o nome da seção */}
-                                        [
-                                            {userSectionObj ? userSectionObj.name : 'Carregando...'} - 
-                                            
-                                            {userSectionObj?.creditLevel && userSectionObj.creditLevel !== 'NENHUM' && (
+                                        [{userSectionObj ? userSectionObj.name : 'Carregando...'} - 
+                                        {userSectionObj?.creditLevel && userSectionObj.creditLevel !== 'NENHUM' && (
                                             <span className={styles.user_level}> {userSectionObj.creditLevel}</span>
                                         )}]
                                     </span>

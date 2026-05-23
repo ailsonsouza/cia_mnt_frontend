@@ -1,46 +1,54 @@
 import styles from '../../styles/styles_pages/styles_creditsTabs/CreditisCard.module.css';
-import { BsPencil, BsEye, BsFillTrashFill } from 'react-icons/bs';
+
+
+import { BsPencil, BsEye, BsXCircle } from 'react-icons/bs';
+import { useState, useEffect } from 'react';
 
 function CreditsCard({ 
     numeroNE, 
-    finalidade, 
+    finalidade,
+    omAplicacao,
+    processo,
     material, 
-    om, 
     fornecedor, 
-    processo, 
     valorAtual, 
     linkDrive, 
     numeroNC, 
-    prazoEmpenho, 
     tempoCronologico, 
+    neId,
     onEdit, 
     onDetail, 
-    onDelete 
+    onCancelar 
 }){
-    // Formata o valor principal para o padrão de moeda brasileiro BRL
-    const valorFormatado = typeof valorAtual === 'number'
-        ? valorAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    const [saldoAtualNE, setSaldoAtualNE] = useState(valorAtual);
+    const [carregandoSaldo, setCarregandoSaldo] = useState(true);
+
+    // Buscar o saldo atual considerando as NFs vinculadas
+    useEffect(() => {
+        if (neId) {
+            fetch('http://localhost:5000/credits_nf')
+                .then(res => res.json())
+                .then(nfs => {
+                    const nfsDaNe = nfs.filter(nf => nf.idNeVinculada === neId);
+                    const totalLiquidado = nfsDaNe.reduce((sum, nf) => sum + (parseFloat(nf.valor) || 0), 0);
+                    const saldo = (valorAtual || 0) - totalLiquidado;
+                    setSaldoAtualNE(saldo);
+                    setCarregandoSaldo(false);
+                })
+                .catch(() => {
+                    setSaldoAtualNE(valorAtual);
+                    setCarregandoSaldo(false);
+                });
+        } else {
+            setSaldoAtualNE(valorAtual);
+            setCarregandoSaldo(false);
+        }
+    }, [valorAtual, neId]);
+
+    const valorFormatado = typeof saldoAtualNE === 'number'
+        ? saldoAtualNE.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
         : valorAtual;
 
-    // LÓGICA DE ALERTA VISUAL: Identifica se o prazo exige layout vermelho de urgência (Exclusivo de NC)
-    const verificarUrgenciaNC = () => {
-        if (tempoCronologico) return false; 
-        if (!prazoEmpenho) return false;
-        if (prazoEmpenho.toUpperCase() === 'EMPENHO IMEDIATO') return true;
-
-        const dataPrazo = new Date(prazoEmpenho);
-        const dataAtual = new Date();
-        
-        dataPrazo.setHours(0, 0, 0, 0);
-        dataAtual.setHours(0, 0, 0, 0);
-
-        const diferencaEmMilissegundos = dataPrazo - dataAtual;
-        const diferencaEmDias = Math.ceil(diferencaEmMilissegundos / (1000 * 60 * 60 * 24));
-
-        return diferencaEmDias < 6;
-    };
-
-    // LÓGICA DE CÁLCULO CRONOLÓGICO: Calcula os dias decorridos desde a emissão (Exclusivo de NE)
     const calcularDiasDesdeGeracao = (dataGeracao) => {
         if (!dataGeracao) return 'Data não disponível';
         
@@ -58,24 +66,8 @@ function CreditsCard({
         return `${diasDecorridos} dias decorridos`;
     };
 
-    const isUrgente = verificarUrgenciaNC();
-    const classeContainer = isUrgente 
-        ? `${styles.card_general} ${styles.card_urgente}` 
-        : styles.card_general;
-
-    const formatarPrazoExibicao = (prazo) => {
-        if (!prazo) return 'Não informado';
-        if (prazo.toUpperCase() === 'EMPENHO IMEDIATO') return prazo.toUpperCase();
-        
-        const partes = prazo.split('-');
-        if (partes.length === 3) {
-            return `${partes[2]}/${partes[1]}/${partes[0]}`;
-        }
-        return prazo;
-    };
-
     return(
-        <div className={classeContainer}>
+        <div className={styles.card_general}>
             <a 
                 href={linkDrive || '#'} 
                 target="_blank" 
@@ -97,54 +89,47 @@ function CreditsCard({
             <div className={styles.cardBody}>
                 <div className={styles.infoLeft}>
                     <div className={styles.subInfoLeft}>
-                        <label>Nº do Processo</label>
-                        <p>{processo || 'Não informado'}</p>
+                        <label>FINALIDADE</label>
+                        <p>{finalidade || 'Não definida'}</p>
                     </div>
                     <div className={styles.subInfoLeft} style={{ marginTop: '10px' }}>
-                        <label>Finalidade</label>
-                        <p>{finalidade || 'Não definida'}</p>
+                        <label>OM DE APLICAÇÃO</label>
+                        <p>{omAplicacao || 'Não informado'}</p>
+                    </div>
+                    <div className={styles.subInfoLeft} style={{ marginTop: '10px' }}>
+                        <label>PROCESSO</label>
+                        <p>{processo || 'Não informado'}</p>
                     </div>
                 </div>
 
                 <div className={styles.infoRight}>
                     <div className={styles.subInfo}>
-                        <label>Material da NE (Item)</label>
-                        <p>{material}</p>
+                        <label>MATERIAL (ITEM)</label>
+                        <p>{material || 'Não informado'}</p>
                     </div>
                     <div className={styles.subInfo}>
-                        <label>OM</label>
-                        <p>{om}</p>
-                    </div>
-                    <div className={styles.subInfo}>
-                        <label>Fornecedor</label>
-                        <p>{fornecedor}</p>
+                        <label>FORNECEDOR</label>
+                        <p>{fornecedor || 'Não informado'}</p>
                     </div>
                 </div>
             </div>
 
-            {(tempoCronologico || prazoEmpenho) && (
+            {tempoCronologico && (
                 <div className={styles.prazoBlock}>
-                    {tempoCronologico ? (
-                        <>
-                            <label>Tempo Cronológico</label>
-                            <p style={{ color: '#2b6cb0', fontWeight: 'bold' }}>
-                                {calcularDiasDesdeGeracao(tempoCronologico)}
-                            </p>
-                        </>
-                    ) : (
-                        <>
-                            <label>Prazo Limite para Empenho</label>
-                            <p className={isUrgente ? styles.prazoTextoUrgente : ''}>
-                                {formatarPrazoExibicao(prazoEmpenho)}
-                            </p>
-                        </>
-                    )}
+                    <label>Tempo Cronológico</label>
+                    <p style={{ color: '#2b6cb0', fontWeight: 'bold' }}>
+                        {calcularDiasDesdeGeracao(tempoCronologico)}
+                    </p>
                 </div>
             )}
 
             <div className={styles.cardFooter}>
-                <label>VALOR ATUAL</label>
-                <span className={styles.valueHighlight}>{valorFormatado}</span>
+                <label>VALOR ATUAL DO EMPENHO</label>
+                {carregandoSaldo ? (
+                    <span className={styles.valueHighlight}>Carregando...</span>
+                ) : (
+                    <span className={styles.valueHighlight}>{valorFormatado}</span>
+                )}
             </div>
 
             <div className={styles.project_card_actions}>
@@ -154,8 +139,8 @@ function CreditsCard({
                 <button type="button" onClick={onDetail}>
                     <BsEye /> DETALHAR
                 </button>
-                <button type="button" onClick={onDelete} className={styles.btn_excluir}>
-                    <BsFillTrashFill /> EXCLUIR
+                <button type="button" onClick={onCancelar} className={styles.btn_cancelar}>
+                    <BsXCircle /> CANCELAR N.E.
                 </button>
             </div>
         </div>

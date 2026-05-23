@@ -35,7 +35,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   // Altere MANUALMENTE aqui o usuário atual:
   // Opções: USUARIOS.TESOURARIA, USUARIOS.COL, USUARIOS.GRCP
-  const [usuarioAtual, setUsuarioAtual] = useState(USUARIOS.TESOURARIA);
+  const [usuarioAtual, setUsuarioAtual] = useState(USUARIOS.COL);
 
   // Para trocar manualmente no código, use esta função
   const trocarUsuario = (usuario) => {

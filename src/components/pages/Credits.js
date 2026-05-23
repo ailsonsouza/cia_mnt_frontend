@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import styles from '../styles/styles_pages/Credits.module.css'
-import ActionButton from '../form/ActionButton'
 import Auction from './CreditsTabs/Auction'
 import CreditsPanel from './CreditsTabs/CreditsPanel'
 import NewCredit from './CreditsTabs/NewCredit'
@@ -8,16 +8,66 @@ import NewNE from './CreditsTabs/NewNE'
 import Invoice from './CreditsTabs/Invoice'
 import RPNP from './CreditsTabs/RPNP'
 import NEDetail from './CreditsTabs/NEDetail'
-import { useAuth } from '../context/AuthContext'  // ← ADICIONE ESTA LINHA
+import NCDetail from './CreditsTabs/NCDetail'
+import Relatorio from './CreditsTabs/Relatorio'
+import { useAuth } from '../context/AuthContext'
 
 function Credits() {
-    const { usuarioAtual } = useAuth();  // ← ADICIONE ESTA LINHA
+    const { usuarioAtual } = useAuth();
+    const { aba } = useParams();
+    const navigate = useNavigate();
+
+    const [abaAtiva, setAbaAtiva] = useState(() => {
+        if (aba && ['pregao', 'rpnp', 'ano_atual', 'relatorio', 'nota_fiscal'].includes(aba)) {
+            return aba;
+        }
+        const savedAba = sessionStorage.getItem('abaAtiva');
+        return savedAba || 'ano_atual';
+    });
     
-    const [abaAtiva, setAbaAtiva] = useState(null)
     const [abaAnterior, setAbaAnterior] = useState(null)
     const [isNcModalOpen, setIsNcModalOpen] = useState(false)
     const [isNeModalOpen, setIsNeModalOpen] = useState(false)
+    const [isNfModalOpen, setIsNfModalOpen] = useState(false)  // NOVO: Modal de NF
+    const [creditoParaEmpenhar, setCreditoParaEmpenhar] = useState(null)
     const [idNeDetalhada, setIdNeDetalhada] = useState(null)
+    const [idNCDetalhada, setIdNCDetalhada] = useState(null)
+    const [isNCDetailOpen, setIsNCDetailOpen] = useState(false)
+    
+    const [ugSelecionada, setUgSelecionada] = useState(() => {
+        const savedUg = sessionStorage.getItem('ugSelecionada');
+        return savedUg === '160' || savedUg === '167' ? savedUg : '160';
+    });
+
+    const [rpnpUgSelecionada, setRpnpUgSelecionada] = useState(() => {
+        const savedRpnpUg = sessionStorage.getItem('rpnpUgSelecionada');
+        return savedRpnpUg === '160' || savedRpnpUg === '167' ? savedRpnpUg : '160';
+    });
+
+    // Sincroniza a URL com a aba ativa
+    useEffect(() => {
+        if (abaAtiva && !['detalhe_ne', 'detalhe_nc'].includes(abaAtiva)) {
+            navigate(`/credits/${abaAtiva}`, { replace: true });
+        }
+        sessionStorage.setItem('abaAtiva', abaAtiva);
+    }, [abaAtiva, navigate]);
+
+    // Sincroniza a aba da URL com o estado quando a URL muda
+    useEffect(() => {
+        if (aba && ['pregao', 'rpnp', 'ano_atual', 'relatorio', 'nota_fiscal'].includes(aba)) {
+            if (aba !== abaAtiva) {
+                setAbaAtiva(aba);
+            }
+        }
+    }, [aba]);
+
+    useEffect(() => {
+        sessionStorage.setItem('ugSelecionada', ugSelecionada);
+    }, [ugSelecionada]);
+
+    useEffect(() => {
+        sessionStorage.setItem('rpnpUgSelecionada', rpnpUgSelecionada);
+    }, [rpnpUgSelecionada]);
 
     const abrirDetalhes = (id) => {
         setAbaAnterior(abaAtiva);
@@ -25,13 +75,21 @@ function Credits() {
         setAbaAtiva('detalhe_ne');
     };
 
+    const abrirDetalhesNC = (id) => {
+        setAbaAnterior(abaAtiva);
+        setIdNCDetalhada(id);
+        setAbaAtiva('detalhe_nc');
+    };
+
     const voltarParaOrigem = () => {
         if (abaAnterior) {
             setAbaAtiva(abaAnterior);
         } else {
-            setAbaAtiva('creditos160');
+            setAbaAtiva('ano_atual');
         }
         setAbaAnterior(null);
+        setIsNCDetailOpen(false);
+        setIdNCDetalhada(null);
     };
 
     const forcarAtualizacaoAba = () => {
@@ -42,121 +100,180 @@ function Credits() {
         }
     };
 
-    const obterTituloDinamicamente = () => {
+    const obterTitulo = () => {
         switch (abaAtiva) {
             case 'pregao': return 'PREGÃO';
-            case 'rpnp160': return 'RELAÇÃO DE ITENS RPNP - 160212';
-            case 'rpnp167': return 'RELAÇÃO DE ITENS RPNP - 167212';
-            case 'creditos160': return 'GESTÃO ORÇAMENTÁRIA - 160212';
-            case 'creditos167': return 'GESTÃO ORÇAMENTÁRIA - 167212';
-            case 'nota_fiscal': return 'CONTROLE DE NOTAS FISCAIS';
-            case 'detalhe_ne': return 'DETALHAMENTO TÉCNICO';
+            case 'rpnp': return `RPNP`; // - ${rpnpUgSelecionada === '160' ? '160212' : '167212'}
+            case 'ano_atual': return `GESTÃO ORÇAMENTÁRIA`; // - ${ugSelecionada === '160' ? '160212' : '167212'}
+            case 'relatorio': return 'RELATÓRIO GERAL';
+            case 'nota_fiscal': return 'NOTAS FISCAIS';
+            case 'detalhe_ne': return 'DETALHAMENTO TÉCNICO (N.E.)';
+            case 'detalhe_nc': return 'DETALHAMENTO DA NOTA DE CRÉDITO';
             default: return 'CRÉDITOS';
         }
     };
 
-    const gerenciarTrocaAbaManual = (novaAba) => {
+    const gerenciarTrocaAba = (novaAba) => {
         setAbaAtiva(novaAba);
         setAbaAnterior(null);
     };
 
-    // Função para obter a cor do nível do usuário
-    const getNivelCor = (nivel) => {
-        switch (nivel) {
-            case 'DESCENTRALIZADORA': return '#1e295d';
-            case 'INTERMEDIARIA': return '#2b6cb0';
-            case 'REQUISITANTE': return '#38a169';
-            default: return '#718096';
+    const handleAbrirNeModal = () => {
+        setCreditoParaEmpenhar(null);
+        setIsNeModalOpen(true);
+    };
+
+    const handleFecharNeModal = () => {
+        setIsNeModalOpen(false);
+        setCreditoParaEmpenhar(null);
+        forcarAtualizacaoAba();
+    };
+
+    const handleFecharNcModal = () => {
+        setIsNcModalOpen(false);
+        forcarAtualizacaoAba();
+    };
+
+    // NOVO: Abrir modal de NF
+    const handleAbrirNfModal = () => {
+        setIsNfModalOpen(true);
+    };
+
+    // NOVO: Fechar modal de NF
+    const handleFecharNfModal = () => {
+        setIsNfModalOpen(false);
+        forcarAtualizacaoAba();
+    };
+
+    const handleUgChange = (novaUg) => {
+        if (novaUg !== ugSelecionada) {
+            setUgSelecionada(novaUg);
+        }
+    };
+
+    const handleRpnpUgChange = (novaUg) => {
+        if (novaUg !== rpnpUgSelecionada) {
+            setRpnpUgSelecionada(novaUg);
+        }
+    };
+
+    const renderContent = () => {
+        switch (abaAtiva) {
+            case 'pregao':
+                return <Auction />;
+            case 'rpnp':
+                return (
+                    <RPNP
+                        key={`rpnp-${rpnpUgSelecionada}`}
+                        fonteRecurso={rpnpUgSelecionada}
+                        onVerDetalhes={abrirDetalhes}
+                        onUgChange={handleRpnpUgChange}
+                        ugSelecionada={rpnpUgSelecionada}
+                    />
+                );
+            case 'ano_atual':
+                return (
+                    <CreditsPanel
+                        key={`credits-panel-${ugSelecionada}`}
+                        fonteAlvo={ugSelecionada}
+                        ugAlvo={ugSelecionada === '160' ? '160212' : '167212'}
+                        onVerDetalhes={abrirDetalhes}
+                        onVerDetalhesNC={abrirDetalhesNC}
+                        onUgChange={handleUgChange}
+                    />
+                );
+            case 'relatorio':
+                return (
+                    <Relatorio 
+                        onVerDetalhesNC={abrirDetalhesNC}
+                        onVerDetalhesNE={abrirDetalhes}
+                    />
+                );
+            case 'nota_fiscal':
+                return <Invoice />;
+            case 'detalhe_ne':
+                return (
+                    <NEDetail
+                        idNe={idNeDetalhada}
+                        onVoltar={voltarParaOrigem}
+                    />
+                );
+            case 'detalhe_nc':
+                return (
+                    <NCDetail
+                        idNc={idNCDetalhada}
+                        onVoltar={voltarParaOrigem}
+                        onVerDetalhesNE={abrirDetalhes}
+                    />
+                );
+            default:
+                return <CreditsPanel
+                    key={`credits-panel-${ugSelecionada}`}
+                    fonteAlvo={ugSelecionada}
+                    ugAlvo={ugSelecionada === '160' ? '160212' : '167212'}
+                    onVerDetalhes={abrirDetalhes}
+                    onVerDetalhesNC={abrirDetalhesNC}
+                    onUgChange={handleUgChange}
+                />;
         }
     };
 
     return (
-        <div className={styles.container}>
-            {/* Badge de usuário logado - fixo no canto */}
-            <div style={{
-                position: 'fixed',
-                bottom: '10px',
-                right: '10px',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                zIndex: 9999,
-                fontFamily: 'monospace',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                backgroundColor: getNivelCor(usuarioAtual.nivel),
-                color: 'white'
-            }}>
-                📋 {usuarioAtual.secao} - {usuarioAtual.nivel}
+        <div className={styles.creditsContainer}>
+            {/* LINHA DO TÍTULO COM ÍCONES */}
+            <div className={styles.titleBarOriginal}>
+                <h1 className={styles.pageTitleOriginal}>{obterTitulo()}</h1>
+                <div className={styles.actionIconsOriginal}>
+                    <button 
+                        className={styles.iconBtnOriginal} 
+                        onClick={() => setIsNcModalOpen(true)}
+                        title="Nova Nota de Crédito"
+                    >
+                        ➕
+                    </button>
+                    <button 
+                        className={styles.iconBtnOriginal} 
+                        onClick={handleAbrirNeModal}
+                        title="Nova Nota de Empenho"
+                    >
+                        📝
+                    </button>
+                    <button 
+                        className={styles.iconBtnOriginal} 
+                        onClick={handleAbrirNfModal}
+                        title="Nova Nota Fiscal"
+                    >
+                        🧾
+                    </button>
+                </div>
             </div>
 
-            <div className={styles.menuGrid}>
-                <ActionButton text="PREGÃO" handleOnClick={() => gerenciarTrocaAbaManual('pregao')} />
-                <ActionButton text="RPNP 160" handleOnClick={() => gerenciarTrocaAbaManual('rpnp160')} />
-                <ActionButton text="RPNP 167" handleOnClick={() => gerenciarTrocaAbaManual('rpnp167')} />
-                <ActionButton text="CRÉDITOS 160" handleOnClick={() => gerenciarTrocaAbaManual('creditos160')} />
-                <ActionButton text="CRÉDITOS 167" handleOnClick={() => gerenciarTrocaAbaManual('creditos167')} />
-                <ActionButton text="NOVA N.C." handleOnClick={() => setIsNcModalOpen(true)} />
-                <ActionButton text="NOVA N.E." handleOnClick={() => setIsNeModalOpen(true)} />
-                <ActionButton text="NOTA FISCAL" handleOnClick={() => gerenciarTrocaAbaManual('nota_fiscal')} />
+            {/* CONTEÚDO PRINCIPAL */}
+            <div className={styles.contentAreaOriginal}>
+                {renderContent()}
             </div>
 
-            <h1>{obterTituloDinamicamente()}</h1>
-
-            <div className={styles.contentArea}>
-                {abaAtiva === 'pregao' && <Auction />}
-                
-                {abaAtiva === 'rpnp160' && (
-                    <RPNP 
-                        fonteRecurso="160" 
-                        onVerDetalhes={abrirDetalhes} 
-                    />
-                )}
-                
-                {abaAtiva === 'rpnp167' && (
-                    <RPNP 
-                        fonteRecurso="167" 
-                        onVerDetalhes={abrirDetalhes} 
-                    />
-                )}
-                
-                {abaAtiva === 'creditos160' && (
-                    <CreditsPanel 
-                        fonteAlvo="160"
-                        ugAlvo="160212"
-                        onVerDetalhes={abrirDetalhes}
-                    />
-                )}
-                
-                {abaAtiva === 'creditos167' && (
-                    <CreditsPanel 
-                        fonteAlvo="167"
-                        ugAlvo="167212"
-                        onVerDetalhes={abrirDetalhes}
-                    />
-                )}
-                
-                {abaAtiva === 'nota_fiscal' && <Invoice />}
-                
-                {abaAtiva === 'detalhe_ne' && (
-                    <NEDetail 
-                        idNe={idNeDetalhada} 
-                        onVoltar={voltarParaOrigem} 
-                    />
-                )}
-            </div>
-
+            {/* MODAIS */}
             {isNcModalOpen && (
-                <NewCredit 
-                    onClose={() => setIsNcModalOpen(false)} 
-                    onSuccess={forcarAtualizacaoAba} 
+                <NewCredit
+                    onClose={handleFecharNcModal}
+                    onSuccess={forcarAtualizacaoAba}
                 />
             )}
-            
+
             {isNeModalOpen && (
-                <NewNE 
-                    onClose={() => setIsNeModalOpen(false)} 
-                    onSuccess={forcarAtualizacaoAba} 
+                <NewNE
+                    onClose={handleFecharNeModal}
+                    onSuccess={handleFecharNeModal}
+                    creditoParaEmpenhar={creditoParaEmpenhar}
+                />
+            )}
+
+            {/* NOVO: Modal de Nota Fiscal */}
+            {isNfModalOpen && (
+                <Invoice 
+                    onClose={handleFecharNfModal}
+                    onSuccess={handleFecharNfModal}
                 />
             )}
         </div>
