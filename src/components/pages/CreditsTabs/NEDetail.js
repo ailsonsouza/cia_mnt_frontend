@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/NEDetail.module.css';
 import { BsSave, BsArrowLeftRight } from 'react-icons/bs';
 
-function NEDetail({ idNe, onVoltar }) {
+function NEDetail({ idNe, onVoltar, onVerDetalhesNC }) {
     const [dados, setDados] = useState(null);
     const [listaNFs, setListaNFs] = useState([]);
     const [carregando, setCarregando] = useState(true);
@@ -11,7 +11,7 @@ function NEDetail({ idNe, onVoltar }) {
     const [ncOrigem, setNcOrigem] = useState(null);
 
     const obterTextoEmpenhado = (dataGeracao) => {
-        if (!dataGeracao) return "DETALHAMENTO TÉCNICO E FLUXO DE LIQUIDAÇÃO";
+        if (!dataGeracao) return "";
         const dataNE = new Date(dataGeracao);
         const dataAtual = new Date();
         dataNE.setHours(0, 0, 0, 0);
@@ -20,6 +20,20 @@ function NEDetail({ idNe, onVoltar }) {
         
         if (diff === 0) return "Empenhado hoje";
         return `Empenhado há ${diff} ${diff === 1 ? 'dia' : 'dias'}`;
+    };
+
+    // Função para navegar para o detalhamento da NC
+    const handleVerNC = () => {
+        if (onVerDetalhesNC) {
+            // Prioriza a NC de origem direta
+            if (ncOrigem && ncOrigem.id) {
+                onVerDetalhesNC(ncOrigem.id);
+            } 
+            // Se for uma transferência, usa o ID da NC original
+            else if (ncOrigem && ncOrigem.original && ncOrigem.original.id) {
+                onVerDetalhesNC(ncOrigem.original.id);
+            }
+        }
     };
 
     useEffect(() => {
@@ -35,10 +49,8 @@ function NEDetail({ idNe, onVoltar }) {
                 const neData = resNE.id ? resNE : resRPNP;
                 const tipo = resNE.id ? 'NE' : 'RPNP';
                 
-                // Buscar NC de origem
                 const ncOrigemData = resNC.find(nc => nc.id === neData.idNcVinculada);
                 
-                // Se a NC for uma transferência, buscar a original
                 let ncOriginalData = null;
                 if (ncOrigemData && ncOrigemData.documentoAnterior) {
                     const resOriginal = await fetch(`http://localhost:5000/credits_nc?codigoUnico=${ncOrigemData.documentoAnterior}`);
@@ -48,7 +60,6 @@ function NEDetail({ idNe, onVoltar }) {
                     }
                 }
                 
-                // CORREÇÃO: Filtrar NFs corretamente
                 const nfsVinculadas = Array.isArray(resNF) 
                     ? resNF.filter(nf => nf.idNeVinculada === idNe)
                     : [];
@@ -124,7 +135,10 @@ function NEDetail({ idNe, onVoltar }) {
                 </div>
                 <div className={styles.buttonGroup}>
                     {ncOrigem && (
-                        <button className={styles.btnDriveNC} onClick={() => window.open(ncOrigem.linkDrive, '_blank')}>
+                        <button 
+                            className={styles.btnDriveNC} 
+                            onClick={handleVerNC}
+                        >
                             VER NC ORIGEM
                         </button>
                     )}
@@ -133,37 +147,6 @@ function NEDetail({ idNe, onVoltar }) {
                     </button>
                 </div>
             </div>
-
-            {/* RASTRO DA NC DE ORIGEM */}
-            {ncOrigem && (
-                <div className={styles.rastroContainer}>
-                    <h3>📋 ORIGEM DO CRÉDITO</h3>
-                    <div className={styles.rastroInfo}>
-                        <div className={styles.rastroItem}>
-                            <span className={styles.rastroLabel}>NC de Origem:</span>
-                            <strong>{ncOrigem.nc}</strong>
-                            <span className={styles.rastroDetalhe}>
-                                {ncOrigem.detentor} | {formatarMoeda(ncOrigem.valor)}
-                            </span>
-                        </div>
-                        {ncOrigem.original && (
-                            <div className={styles.rastroItem}>
-                                <span className={styles.rastroLabel}>
-                                    <BsArrowLeftRight /> Crédito Original:
-                                </span>
-                                <strong>{ncOrigem.original.nc}</strong>
-                                <span className={styles.rastroDetalhe}>
-                                    {ncOrigem.original.detentor} | {formatarMoeda(ncOrigem.original.valor)}
-                                </span>
-                            </div>
-                        )}
-                        <div className={styles.rastroItem}>
-                            <span className={styles.rastroLabel}>Código Único:</span>
-                            <span>{ncOrigem.codigoUnico}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <div className={styles.gridDetalhes}>
                 <div className={styles.cardInfo}>

@@ -1,4 +1,3 @@
-
 import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
 
 import { useState, useEffect } from 'react'
@@ -8,22 +7,19 @@ import { useAuth } from '../../context/AuthContext'
 function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
     const { usuarioAtual } = useAuth();
     
-    // Listas do banco de dados
     const [listaNCs, setListaNCs] = useState([])
     const [listaNEs, setListaNEs] = useState([])
     const [listaPregaos, setListaPregaos] = useState([])
     const [listaItensPregao, setListaItensPregao] = useState([])
 
-    // Estados de seleção
     const [idPregaoSelecionado, setIdPregaoSelecionado] = useState('')
     const [idNcSelecionada, setIdNcSelecionada] = useState('')
-    const [ncDados, setNcDados] = useState({ valor: 0, valorFormatado: 'R$ 0,00', finalidade: '', prazoEmpenho: '' })
+    const [ncDados, setNcDados] = useState({ saldoDisponivel: 0, saldoFormatado: 'R$ 0,00', finalidade: '', prazoEmpenho: '' })
 
-    // Estados dos campos da Nova N.E.
     const [numeroNE, setNumeroNE] = useState('')
     const [finalidadeNE, setFinalidadeNE] = useState('')
-    const [omAplicacao, setOmAplicacao] = useState('')  // ← CAMPO RESTAURADO
-    const [processo, setProcesso] = useState('')  // ← CAMPO RESTAURADO
+    const [omAplicacao, setOmAplicacao] = useState('')
+    const [processo, setProcesso] = useState('')
     const [idMaterialSelecionado, setIdMaterialSelecionado] = useState('')
     const [descricaoItemManual, setDescricaoItemManual] = useState('')
     const [nomeFornecedor, setNomeFornecedor] = useState('')
@@ -33,24 +29,21 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
     const [valorEmpenho, setValorEmpenho] = useState('')
     const [isValorParcial, setIsValorParcial] = useState(false)
 
-    // Estados para Data de Geração
     const [dataGeracaoNE, setDataGeracaoNE] = useState('')
     const [isHoje, setIsHoje] = useState(true)
 
-    // Se veio de um card (empenhar direto), pré-seleciona a NC
     useEffect(() => {
         if (creditoParaEmpenhar) {
             setIdNcSelecionada(creditoParaEmpenhar.id);
-            setValorEmpenho(creditoParaEmpenhar.valor.toString());
+            setValorEmpenho(creditoParaEmpenhar.saldoDisponivel?.toString() || '');
             
-            // Busca os dados da NC para exibir
             fetch(`http://localhost:5000/credits_nc/${creditoParaEmpenhar.id}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data) {
                         setNcDados({
-                            valor: data.valor,
-                            valorFormatado: data.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                            saldoDisponivel: data.saldoDisponivel || 0,
+                            saldoFormatado: (data.saldoDisponivel || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
                             finalidade: data.finalidade || '',
                             prazoEmpenho: data.prazoEmpenho || ''
                         });
@@ -60,7 +53,6 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         }
     }, [creditoParaEmpenhar]);
 
-    // 1. CARREGAMENTO INICIAL
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -82,7 +74,6 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         fetchData();
     }, []);
 
-    // 2. LÓGICA DA DATA DE GERAÇÃO (HOJE)
     useEffect(() => {
         if (isHoje) {
             const hoje = new Date().toISOString().split('T')[0];
@@ -92,30 +83,28 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         }
     }, [isHoje]);
 
-    // 3. MONITORAMENTO DA NC SELECIONADA
     useEffect(() => {
         if (!idNcSelecionada) {
-            setNcDados({ valor: 0, valorFormatado: 'R$ 0,00', finalidade: '', prazoEmpenho: '' });
+            setNcDados({ saldoDisponivel: 0, saldoFormatado: 'R$ 0,00', finalidade: '', prazoEmpenho: '' });
             setFinalidadeNE('');
             return;
         }
         const ncEncontrada = listaNCs.find(item => item.id === idNcSelecionada);
         if (ncEncontrada) {
             setNcDados({
-                valor: ncEncontrada.valor || 0,
-                valorFormatado: ncEncontrada.valor ? ncEncontrada.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00',
+                saldoDisponivel: ncEncontrada.saldoDisponivel || 0,
+                saldoFormatado: (ncEncontrada.saldoDisponivel || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
                 finalidade: ncEncontrada.finalidade || '',
                 prazoEmpenho: ncEncontrada.prazoEmpenho || ''
             });
             setFinalidadeNE(ncEncontrada.finalidade || '');
             
             if (!creditoParaEmpenhar && !isValorParcial) {
-                setValorEmpenho(ncEncontrada.valor?.toString() || '');
+                setValorEmpenho(ncEncontrada.saldoDisponivel?.toString() || '');
             }
         }
     }, [idNcSelecionada, listaNCs, creditoParaEmpenhar, isValorParcial]);
 
-    // 4. SELEÇÃO DE MATERIAL
     const handleMudarMaterial = (valorSelect) => {
         setIdMaterialSelecionado(valorSelect);
         if (valorSelect === 'OUTRO') {
@@ -133,10 +122,9 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         }
     }
 
-    // 5. VALIDAÇÃO DO VALOR DO EMPENHO
     const validarValorEmpenho = () => {
         const valorNumerico = parseFloat(valorEmpenho.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
-        const valorDisponivel = ncDados.valor;
+        const valorDisponivel = ncDados.saldoDisponivel;
         
         if (valorNumerico <= 0) {
             alert('Informe um valor válido maior que zero');
@@ -151,8 +139,7 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         return true;
     };
 
-    // 6. SALVAR
-    const handleSalvarNE = (e) => {
+    const handleSalvarNE = async (e) => {
         e.preventDefault();
         
         if (!validarValorEmpenho()) return;
@@ -166,62 +153,62 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
         const valorNumerico = parseFloat(valorEmpenho.replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
         const ncEncontrada = listaNCs.find(item => item.id === idNcSelecionada);
         
-        // CORREÇÃO: O valor empenhado é o valorNumerico (1300)
-        // O saldo restante da NC é ncEncontrada.valor - valorNumerico (1700)
+        // CORREÇÃO: Abate do saldoDisponivel da NC
+        const novoSaldoNC = ncEncontrada.saldoDisponivel - valorNumerico;
+        
+        const ncAtualizada = {
+            ...ncEncontrada,
+            saldoDisponivel: novoSaldoNC,
+            totalEmpenhado: (ncEncontrada.totalEmpenhado || 0) + valorNumerico,
+            versao: (ncEncontrada.versao || 0) + 1,
+            ultimaAtualizacao: new Date().toISOString()
+        };
         
         const novaNE = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: Math.random().toString(36).substr(2, 11),
             idPregaoVinculado: idPregaoSelecionado,
             idNcVinculada: idNcSelecionada,
             idItemPregaoVinculado: (isModoManual || idMaterialSelecionado === 'OUTRO') ? null : idMaterialSelecionado,
             numeroNE,
             finalidade: finalidadeNE,
-            omAplicacao: omAplicacao,  // ← CAMPO OBRIGATÓRIO
-            processo: processo,  // ← CAMPO OBRIGATÓRIO
+            omAplicacao: omAplicacao,
+            processo: processo,
             materialNE: materialFinal,
             nomeFornecedor,
             cnpjFornecedor,
             linkDriveNE,
-            valorAtual: valorNumerico,  // ← VALOR EMPENHADO (1300)
+            valorAtual: valorNumerico,
+            totalLiquidado: 0,
             dataGeracaoNE: dataGeracaoNE,
-            modalidade: isModoManual ? 'FORA_DO_PREGAO_MANUAL' : 'PREGAO_HOMOLOGADO'
+            modalidade: isModoManual ? 'FORA_DO_PREGAO_MANUAL' : 'PREGAO_HOMOLOGADO',
+            dataCriacao: new Date().toISOString()
         };
         
-        // CORREÇÃO: Atualizar o saldo da NC (valor original - valor empenhado)
-        const novoSaldoNC = ncEncontrada.valor - valorNumerico;  // 3000 - 1300 = 1700
-        const ncAtualizada = {
-            ...ncEncontrada,
-            valor: novoSaldoNC
-        };
-        
-        // Executa as duas operações: atualiza NC e cria NE
-        Promise.all([
-            fetch(`http://localhost:5000/credits_nc/${idNcSelecionada}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(ncAtualizada)
-            }),
-            fetch('http://localhost:5000/credits_ne', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(novaNE)
-            })
-        ])
-        .then(([resNC, resNE]) => {
-            if (!resNC.ok || !resNE.ok) throw new Error();
+        try {
+            await Promise.all([
+                fetch(`http://localhost:5000/credits_nc/${idNcSelecionada}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ncAtualizada)
+                }),
+                fetch('http://localhost:5000/credits_ne', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(novaNE)
+                })
+            ]);
+            
             alert(`Nota de Empenho cadastrada com sucesso!\n\nValor empenhado: ${valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\nSaldo restante da NC: ${novoSaldoNC.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
             if (onSuccess) onSuccess();
             onClose();
-        })
-        .catch(err => {
+        } catch (err) {
             console.error("Erro ao salvar:", err);
             alert('Erro ao cadastrar Nota de Empenho.');
-        });
+        }
     }
 
-    // Filtra apenas NCs disponíveis (com saldo > 0 E detentor = usuário atual)
     const ncsDisponiveis = listaNCs.filter(nc => 
-        nc.valor > 0 && 
+        (nc.saldoDisponivel || 0) > 0 && 
         nc.detentor === usuarioAtual.secao &&
         (nc.statusRecebimento === 'RECEBIDO' || nc.statusRecebimento === undefined || nc.statusRecebimento === null)
     );
@@ -239,7 +226,6 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                 <form className={styles.formStyled} onSubmit={handleSalvarNE}>
                     <div className={styles.formContent}>
 
-                        {/* SEÇÃO 1: ORIGEM DO CRÉDITO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsInfoCircleFill /> <h4>1. ORIGEM DO CRÉDITO</h4>
@@ -257,7 +243,7 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                                         <option value="">-- Escolha a NC --</option>
                                         {ncsDisponiveis.map(item => (
                                             <option key={item.id} value={item.id}>
-                                                {item.nc} - {item.codigoUnico} (R$ {item.valor.toLocaleString('pt-BR')})
+                                                {item.nc} - {item.codigoUnico} (Saldo: {item.saldoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
                                             </option>
                                         ))}
                                     </select>
@@ -266,14 +252,13 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                             {idNcSelecionada && (
                                 <div className={styles.ncInfoBox}>
                                     <div className={styles.ncInfoItem}>
-                                        <label>Valor disponível:</label> 
-                                        <span className={styles.greenText}>{ncDados.valorFormatado}</span>
+                                        <label>Saldo disponível:</label> 
+                                        <span className={styles.greenText}>{ncDados.saldoFormatado}</span>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* SEÇÃO 2: VALOR DO EMPENHO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsCalendarDate /> <h4>2. VALOR DO EMPENHO</h4>
@@ -298,8 +283,8 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                                             checked={isValorParcial}
                                             onChange={(e) => {
                                                 setIsValorParcial(e.target.checked);
-                                                if (!e.target.checked && ncDados.valor) {
-                                                    setValorEmpenho(ncDados.valor.toString());
+                                                if (!e.target.checked && ncDados.saldoDisponivel) {
+                                                    setValorEmpenho(ncDados.saldoDisponivel.toString());
                                                 } else if (e.target.checked) {
                                                     setValorEmpenho('');
                                                 }
@@ -314,7 +299,6 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                             </div>
                         </div>
 
-                        {/* SEÇÃO 3: DADOS DA NOTA DE EMPENHO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsFileEarmarkTextFill /> <h4>3. DADOS DA NOTA DE EMPENHO</h4>
@@ -421,7 +405,6 @@ function NewNE({ onClose, onSuccess, creditoParaEmpenhar = null }) {
                             )}
                         </div>
 
-                        {/* SEÇÃO 4: FORNECEDOR */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsBuilding /> <h4>4. FORNECEDOR E DOCUMENTO</h4>

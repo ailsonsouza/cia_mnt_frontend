@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import styles from '../../styles/styles_pages/styles_creditsTabs/Invoice.module.css'
 import { BsPlusSquareFill, BsInfoCircleFill, BsFileEarmarkTextFill, BsBuilding, BsLink45Deg, BsPlus, BsTrash } from 'react-icons/bs'
+import { useAuth } from '../../context/AuthContext'
 
-function Invoice({ onClose, onSuccess }) {
+function Invoice({ onClose, onSuccess, onVerDetalhesNE }) {
+    const { usuarioAtual } = useAuth();
     const [listaNFs, setListaNFs] = useState([])
     const [listaNEs, setListaNEs] = useState([])
     const [listaRPNPs, setListaRPNPs] = useState([])
+    const [listaNCs, setListaNCs] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const [idEmEdicao, setIdEmEdicao] = useState(null)
@@ -27,11 +30,150 @@ function Invoice({ onClose, onSuccess }) {
     const [filtroNE, setFiltroNE] = useState('')
     const [filtroFornecedor, setFiltroFornecedor] = useState('')
 
+    // ==================== FUNÇÕES DE PERMISSÃO ====================
+
+    // Função para buscar a NC raiz (original) percorrendo a árvore
+    const buscarNCRaiz = (ncId, todasNCs) => {
+        const ncAtual = todasNCs.find(nc => nc.id === ncId);
+        if (!ncAtual) return null;
+        
+        let raiz = ncAtual;
+        let current = ncAtual;
+        
+        while (current && current.documentoAnterior) {
+            const pai = todasNCs.find(nc => nc.codigoUnico === current.documentoAnterior);
+            if (pai) {
+                raiz = pai;
+                current = pai;
+            } else {
+                break;
+            }
+        }
+        
+        return raiz;
+    };
+
+    // Função para verificar se uma seção está na cadeia de transferências da NC
+    const secaoEstaNaArvore = (ncId, secao, todasNCs) => {
+        const ncAtual = todasNCs.find(nc => nc.id === ncId);
+        if (!ncAtual) return false;
+        
+        if (ncAtual.detentor === secao) return true;
+        if (ncAtual.detentorOriginal === secao) return true;
+        
+        let current = ncAtual;
+        while (current && current.documentoAnterior) {
+            const pai = todasNCs.find(nc => nc.codigoUnico === current.documentoAnterior);
+            if (pai) {
+                if (pai.detentor === secao || pai.detentorOriginal === secao) return true;
+                current = pai;
+            } else {
+                break;
+            }
+        }
+        
+        return false;
+    };
+
+    // CORREÇÃO: Verifica se o usuário pode ver uma NF específica (suporta NE e RPNP)
+    const podeVerNF = (nf) => {
+        const nivel = usuarioAtual.nivel;
+        const secao = usuarioAtual.secao;
+        
+        // DESCENTRALIZADORA vê tudo
+        if (nivel === 'DESCENTRALIZADORA') {
+            return true;
+        }
+        
+        let ncOrigem = null;
+        
+        // Verifica se é NE ou RPNP
+        if (nf.tipoVinculo === 'NE' || !nf.tipoVinculo) {
+            // É NE
+            const neVinculada = listaNEs.find(ne => ne.id === nf.idNeVinculada);
+            if (neVinculada) {
+                ncOrigem = listaNCs.find(nc => nc.id === neVinculada.idNcVinculada);
+            }
+        } else if (nf.tipoVinculo === 'RPNP') {
+            // É RPNP
+            const rpnpVinculado = listaRPNPs.find(rp => rp.id === nf.idNeVinculada);
+            if (rpnpVinculado) {
+                // RPNP pode não ter NC vinculada (RPNP com NC digitada)
+                if (rpnpVinculado.idNcVinculada) {
+                    ncOrigem = listaNCs.find(nc => nc.id === rpnpVinculado.idNcVinculada);
+                } else {
+                    // RPNP sem NC vinculada: usa o próprio RPNP para verificação
+                    if (nivel === 'INTERMEDIARIA' || nivel === 'REQUISITANTE') {
+                        // Permite se o RPNP pertence à seção do usuário
+                        return rpnpVinculado.detentor === secao;
+                    }
+                    return false;
+                }
+            }
+        }
+        
+        if (!ncOrigem) {
+            // Se não encontrou NC origem, verifica diretamente pelo criador da NF
+            if (nivel === 'REQUISITANTE') {
+                return nf.criadoPor === secao;
+            }
+            return false;
+        }
+        
+        if (nivel === 'INTERMEDIARIA') {
+            return secaoEstaNaArvore(ncOrigem.id, secao, listaNCs);
+        }
+        
+        if (nivel === 'REQUISITANTE') {
+            // REQUISITANTE: vê se é detentor da NC OU se criou a NF
+            return ncOrigem.detentor === secao || nf.criadoPor === secao;
+        }
+        
+        return false;
+    };
+
+    // Verifica se o usuário pode editar/excluir/alterar status de uma NF
+    const podeEditarNF = (nf) => {
+        return nf.criadoPor === usuarioAtual.secao;
+    };
+
+    // Função para obter o detentor da NE/RPNP (CORRIGIDA)
+    const obterDetentor = (idNeVinculada, tipoVinculo) => {
+        if (tipoVinculo === 'NE') {
+            const ne = listaNEs.find(ne => ne.id === idNeVinculada);
+            if (ne) {
+                const ncOrigem = listaNCs.find(nc => nc.id === ne.idNcVinculada);
+                return ncOrigem?.detentor || '-';
+            }
+        } else if (tipoVinculo === 'RPNP') {
+            const rpnp = listaRPNPs.find(rp => rp.id === idNeVinculada);
+            if (rpnp) {
+                // RPNP pode não ter NC vinculada
+                if (rpnp.idNcVinculada) {
+                    const ncOrigem = listaNCs.find(nc => nc.id === rpnp.idNcVinculada);
+                    return ncOrigem?.detentor || rpnp.detentor || '-';
+                } else {
+                    // RPNP autônomo: usa o próprio detentor do RPNP
+                    return rpnp.detentor || '-';
+                }
+            }
+        }
+        return '-';
+    };
+
+    // Carregar NCs para validação de permissão
+    const carregarNCs = () => {
+        fetch('http://localhost:5000/credits_nc')
+            .then(res => res.json())
+            .then(data => { if (Array.isArray(data)) setListaNCs(data); })
+            .catch(err => console.error("Erro ao carregar NCs:", err));
+    };
+
     // Buscar NFs
     const carregarNFs = () => {
         fetch('http://localhost:5000/credits_nf')
             .then(res => res.json())
-            .then(data => { if (Array.isArray(data)) setListaNFs(data) })
+            .then(data => { if (Array.isArray(data)) setListaNFs(data); })
             .catch(err => console.error("Erro ao carregar NFs:", err));
     };
 
@@ -42,6 +184,10 @@ function Invoice({ onClose, onSuccess }) {
             const resNE = await fetch('http://localhost:5000/credits_ne');
             const nes = await resNE.json();
             setListaNEs(nes);
+            
+            const resRPNP = await fetch('http://localhost:5000/credits_rpnp');
+            const rpnps = await resRPNP.json();
+            setListaRPNPs(rpnps);
             
             const resNF = await fetch('http://localhost:5000/credits_nf');
             const nfs = await resNF.json();
@@ -54,10 +200,6 @@ function Invoice({ onClose, onSuccess }) {
             }).filter(ne => ne.saldoDisponivel > 0);
             
             setNesDisponiveis(nesComSaldo);
-            
-            const resRPNP = await fetch('http://localhost:5000/credits_rpnp');
-            const rpnps = await resRPNP.json();
-            setListaRPNPs(rpnps);
             
             const rpnpsComSaldo = rpnps.map(rp => {
                 const nfsDoRpnp = nfs.filter(nf => nf.idNeVinculada === rp.id);
@@ -75,6 +217,7 @@ function Invoice({ onClose, onSuccess }) {
     };
 
     const carregarDadosDoBanco = () => {
+        carregarNCs();
         carregarNFs();
         carregarDocumentosDisponiveis();
     };
@@ -196,7 +339,8 @@ function Invoice({ onClose, onSuccess }) {
                 processo: processoNF || dadosPreenchidos.processoOriginal,
                 valor: valorNumerico,
                 linkDriveNF,
-                status: "NAO_ENVIADA"
+                status: "NAO_ENVIADA",
+                criadoPor: usuarioAtual.secao
             };
 
             if (idEmEdicao && index === 0) {
@@ -228,7 +372,11 @@ function Invoice({ onClose, onSuccess }) {
             });
     };
 
-    const handleAvancarStatus = (id, statusAtual) => {
+    const handleAvancarStatus = (id, statusAtual, nf) => {
+        if (!podeEditarNF(nf)) {
+            alert('❌ Você não tem permissão para alterar esta Nota Fiscal!');
+            return;
+        }
         const proximoStatus = statusAtual === "NAO_ENVIADA" ? "ENVIADA_LIQUIDACAO" : "LIQUIDADA";
         fetch(`http://localhost:5000/credits_nf/${id}`, {
             method: 'PATCH',
@@ -237,7 +385,11 @@ function Invoice({ onClose, onSuccess }) {
         }).then(() => carregarDadosDoBanco());
     };
 
-    const handleVoltarStatus = (id, statusAtual) => {
+    const handleVoltarStatus = (id, statusAtual, nf) => {
+        if (!podeEditarNF(nf)) {
+            alert('❌ Você não tem permissão para alterar esta Nota Fiscal!');
+            return;
+        }
         const statusAnterior = statusAtual === "LIQUIDADA" ? "ENVIADA_LIQUIDACAO" : "NAO_ENVIADA";
         fetch(`http://localhost:5000/credits_nf/${id}`, {
             method: 'PATCH',
@@ -246,13 +398,21 @@ function Invoice({ onClose, onSuccess }) {
         }).then(() => carregarDadosDoBanco());
     };
 
-    const handleExcluirNF = (id, numeroIdentificador) => {
+    const handleExcluirNF = (id, numeroIdentificador, nf) => {
+        if (!podeEditarNF(nf)) {
+            alert('❌ Você não tem permissão para excluir esta Nota Fiscal!');
+            return;
+        }
         if (window.confirm(`Deseja realmente excluir permanentemente a Nota Fiscal Nº ${numeroIdentificador}?`)) {
             fetch(`http://localhost:5000/credits_nf/${id}`, { method: 'DELETE' }).then(() => carregarDadosDoBanco());
         }
     };
 
     const handleAbrirEdicao = (item) => {
+        if (!podeEditarNF(item)) {
+            alert('❌ Você não tem permissão para editar esta Nota Fiscal!');
+            return;
+        }
         setIdEmEdicao(item.id);
         setNumeroNF(item.numeroNF?.split('-')[0] || '');
         setProcessoNF(item.processo || '');
@@ -291,7 +451,10 @@ function Invoice({ onClose, onSuccess }) {
         carregarDadosDoBanco();
     };
 
-    const nfsFiltradas = listaNFs.filter(item => (
+    // Filtrar NFs por permissão de visualização
+    const nfsComPermissao = listaNFs.filter(nf => podeVerNF(nf));
+
+    const nfsFiltradas = nfsComPermissao.filter(item => (
         (item.numeroNF || '').toLowerCase().includes(filtroNF.toLowerCase()) &&
         (item.numeroNEVinculada || '').toLowerCase().includes(filtroNE.toLowerCase()) &&
         (item.fornecedor || '').toLowerCase().includes(filtroFornecedor.toLowerCase())
@@ -411,10 +574,9 @@ function Invoice({ onClose, onSuccess }) {
     // Se não for modal, mostra a página completa com as tabelas
     return (
         <div className={styles.mainContainer}>
-
             <div className={styles.filterBar}>
                 <div className={styles.filterGroup}><label>Número da NF</label><input type="text" value={filtroNF} onChange={(e) => setFiltroNF(e.target.value)} /></div>
-                <div className={styles.filterGroup}><label>Nota de Empenho (NE)</label><input type="text" value={filtroNE} onChange={(e) => setFiltroNE(e.target.value)} /></div>
+                <div className={styles.filterGroup}><label>NE / RPNP</label><input type="text" value={filtroNE} onChange={(e) => setFiltroNE(e.target.value)} /></div>
                 <div className={styles.filterGroup}><label>Fornecedor</label><input type="text" value={filtroFornecedor} onChange={(e) => setFiltroFornecedor(e.target.value)} /></div>
             </div>
 
@@ -426,7 +588,8 @@ function Invoice({ onClose, onSuccess }) {
                         <thead>
                             <tr>
                                 <th className={styles.colNF}>NF</th>
-                                <th className={styles.colNE}>NE Vinculada</th>
+                                <th className={styles.colNE}>NE / RPNP</th>
+                                <th className={styles.colDetentor}>Detentor</th>
                                 <th className={styles.colProcesso}>Processo</th>
                                 <th className={styles.colFornecedor}>Fornecedor</th>
                                 <th className={styles.colValor}>Valor</th>
@@ -434,16 +597,56 @@ function Invoice({ onClose, onSuccess }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {nfsNaoEnviadas.map(item => (
-                                <tr key={item.id}>
-                                    <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
-                                    <td>{item.numeroNEVinculada} <span className={styles.vinculoTag}>{item.tipoVinculo || 'NE'}</span></td>
-                                    <td>{item.processo}</td>
-                                    <td className={styles.textLeft}>{item.fornecedor}</td>
-                                    <td className={styles.textRight}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                                    <td><div className={styles.acoesContainer}><button className={styles.btnStatusAction} onClick={() => handleAvancarStatus(item.id, item.status)}>Enviar Liquidação</button><button className={styles.btnStatusAction} style={{ backgroundColor: '#0284c7' }} onClick={() => handleAbrirEdicao(item)}>Editar</button><button className={styles.btnStatusAction} style={{ backgroundColor: '#dc2626' }} onClick={() => handleExcluirNF(item.id, item.numeroNF)}>Excluir</button></div></td>
-                                </tr>
-                            ))}
+                            {nfsNaoEnviadas.map(item => {
+                                const podeEditar = podeEditarNF(item);
+                                const detentor = obterDetentor(item.idNeVinculada, item.tipoVinculo);
+                                return (
+                                    <tr key={item.id}>
+                                        <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
+                                        <td>
+                                            <button 
+                                                className={styles.linkDocumento}
+                                                onClick={() => onVerDetalhesNE && onVerDetalhesNE(item.idNeVinculada)}
+                                                title="Clique para ver detalhes"
+                                            >
+                                                {item.numeroNEVinculada}
+                                            </button>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>{detentor}</td>
+                                        <td>{item.processo}</td>
+                                        <td >{item.fornecedor}</td>
+                                        <td style={{ fontWeight: "bold" }}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                        <td>
+                                            <div className={styles.acoesContainer}>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    onClick={() => handleAvancarStatus(item.id, item.status, item)}
+                                                    disabled={!podeEditar}
+                                                    style={!podeEditar ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                                                >
+                                                    Enviar Liquidação
+                                                </button>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#0284c7' }} 
+                                                    onClick={() => handleAbrirEdicao(item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#dc2626' }} 
+                                                    onClick={() => handleExcluirNF(item.id, item.numeroNF, item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -457,7 +660,8 @@ function Invoice({ onClose, onSuccess }) {
                         <thead>
                             <tr>
                                 <th className={styles.colNF}>NF</th>
-                                <th className={styles.colNE}>NE Vinculada</th>
+                                <th className={styles.colNE}>NE / RPNP</th>
+                                <th className={styles.colDetentor}>Detentor</th>
                                 <th className={styles.colProcesso}>Processo</th>
                                 <th className={styles.colFornecedor}>Fornecedor</th>
                                 <th className={styles.colValor}>Valor</th>
@@ -465,16 +669,64 @@ function Invoice({ onClose, onSuccess }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {nfsEnviadas.map(item => (
-                                <tr key={item.id}>
-                                    <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
-                                    <td>{item.numeroNEVinculada} <span className={styles.vinculoTag}>{item.tipoVinculo || 'NE'}</span></td>
-                                    <td>{item.processo}</td>
-                                    <td className={styles.textLeft}>{item.fornecedor}</td>
-                                    <td className={styles.textRight}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                                    <td><div className={styles.acoesContainer}><button className={styles.btnStatusAction} style={{ backgroundColor: '#2563eb' }} onClick={() => handleVoltarStatus(item.id, item.status)}>Voltar</button><button className={styles.btnStatusAction} style={{ backgroundColor: '#28a745' }} onClick={() => handleAvancarStatus(item.id, item.status)}>Liquidar</button><button className={styles.btnStatusAction} style={{ backgroundColor: '#0284c7' }} onClick={() => handleAbrirEdicao(item)}>Editar</button><button className={styles.btnStatusAction} style={{ backgroundColor: '#dc2626' }} onClick={() => handleExcluirNF(item.id, item.numeroNF)}>Excluir</button></div></td>
-                                </tr>
-                            ))}
+                            {nfsEnviadas.map(item => {
+                                const podeEditar = podeEditarNF(item);
+                                const detentor = obterDetentor(item.idNeVinculada, item.tipoVinculo);
+                                return (
+                                    <tr key={item.id}>
+                                        <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
+                                        <td>
+                                            <button 
+                                                className={styles.linkDocumento}
+                                                onClick={() => onVerDetalhesNE && onVerDetalhesNE(item.idNeVinculada)}
+                                                title="Clique para ver detalhes"
+                                            >
+                                                {item.numeroNEVinculada}
+                                            </button>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>{detentor}</td>
+                                        <td>{item.processo}</td>
+                                        <td>{item.fornecedor}</td>
+                                        <td style={{ fontWeight: "bold" }}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                        <td>
+                                            <div className={styles.acoesContainer}>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#2563eb' }} 
+                                                    onClick={() => handleVoltarStatus(item.id, item.status, item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Voltar
+                                                </button>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#28a745' }} 
+                                                    onClick={() => handleAvancarStatus(item.id, item.status, item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Liquidar
+                                                </button>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#0284c7' }} 
+                                                    onClick={() => handleAbrirEdicao(item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#dc2626' }} 
+                                                    onClick={() => handleExcluirNF(item.id, item.numeroNF, item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -488,7 +740,8 @@ function Invoice({ onClose, onSuccess }) {
                         <thead>
                             <tr>
                                 <th className={styles.colNF}>NF</th>
-                                <th className={styles.colNE}>NE Vinculada</th>
+                                <th className={styles.colNE}>NE / RPNP</th>
+                                <th className={styles.colDetentor}>Detentor</th>
                                 <th className={styles.colProcesso}>Processo</th>
                                 <th className={styles.colFornecedor}>Fornecedor</th>
                                 <th className={styles.colValor}>Valor</th>
@@ -496,16 +749,40 @@ function Invoice({ onClose, onSuccess }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {nfsLiquidadas.map(item => (
-                                <tr key={item.id}>
-                                    <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
-                                    <td>{item.numeroNEVinculada} <span className={styles.vinculoTag}>{item.tipoVinculo || 'NE'}</span></td>
-                                    <td>{item.processo}</td>
-                                    <td className={styles.textLeft}>{item.fornecedor}</td>
-                                    <td className={styles.textRight}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                                    <td><div className={styles.acoesContainer}><button className={styles.btnStatusAction} style={{ backgroundColor: '#2563eb' }} onClick={() => handleVoltarStatus(item.id, item.status)}>Estornar Liquidação</button></div></td>
-                                </tr>
-                            ))}
+                            {nfsLiquidadas.map(item => {
+                                const podeEditar = podeEditarNF(item);
+                                const detentor = obterDetentor(item.idNeVinculada, item.tipoVinculo);
+                                return (
+                                    <tr key={item.id}>
+                                        <td><button className={styles.btnLinkTabela} onClick={() => item.linkDriveNF && window.open(item.linkDriveNF, '_blank')}>{item.numeroNF}</button></td>
+                                        <td>
+                                            <button 
+                                                className={styles.linkDocumento}
+                                                onClick={() => onVerDetalhesNE && onVerDetalhesNE(item.idNeVinculada)}
+                                                title="Clique para ver detalhes"
+                                            >
+                                                {item.numeroNEVinculada}
+                                            </button>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>{detentor}</td>
+                                        <td>{item.processo}</td>
+                                        <td>{item.fornecedor}</td>
+                                        <td style={{ fontWeight: "bold" }}>{item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                        <td>
+                                            <div className={styles.acoesContainer}>
+                                                <button 
+                                                    className={styles.btnStatusAction} 
+                                                    style={{ backgroundColor: '#2563eb' }} 
+                                                    onClick={() => handleVoltarStatus(item.id, item.status, item)}
+                                                    disabled={!podeEditar}
+                                                >
+                                                    Estornar Liquidação
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

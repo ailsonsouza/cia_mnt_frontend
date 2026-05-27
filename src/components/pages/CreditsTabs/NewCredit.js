@@ -1,4 +1,3 @@
-
 import styles from '../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css'
 
 import { useState, useEffect } from 'react'
@@ -16,7 +15,16 @@ function NewCredit({ onClose, onSuccess }) {
     const [isImediato, setIsImediato] = useState(false)
     const [linkDrive, setLinkDrive] = useState('')
 
-    // Função para gerar UUID simplificado
+    // Mapeamento nível da seção
+    const getNivelSecao = (secao) => {
+        switch (secao) {
+            case 'TESOURARIA': return 'DESCENTRALIZADORA';
+            case 'COL': return 'INTERMEDIARIA';
+            case 'GRCP': return 'REQUISITANTE';
+            default: return 'DESCENTRALIZADORA';
+        }
+    };
+
     const gerarUUID = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
@@ -25,7 +33,6 @@ function NewCredit({ onClose, onSuccess }) {
         });
     };
 
-    // Função para gerar código único no formato: SECAO-UUID (8 primeiros caracteres)
     const gerarCodigoUnico = (secao) => {
         const uuid = gerarUUID();
         const uuidCurto = uuid.substring(0, 8);
@@ -45,27 +52,43 @@ function NewCredit({ onClose, onSuccess }) {
         e.preventDefault();
         const hoje = new Date();
         const dataGeracaoStr = hoje.toISOString().split('T')[0];
+        const agoraISO = hoje.toISOString();
 
         const valorApenasNumerosEVirgula = valor.replace(/[^\d,]/g, '');
         const valorComPontoDecimal = valorApenasNumerosEVirgula.replace(',', '.');
         const valorNumericoFinal = parseFloat(valorComPontoDecimal) || 0;
 
-        // Gera o código único para esta NC
         const codigoUnico = gerarCodigoUnico(usuarioAtual.secao);
+        const nivelOrigem = getNivelSecao(usuarioAtual.secao);
 
         const novoCredito = {
+            id: Math.random().toString(36).substr(2, 11),
             nc,
             codigoUnico,
             codigoOrigemPermanente: codigoUnico,
             documentoAnterior: null,
-            finalidade,
+            nivelOrigem,
+            
+            valorOriginal: valorNumericoFinal,
+            detentorOriginal: usuarioAtual.secao,
             fonteRecurso,
+            finalidade,
             prazoEmpenho,
             linkDrive,
             dataGeracao: dataGeracaoStr,
-            valor: valorNumericoFinal,
+            
+            saldoDisponivel: valorNumericoFinal,
+            totalTransferido: 0,
+            totalEmpenhado: 0,
+            totalLiquidado: 0,
+            
+            versao: 1,
+            ultimaAtualizacao: agoraISO,
+            
             detentor: usuarioAtual.secao,
-            statusRecebimento: null
+            statusRecebimento: null,
+            transferenciaPendente: false,
+            codigoTransferido: null
         };
 
         fetch('http://localhost:5000/credits_nc', {
@@ -78,7 +101,7 @@ function NewCredit({ onClose, onSuccess }) {
             return res.json();
         })
         .then(() => {
-            alert(`Nota de Crédito cadastrada com sucesso!\nCódigo: ${codigoUnico}`);
+            alert(`Nota de Crédito cadastrada com sucesso!\n\nValor Original: ${valorNumericoFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\nCódigo: ${codigoUnico}\nNível: ${nivelOrigem}`);
             if (typeof onSuccess === 'function') onSuccess();
             fecharE_Limpar();
         })
@@ -107,7 +130,6 @@ function NewCredit({ onClose, onSuccess }) {
                 <form className={styles.formStyled} onSubmit={handleSalvarCredito}>
                     <div className={styles.formContent}>
                         
-                        {/* SEÇÃO 1: DADOS BÁSICOS */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsInfoCircleFill /> <h4>1. IDENTIFICAÇÃO E VALOR</h4>
@@ -118,7 +140,7 @@ function NewCredit({ onClose, onSuccess }) {
                                     <input type="text" placeholder="Ex: 2025NC000807" className={styles.inputField} value={nc} onChange={(e) => setNc(e.target.value)} required />
                                 </div>
                                 <div className={styles.inputGroup}>
-                                    <label>Valor (R$)</label>
+                                    <label>Valor Original (R$)</label>
                                     <input type="text" placeholder="Ex: 15.450,00" className={styles.inputField} value={valor} onChange={(e) => setValor(e.target.value)} required />
                                 </div>
                                 <div className={styles.inputGroup}>
@@ -131,7 +153,6 @@ function NewCredit({ onClose, onSuccess }) {
                             </div>
                         </div>
 
-                        {/* SEÇÃO 2: PRAZO E DOCUMENTAÇÃO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsCalendarCheck /> <h4>2. PRAZO E DOCUMENTAÇÃO</h4>
@@ -162,7 +183,6 @@ function NewCredit({ onClose, onSuccess }) {
                             </div>
                         </div>
 
-                        {/* SEÇÃO 3: FINALIDADE */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsLink45Deg /> <h4>3. FINALIDADE DO CRÉDITO</h4>

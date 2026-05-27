@@ -847,3 +847,115 @@
         min-width: auto;
     }
 }
+
+/* Estilos adicionais para a árvore de transferências */
+.arvoreWrapper {
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.arvoreLinha {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 800px;
+}
+
+.arvoreNode {
+    display: flex;
+    align-items: center;
+}
+
+.arvoreNodeOrigem, .arvoreNodeDestino {
+    background: #f7fafc;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 200px;
+    position: relative;
+}
+
+.arvoreNodeDestino {
+    border-color: #4299e1;
+}
+
+.arvoreNodeAtual {
+    border-color: #48bb78;
+    background: #f0fff4;
+    border-width: 3px;
+}
+
+.arvoreSeta {
+    font-size: 24px;
+    color: #a0aec0;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+.arvoreLabel {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    color: #718096;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.arvoreDetalhe {
+    display: block;
+    font-size: 11px;
+    color: #4a5568;
+    margin-top: 4px;
+}
+
+.arvoreCodigo {
+    display: block;
+    font-size: 10px;
+    color: #718096;
+    font-family: monospace;
+    margin-top: 4px;
+}
+
+.badgePendente {
+    display: inline-block;
+    background: #ed8936;
+    color: white;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+}
+
+.linkNC {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 13px;
+}
+
+.linkNC:hover {
+    color: #2c5282;
+}
+
+.fornecedorCell {
+    max-width: 200px;
+    word-wrap: break-word;
+    font-size: 12px;
+}
+
+.btnTabela {
+    background: #4299e1;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.btnTabela:hover {
+    background: #3182ce;
+}

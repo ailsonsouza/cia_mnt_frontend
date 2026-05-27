@@ -100,33 +100,23 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
         carregarDados();
     }, [carregarDados]);
 
-    const ncMap = useMemo(() => new Map(listaNCs.map(nc => [nc.id, nc])), [listaNCs]);
-
-    const fluxoFinNeMap = useMemo(() => {
-        const mapa = new Map();
-        listaNEs.forEach(ne => {
-            const nfsDaNe = listaNFs.filter(nf => nf.idNeVinculada === ne.id);
-            const emLiquidacao = nfsDaNe.filter(nf => nf.status === 'ENVIADA_LIQUIDACAO').reduce((s, nf) => s + (parseFloat(nf.valor) || 0), 0);
-            const liquidado = nfsDaNe.filter(nf => nf.status === 'LIQUIDADA').reduce((s, nf) => s + (parseFloat(nf.valor) || 0), 0);
-            mapa.set(ne.id, { emLiquidacao, liquidado });
-        });
-        return mapa;
-    }, [listaNEs, listaNFs]);
-
     const podeEditarNC = (nc) => {
-        return nc.codigoUnico === nc.codigoOrigemPermanente;
+        // Apenas a seção que CRIOU pode editar (detentorOriginal)
+        return nc.detentorOriginal === usuarioAtual.secao;
     };
 
     const podeEditarNE = (ne) => {
         const ncOrigem = listaNCs.find(nc => nc.id === ne.idNcVinculada);
-        return ncOrigem && ncOrigem.codigoUnico === ncOrigem.codigoOrigemPermanente;
+        // Apenas a seção que CRIOU a NC pode editar a NE
+        return ncOrigem && ncOrigem.detentorOriginal === usuarioAtual.secao;
+    };
+
+    const podeExcluirNC = (nc) => {
+        // Apenas a seção que CRIOU pode excluir
+        return nc.detentorOriginal === usuarioAtual.secao;
     };
 
     const handleAbrirTransferencia = (credito) => {
-        if (usuarioAtual.nivel === 'REQUISITANTE') {
-            alert('Seu perfil não tem permissão para transferir créditos');
-            return;
-        }
         setModoTransferencia('transferir');
         setCreditoParaTransferir(credito);
         setIsTransferModalOpen(true);
@@ -142,17 +132,37 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
         setIsTransferModalOpen(true);
     };
 
-    const handleExcluirItem = (id, tipo, numeroIdentificador, item) => {
-        const isCriadorOriginal = item.codigoUnico === item.codigoOrigemPermanente;
-        
-        if (!isCriadorOriginal) {
+    const handleExcluirItem = async (id, tipo, numeroIdentificador, item) => {
+        // Verifica se a seção atual é a criadora original
+        if (item.detentorOriginal !== usuarioAtual.secao) {
             alert('❌ Apenas a seção que criou o crédito original pode excluí-lo!');
             return;
         }
         
-        if (item.detentor !== usuarioAtual.secao) {
-            alert('❌ Você não tem permissão para excluir este crédito!');
-            return;
+        if (tipo === 'NC') {
+            try {
+                // Verificar se existem NEs vinculadas
+                const resNEs = await fetch(`http://localhost:5000/credits_ne?idNcVinculada=${id}`);
+                const nesVinculadas = await resNEs.json();
+                
+                if (nesVinculadas.length > 0) {
+                    alert(`❌ Não é possível excluir esta NC pois existem ${nesVinculadas.length} Nota(s) de Empenho vinculada(s). Cancele as NEs primeiro.`);
+                    return;
+                }
+                
+                // Verificar se existem transferências
+                const resTransferencias = await fetch(`http://localhost:5000/credits_nc?documentoAnterior=${item.codigoUnico}`);
+                const transferencias = await resTransferencias.json();
+                
+                if (transferencias.length > 0) {
+                    alert(`❌ Não é possível excluir esta NC pois existem ${transferencias.length} transferência(s) vinculada(s).`);
+                    return;
+                }
+            } catch (err) {
+                console.error('Erro ao verificar dependências:', err);
+                alert('Erro ao verificar dependências da NC.');
+                return;
+            }
         }
         
         const confirmacao = window.confirm(`Deseja realmente excluir permanentemente o documento Nº ${numeroIdentificador}?\n\nEsta ação não pode ser desfeita.`);
@@ -268,15 +278,19 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
     const ncsDisponiveis = useMemo(() => {
         const ncsDaSecao = listaNCs.filter(card => 
             card.detentor === usuarioAtual.secao &&
-            card.valor > 0 &&
-            (card.statusRecebimento === 'RECEBIDO' || card.statusRecebimento === undefined || card.statusRecebimento === null) &&
+            (card.saldoDisponivel || 0) > 0 &&
+            (card.statusRecebimento === 'RECEBIDO' || card.statusRecebimento === undefined || card.statusRecebimento === null)
+        );
+        
+        const filtrados = ncsDaSecao.filter(card => 
             (card.nc || '').toLowerCase().includes(filtroNCDisponivel.documento.toLowerCase()) &&
             (card.processo || '').toLowerCase().includes(filtroNCDisponivel.processo.toLowerCase()) &&
             (card.omAplicacao || '').toLowerCase().includes(filtroNCDisponivel.om.toLowerCase()) &&
             (card.fornecedor || '').toLowerCase().includes(filtroNCDisponivel.fornecedor.toLowerCase()) &&
             (card.finalidade || '').toLowerCase().includes(filtroNCDisponivel.descricao.toLowerCase())
         );
-        return ncsDaSecao;
+        
+        return filtrados;
     }, [listaNCs, filtroNCDisponivel, usuarioAtual.secao]);
 
     const creditosEnviadosPendentes = useMemo(() => {
@@ -470,7 +484,7 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
                                                 <CreditsCardNC 
                                                     key={card.id}
                                                     numeroNC={card.nc}
-                                                    valor={card.valor}
+                                                    valor={card.saldoDisponivel || card.valorOriginal}
                                                     prazoEmpenho={card.prazoEmpenho}
                                                     finalidade={card.finalidade}
                                                     detentor={card.detentor}
@@ -505,7 +519,7 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
                                                 <CreditsCardNCDisabled 
                                                     key={card.id}
                                                     numeroNC={card.nc}
-                                                    valor={card.valor}
+                                                    valor={card.saldoDisponivel || card.valorOriginal}
                                                     prazoEmpenho={card.prazoEmpenho}
                                                     finalidade={card.finalidade}
                                                     detentor={card.detentor}
@@ -538,12 +552,12 @@ function CreditsPanel({ fonteAlvo, ugAlvo, onVerDetalhes, onVerDetalhesNC, onUgC
                                                 <CreditsCardNC 
                                                     key={card.id}
                                                     numeroNC={card.nc}
-                                                    valor={card.valor}
+                                                    valor={card.saldoDisponivel}
                                                     prazoEmpenho={card.prazoEmpenho}
                                                     finalidade={card.finalidade}
                                                     detentor={card.detentor}
                                                     linkDrive={card.linkDrive}
-                                                    podeExcluir={podeEditarNC(card)}
+                                                    podeExcluir={podeExcluirNC(card)}
                                                     onEdit={() => handleEditarNC(card)}
                                                     onDetail={() => abrirDetalhesNC(card.id)}
                                                     onDelete={() => handleExcluirItem(card.id, 'NC', card.nc, card)}

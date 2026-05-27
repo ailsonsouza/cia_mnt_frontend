@@ -1,0 +1,254 @@
+/* src/styles/styles_pages/styles_creditsTabs/RPNPModal.module.css */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.modalForm {
+    background: white;
+    border-radius: 12px;
+    width: 800px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalHeader {
+    padding: 20px 25px;
+    background-color: #1e295d;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.formStyled {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.formContent {
+    padding: 25px;
+    overflow-y: auto;
+    flex: 1;
+    background-color: #f8fafc;
+}
+
+.formSection {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: #2b6cb0;
+    border-bottom: 2px solid #ebf8ff;
+    padding-bottom: 8px;
+}
+
+.sectionHeader h4 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.inputGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inputGroup label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.inputField, .selectInput, .textareaField {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fcfcfc;
+    color: #2d3748;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inputField:focus, .selectInput:focus, .textareaField:focus {
+    outline: none;
+    border-color: #2b6cb0;
+    background-color: #fff;
+    box-shadow: 0 0 0 1px #2b6cb0;
+}
+
+.textareaField {
+    min-height: 80px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.formFooter {
+    padding: 15px 25px;
+    background: #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    flex-shrink: 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btnCancel {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnCancel:hover {
+    background: #475569;
+}
+
+.btnCancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btnSubmit {
+    background-color: #2f855a;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btnSubmit:hover {
+    opacity: 0.9;
+}
+
+.btnSubmit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btnModoManual {
+    background: none;
+    border: none;
+    color: #2b6cb0;
+    cursor: pointer;
+    font-size: 0.7rem;
+    text-decoration: underline;
+    padding: 0;
+    margin-top: 5px;
+    width: auto;
+}
+
+.btnModoManual:hover {
+    color: #1e295d;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .modalForm {
+        width: 95%;
+    }
+    
+    .inputGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .formContent {
+        padding: 15px;
+    }
+    
+    .formSection {
+        padding: 15px;
+    }
+    
+    .modalHeader h3 {
+        font-size: 0.85rem;
+    }
+    
+    .modalHeader {
+        padding: 15px 20px;
+    }
+    
+    .formFooter {
+        padding: 12px 20px;
+        flex-wrap: wrap;
+    }
+    
+    .btnCancel, .btnSubmit {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .formFooter {
+        flex-direction: column;
+    }
+    
+    .btnCancel, .btnSubmit {
+        width: 100%;
+        text-align: center;
+    }
+}

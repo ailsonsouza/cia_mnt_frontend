@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { FcAddDatabase } from 'react-icons/fc';
 import { useParams, useNavigate } from 'react-router-dom'
 import styles from '../styles/styles_pages/Credits.module.css'
 import Auction from './CreditsTabs/Auction'
@@ -7,6 +8,7 @@ import NewCredit from './CreditsTabs/NewCredit'
 import NewNE from './CreditsTabs/NewNE'
 import Invoice from './CreditsTabs/Invoice'
 import RPNP from './CreditsTabs/RPNP'
+import RPNPModal from './CreditsTabs/modais/RPNPModal'  // ← NOVO IMPORT
 import NEDetail from './CreditsTabs/NEDetail'
 import NCDetail from './CreditsTabs/NCDetail'
 import Relatorio from './CreditsTabs/Relatorio'
@@ -28,7 +30,8 @@ function Credits() {
     const [abaAnterior, setAbaAnterior] = useState(null)
     const [isNcModalOpen, setIsNcModalOpen] = useState(false)
     const [isNeModalOpen, setIsNeModalOpen] = useState(false)
-    const [isNfModalOpen, setIsNfModalOpen] = useState(false)  // NOVO: Modal de NF
+    const [isNfModalOpen, setIsNfModalOpen] = useState(false)
+    const [isRPNPModalOpen, setIsRPNPModalOpen] = useState(false)  // ← NOVO ESTADO
     const [creditoParaEmpenhar, setCreditoParaEmpenhar] = useState(null)
     const [idNeDetalhada, setIdNeDetalhada] = useState(null)
     const [idNCDetalhada, setIdNCDetalhada] = useState(null)
@@ -103,12 +106,12 @@ function Credits() {
     const obterTitulo = () => {
         switch (abaAtiva) {
             case 'pregao': return 'PREGÃO';
-            case 'rpnp': return `RPNP`; // - ${rpnpUgSelecionada === '160' ? '160212' : '167212'}
-            case 'ano_atual': return `GESTÃO ORÇAMENTÁRIA`; // - ${ugSelecionada === '160' ? '160212' : '167212'}
+            case 'rpnp': return `RPNP`;
+            case 'ano_atual': return `GESTÃO ORÇAMENTÁRIA`;
             case 'relatorio': return 'RELATÓRIO GERAL';
             case 'nota_fiscal': return 'NOTAS FISCAIS';
-            case 'detalhe_ne': return 'DETALHAMENTO TÉCNICO (N.E.)';
-            case 'detalhe_nc': return 'DETALHAMENTO DA NOTA DE CRÉDITO';
+            case 'detalhe_ne': return 'DETALHAMENTO DA N.E.';
+            case 'detalhe_nc': return 'DETALHAMENTO DA N.C.';
             default: return 'CRÉDITOS';
         }
     };
@@ -134,14 +137,22 @@ function Credits() {
         forcarAtualizacaoAba();
     };
 
-    // NOVO: Abrir modal de NF
     const handleAbrirNfModal = () => {
         setIsNfModalOpen(true);
     };
 
-    // NOVO: Fechar modal de NF
     const handleFecharNfModal = () => {
         setIsNfModalOpen(false);
+        forcarAtualizacaoAba();
+    };
+
+    // NOVAS FUNÇÕES PARA RPNP MODAL
+    const handleAbrirRPNPModal = () => {
+        setIsRPNPModalOpen(true);
+    };
+
+    const handleFecharRPNPModal = () => {
+        setIsRPNPModalOpen(false);
         forcarAtualizacaoAba();
     };
 
@@ -190,12 +201,17 @@ function Credits() {
                     />
                 );
             case 'nota_fiscal':
-                return <Invoice />;
+                return (
+                    <Invoice 
+                        onVerDetalhesNE={abrirDetalhes}  // ← ADICIONAR ESTA LINHA
+                    />
+                );
             case 'detalhe_ne':
                 return (
                     <NEDetail
                         idNe={idNeDetalhada}
                         onVoltar={voltarParaOrigem}
+                        onVerDetalhesNC={abrirDetalhesNC}
                     />
                 );
             case 'detalhe_nc':
@@ -220,7 +236,6 @@ function Credits() {
 
     return (
         <div className={styles.creditsContainer}>
-            {/* LINHA DO TÍTULO COM ÍCONES */}
             <div className={styles.titleBarOriginal}>
                 <h1 className={styles.pageTitleOriginal}>{obterTitulo()}</h1>
                 <div className={styles.actionIconsOriginal}>
@@ -238,6 +253,16 @@ function Credits() {
                     >
                         📝
                     </button>
+                    {/* NOVO BOTÃO RPNP - só aparece quando a aba RPNP estiver ativa */}
+                    {abaAtiva === 'rpnp' && (
+                        <button 
+                            className={styles.iconBtnOriginal} 
+                            onClick={handleAbrirRPNPModal}
+                            title="Nova RPNP"
+                        >
+                            <FcAddDatabase />
+                        </button>
+                    )}
                     <button 
                         className={styles.iconBtnOriginal} 
                         onClick={handleAbrirNfModal}
@@ -248,12 +273,10 @@ function Credits() {
                 </div>
             </div>
 
-            {/* CONTEÚDO PRINCIPAL */}
             <div className={styles.contentAreaOriginal}>
                 {renderContent()}
             </div>
 
-            {/* MODAIS */}
             {isNcModalOpen && (
                 <NewCredit
                     onClose={handleFecharNcModal}
@@ -269,7 +292,18 @@ function Credits() {
                 />
             )}
 
-            {/* NOVO: Modal de Nota Fiscal */}
+            {/* NOVO MODAL RPNP */}
+            {isRPNPModalOpen && (
+                <RPNPModal
+                    isOpen={isRPNPModalOpen}
+                    onClose={handleFecharRPNPModal}
+                    onSuccess={handleFecharRPNPModal}
+                    modo="incluir"
+                    dadosIniciais={null}
+                    fonteRecurso={rpnpUgSelecionada}
+                />
+            )}
+
             {isNfModalOpen && (
                 <Invoice 
                     onClose={handleFecharNfModal}

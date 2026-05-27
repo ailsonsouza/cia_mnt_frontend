@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import styles from '../../../styles/styles_pages/styles_creditsTabs/NewCreditAndNE.module.css';
 import { BsPencil, BsInfoCircleFill, BsFileEarmarkTextFill, BsBuilding, BsCalendarDate } from 'react-icons/bs';
+import { useAuth } from '../../../context/AuthContext';
 
 function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
+    const { usuarioAtual } = useAuth();
     const [listaPregaos, setListaPregaos] = useState([]);
     const [listaItensPregao, setListaItensPregao] = useState([]);
     
-    // Estados do formulário
     const [numeroNE, setNumeroNE] = useState(ne.numeroNE || '');
     const [finalidade, setFinalidade] = useState(ne.finalidade || '');
     const [omAplicacao, setOmAplicacao] = useState(ne.omAplicacao || '');
@@ -15,7 +16,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
     const [valorAtual, setValorAtual] = useState(ne.valorAtual?.toString() || '');
     const [erro, setErro] = useState('');
     
-    // Estados para seleção de material
     const [idPregaoSelecionado, setIdPregaoSelecionado] = useState('');
     const [idMaterialSelecionado, setIdMaterialSelecionado] = useState('');
     const [descricaoItemManual, setDescricaoItemManual] = useState('');
@@ -23,15 +23,16 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
     const [cnpjFornecedor, setCnpjFornecedor] = useState(ne.cnpjFornecedor || '');
     const [isModoManual, setIsModoManual] = useState(false);
     
-    // Data de geração
     const [dataGeracaoNE, setDataGeracaoNE] = useState(ne.dataGeracaoNE || '');
     const [isHoje, setIsHoje] = useState(false);
     
     const valorAtualNE = ne.valorAtual || 0;
-    const valorDisponivelNC = ncOrigem?.valor || 0;
-    const valorDisponivelNCFormatado = valorDisponivelNC.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const saldoDisponivelNC = ncOrigem?.saldoDisponivel || 0;
+    const saldoDisponivelNCFormatado = saldoDisponivelNC.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     
-    // Carregar pregões e itens
+    // CORREÇÃO: Verificação movida para depois de todos os Hooks
+    const podeEditar = ncOrigem && ncOrigem.detentorOriginal === usuarioAtual.secao;
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -48,10 +49,8 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
         fetchData();
     }, []);
     
-    // Configurar o modo manual ou pregão baseado no materialNE existente
     useEffect(() => {
         if (ne.materialNE && listaItensPregao.length > 0) {
-            // Verifica se o material existe nos itens do pregão
             const itemExistente = listaItensPregao.find(item => 
                 `Item ${item.item} - ${item.descricao}` === ne.materialNE
             );
@@ -59,7 +58,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
             if (itemExistente) {
                 setIsModoManual(false);
                 setIdMaterialSelecionado(itemExistente.id);
-                // Busca o pregão deste item
                 const pregaoDoItem = listaPregaos.find(p => p.id === itemExistente.idPregaoVinculado);
                 if (pregaoDoItem) {
                     setIdPregaoSelecionado(pregaoDoItem.id);
@@ -75,18 +73,23 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
         }
     }, [ne, listaItensPregao, listaPregaos]);
     
-    // Quando mudar o pregão, limpar o item selecionado
     useEffect(() => {
         setIdMaterialSelecionado('');
     }, [idPregaoSelecionado]);
     
-    // Calcular a data atual
     useEffect(() => {
         if (isHoje) {
             const hoje = new Date().toISOString().split('T')[0];
             setDataGeracaoNE(hoje);
         }
     }, [isHoje]);
+    
+    // CORREÇÃO: Early return após todos os Hooks
+    if (!podeEditar) {
+        alert('❌ Apenas a seção que criou o crédito original pode editar esta N.E.!');
+        onClose();
+        return null;
+    }
     
     const handleMudarMaterial = (valorSelect) => {
         setIdMaterialSelecionado(valorSelect);
@@ -117,8 +120,7 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
             return false;
         }
         
-        // O novo valor não pode ser maior que o valor disponível na NC + o valor atual da NE
-        const limiteMaximo = valorAtualNE + valorDisponivelNC;
+        const limiteMaximo = valorAtualNE + saldoDisponivelNC;
         if (valorNumerico > limiteMaximo) {
             setErro(`Valor excede o limite disponível. Máximo: ${limiteMaximo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`);
             return false;
@@ -136,7 +138,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
         
         setErro('');
         
-        // Prepara o material final
         let materialFinal = '';
         if (isModoManual) {
             materialFinal = descricaoItemManual;
@@ -145,10 +146,8 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
             materialFinal = item ? `Item ${item.item} - ${item.descricao}` : '';
         }
         
-        // Calcula a diferença de valor para ajustar a NC
         const diferencaValor = valorNumerico - valorAtualNE;
         
-        // Atualiza a NE
         const neAtualizada = {
             ...ne,
             numeroNE,
@@ -166,9 +165,8 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
             idItemPregaoVinculado: isModoManual ? null : (idMaterialSelecionado !== 'OUTRO' ? idMaterialSelecionado : null)
         };
         
-        // Se houver diferença, atualiza a NC também
         if (diferencaValor !== 0 && ncOrigem) {
-            const novoSaldoNC = ncOrigem.valor - diferencaValor;
+            const novoSaldoNC = ncOrigem.saldoDisponivel - diferencaValor;
             
             if (novoSaldoNC < 0) {
                 setErro('Não há saldo suficiente na NC para este aumento');
@@ -177,7 +175,10 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
             
             const ncAtualizada = {
                 ...ncOrigem,
-                valor: novoSaldoNC
+                saldoDisponivel: novoSaldoNC,
+                totalEmpenhado: (ncOrigem.totalEmpenhado || 0) + diferencaValor,
+                versao: (ncOrigem.versao || 0) + 1,
+                ultimaAtualizacao: new Date().toISOString()
             };
             
             Promise.all([
@@ -202,7 +203,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                 alert('Erro ao editar N.E. Tente novamente.');
             });
         } else {
-            // Apenas atualiza a NE
             fetch(`http://localhost:5000/credits_ne/${ne.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -232,7 +232,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                 
                 <form className={styles.formStyled} onSubmit={handleSalvarEdicao}>
                     <div className={styles.formContent}>
-                        {/* SEÇÃO: INFORMAÇÕES DO CRÉDITO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsInfoCircleFill /> <h4>1. INFORMAÇÕES DO CRÉDITO</h4>
@@ -276,14 +275,13 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                             </div>
                             <div className={styles.infoBox} style={{ marginTop: '15px', backgroundColor: '#f0fff4', borderLeftColor: '#38a169' }}>
                                 <div className={styles.infoText}>
-                                    <strong>Saldo disponível na NC:</strong> {valorDisponivelNCFormatado}
+                                    <strong>Saldo disponível na NC:</strong> {saldoDisponivelNCFormatado}
                                     <br />
                                     <strong>Valor atual da N.E.:</strong> {valorAtualNE.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                 </div>
                             </div>
                         </div>
                         
-                        {/* SEÇÃO: MATERIAL / ITEM */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsFileEarmarkTextFill /> <h4>2. MATERIAL / ITEM</h4>
@@ -322,7 +320,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                                 </div>
                             </div>
                             
-                            {/* Botão para alternar para modo manual */}
                             {!isModoManual && idPregaoSelecionado && (
                                 <button 
                                     type="button" 
@@ -361,7 +358,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                             )}
                         </div>
                         
-                        {/* SEÇÃO: FORNECEDOR */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsBuilding /> <h4>3. FORNECEDOR</h4>
@@ -390,7 +386,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                             </div>
                         </div>
                         
-                        {/* SEÇÃO: DOCUMENTO */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsCalendarDate /> <h4>4. DOCUMENTO</h4>
@@ -410,7 +405,6 @@ function EditarNEModal({ ne, ncOrigem, onClose, onSuccess }) {
                             </div>
                         </div>
                         
-                        {/* SEÇÃO: FINALIDADE */}
                         <div className={styles.formSection}>
                             <div className={styles.sectionHeader}>
                                 <BsFileEarmarkTextFill /> <h4>5. FINALIDADE</h4>

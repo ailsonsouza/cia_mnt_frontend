@@ -171,6 +171,18 @@ function Auction() {
         // Cálculos dos Saldos Globais
         const capTotal = parseCurrency(item.capacidadeEmpenho);
         const capAtual = capTotal - (r160 + r167 + c160 + c167);
+        const formatarMoeda = (valor) => {
+            if (typeof valor === 'number') {
+                return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+            if (typeof valor === 'string') {
+                const numero = parseFloat(valor.replace(/[^\d,.]/g, '').replace(',', '.'));
+                if (!isNaN(numero)) {
+                    return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }
+            }
+            return valor || 'R$ 0,00';
+        };
 
         return {
             r160: r160.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
@@ -393,8 +405,19 @@ function Auction() {
                             <div className={styles.viewSection}>
                                 <div className={styles.sectionHeader}><BsCashStack /> <h4>CONTROLE DE SALDOS E EMPENHOS</h4></div>
                                 <div className={styles.viewGrid}>
-                                    <div className={styles.viewItem}><label>Capacidade Total</label><span>{itemDetalhado.capacidadeEmpenho}</span></div>
-                                    <div className={styles.viewItem}><label>Capacidade Atual</label><span className={styles.financeValBold}>{itemDetalhado.capAtual}</span></div>
+                                    {/* CORREÇÃO: Formatando Capacidade Total como moeda */}
+                                    <div className={styles.viewItem}>
+                                        <label>Capacidade Total</label>
+                                        <span className={styles.valDestaque}>
+                                            {typeof itemDetalhado.capacidadeEmpenho === 'number' 
+                                                ? itemDetalhado.capacidadeEmpenho.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                                : itemDetalhado.capacidadeEmpenho}
+                                        </span>
+                                    </div>
+                                    <div className={styles.viewItem}>
+                                        <label>Capacidade Atual</label>
+                                        <span className={styles.financeValBold}>{itemDetalhado.capAtual}</span>
+                                    </div>
                                 </div>
                                 <div className={styles.viewGrid} style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #edf2f7' }}>
                                     <div className={styles.viewItem}><label>RPNP 160</label><span>{itemDetalhado.r160}</span></div>

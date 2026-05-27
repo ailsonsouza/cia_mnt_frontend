@@ -1,8 +1,10 @@
+/* RELATORIO.MODULE.CSS - VERSÃO CORRIGIDA (SEM DUPLAS BARRAS) */
+
+/* ==================== CONTAINER PRINCIPAL ==================== */
 .container {
     padding: 20px;
     background-color: #f8fafc;
     border-radius: 12px;
-    min-height: 500px;
 }
 
 .container h2 {
@@ -14,7 +16,56 @@
     padding-left: 15px;
 }
 
-/* ABAS */
+/* ==================== CABEÇALHO COM SELETOR UG ==================== */
+.headerWithSelector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.headerWithSelector h2 {
+    margin: 0;
+}
+
+.ugSelector {
+    flex-shrink: 0;
+}
+
+.ugToggle {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 40px;
+    padding: 4px;
+    gap: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.ugOption {
+    padding: 8px 24px;
+    border: none;
+    border-radius: 32px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: #64748b;
+}
+
+.ugOption.active {
+    background-color: #1e295d;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ugOption:hover:not(.active) {
+    background-color: #e2e8f0;
+}
+
+/* ==================== ABAS ==================== */
 .reportTabs {
     display: flex;
     gap: 5px;
@@ -62,36 +113,39 @@
     color: white;
 }
 
-/* CONTEÚDO */
+/* ==================== CONTEÚDO ==================== */
 .reportContent {
     background: white;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
-    overflow: hidden;
+    overflow: visible;  /* Mudado de hidden para visible */
 }
 
-/* FILTROS */
-.filterBar {
+/* ==================== FILTROS (LINHA ÚNICA) ==================== */
+.filterBarSingle {
     display: flex;
+    align-items: flex-end;
+    gap: 20px;
     flex-wrap: wrap;
-    gap: 15px;
-    padding: 20px;
-    background-color: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 .filterGroup {
     flex: 1;
-    min-width: 180px;
+    min-width: 120px;
 }
 
 .filterGroup label {
     display: block;
-    font-size: 0.65rem;
-    font-weight: 800;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin-bottom: 4px;
     text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 5px;
 }
 
 .filterGroup input {
@@ -100,23 +154,108 @@
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     font-size: 0.85rem;
+    transition: border-color 0.2s;
     background-color: white;
 }
 
 .filterGroup input:focus {
     outline: none;
     border-color: #2b6cb0;
+    box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
 }
 
-/* TABELA */
+.filterGroupCheckboxes {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    padding-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.filterGroupCheckboxes > label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4a5568;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.checkboxGroup {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.checkboxLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4a5568;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.checkboxLabel:hover {
+    background-color: #e2e8f0;
+}
+
+.checkboxLabel input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #2b6cb0;
+}
+
+.checkboxLabel span {
+    user-select: none;
+}
+
+/* ==================== TOTAIS EM TELA ==================== */
+.totalTopo {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    background-color: #f0fff4;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #c6f6d5;
+    margin: 0 15px 15px 15px;
+    flex-wrap: wrap;
+}
+
+.totalTopoItem {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    font-size: 0.75rem;
+}
+
+.totalTopoItem span {
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.totalTopoItem strong {
+    color: #2f855a;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+/* ==================== TABELA ==================== */
+/* CORREÇÃO: Remove max-height e overflow para evitar dupla barra */
 .tableContainer {
     overflow-x: auto;
-    max-height: 500px;
-    overflow-y: auto;
+    overflow-y: visible;
+    width: 100%;
 }
 
 .dataTable {
     width: 100%;
+    min-width: 1000px;
     border-collapse: collapse;
     font-size: 0.8rem;
 }
@@ -127,15 +266,12 @@
     padding: 12px;
     text-align: left;
     font-weight: 700;
-    position: sticky;
-    top: 0;
-    z-index: 10;
 }
 
 .dataTable td {
-    padding: 12px;
+    padding: 10px 12px;
     border-bottom: 1px solid #e2e8f0;
-    vertical-align: middle;
+    vertical-align: top;
 }
 
 .dataTable tr:hover {
@@ -145,122 +281,42 @@
 .documentoCell {
     font-weight: 700;
     color: #2b6cb0;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 .valorCell {
     font-weight: 600;
     color: #2f855a;
+    white-space: nowrap;
 }
 
 .valorCell.zerado {
     color: #e53e3e;
 }
 
-.finalidadeCell {
-    max-width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #4a5568;
-}
-
-.actionsCell {
-    text-align: center;
-}
-
-.btnView {
-    background: none;
-    border: none;
-    color: #2b6cb0;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.btnView:hover {
-    background-color: #ebf8ff;
-    color: #1e295d;
-}
-
-.statusBadge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-align: center;
-}
-
-.statusAndamento {
-    background-color: #fef3c7;
-    color: #d97706;
-}
-
-.statusFinalizado {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.emptyRow {
-    text-align: center;
-    padding: 40px;
-    color: #a0aec0;
-    font-style: italic;
-}
-
-.totalRow {
-    padding: 15px 20px;
-    background-color: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    text-align: right;
-    font-size: 0.85rem;
-}
-
-.loader {
-    text-align: center;
-    padding: 100px;
-    font-size: 1rem;
-    color: #2b6cb0;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-    
-    .reportTab {
-        padding: 8px 16px;
-        font-size: 0.75rem;
-    }
-    
-    .filterBar {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .filterGroup {
-        min-width: 100%;
-    }
-    
-    .dataTable th, .dataTable td {
-        padding: 8px;
-    }
-    
-    .finalidadeCell {
-        max-width: 120px;
-    }
-}
 .prazoVencido {
     color: #e53e3e !important;
     font-weight: 700;
     background-color: #fff5f5;
+}
+
+.finalidadeCell {
+    max-width: 300px;
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
+    color: #4a5568;
+}
+
+.observacaoCell {
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
+    text-align: left;
+    padding: 10px 12px;
+    color: #4a5568;
+    max-width: 250px;
 }
 
 .linkDocumento {
@@ -279,123 +335,28 @@
     color: #1e295d;
 }
 
-.detentorCell {
-    white-space: normal;
-    word-wrap: break-word;
+.emptyRow {
+    text-align: center;
+    padding: 40px;
+    color: #a0aec0;
+    font-style: italic;
 }
 
-.documentoCell {
-    white-space: normal;
-    word-wrap: break-word;
+.loader {
+    text-align: center;
+    padding: 100px;
+    font-size: 1rem;
+    color: #2b6cb0;
 }
 
-.finalidadeCell {
-    white-space: normal;
-    word-wrap: break-word;
-    line-height: 1.4;
-}
-
-.valorCell {
-    white-space: nowrap;
-}
-
-.dataTable td {
-    vertical-align: top;
-    padding: 10px 8px;
-}
-
-.totalTopo {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    background-color: #f0fff4;
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: 1px solid #c6f6d5;
-    margin-left: auto;
-}
-
-.totalTopoItem {
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-    font-size: 0.75rem;
-}
-
-.totalTopoItem span {
-    color: #4a5568;
-    font-weight: 600;
-}
-
-.totalTopoItem strong {
-    color: #2f855a;
-    font-size: 0.85rem;
-    font-weight: 800;
-}
-
-@media (max-width: 768px) {
-    .totalTopo {
-        flex-wrap: wrap;
-        margin-top: 10px;
-        width: 100%;
-    }
-}
-.observacaoCell {
-    white-space: normal;
-    word-wrap: break-word;
-    line-height: 1.4;
-    text-align: left;
-    padding: 10px 8px;
-}
-
-
-/* DASHBOARD */
+/* ==================== DASHBOARD ==================== */
 .dashboardContainer {
     padding: 20px;
 }
 
-/* Seletor de UG */
-.ugSelector {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 25px;
-}
-
-.ugToggle {
-    display: inline-flex;
-    background-color: #f1f5f9;
-    border-radius: 40px;
-    padding: 4px;
-    gap: 4px;
-    border: 1px solid #e2e8f0;
-}
-
-.ugOption {
-    padding: 8px 24px;
-    border: none;
-    border-radius: 32px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: transparent;
-    color: #64748b;
-}
-
-.ugOption.active {
-    background-color: #1e295d;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.ugOption:hover:not(.active) {
-    background-color: #e2e8f0;
-}
-
-/* Cards de KPIs */
 .kpiGrid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -429,312 +390,49 @@
 }
 
 .kpiValue {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: #1e295d;
 }
 
-.kpiValue small {
-    font-size: 0.8rem;
-    font-weight: normal;
-}
-
-.executionBar {
-    background-color: #edf2f7;
-    border-radius: 20px;
-    height: 8px;
-    margin-top: 12px;
-    overflow: hidden;
-}
-
-.executionFill {
-    background-color: #2f855a;
-    height: 100%;
-    border-radius: 20px;
-    transition: width 0.5s ease;
-}
-
-.executionPercent {
-    font-size: 0.7rem;
-    color: #2f855a;
-    margin-top: 5px;
-    font-weight: 600;
-}
-
-/* Grid de gráficos duplos */
-.dashboardDoubleGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    margin-bottom: 30px;
-}
-
-.dashboardCard {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
-}
-
-.dashboardCard h3 {
-    margin: 0 0 20px 0;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #2d3748;
-    border-left: 4px solid #2b6cb0;
-    padding-left: 12px;
-}
-
-/* Gráfico de Pizza */
-.pieChart {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-}
-
-.pieSvg {
-    width: 180px;
-    height: 180px;
-    transform: rotate(-90deg);
-}
-
-.pieLegend {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-left: 20px;
-}
-
-.legendItem {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
-}
-
-.legendColor {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.legendLabel {
-    color: #4a5568;
-}
-
-.legendValue {
-    font-weight: 700;
-    color: #2d3748;
-}
-
-/* Gráfico de Barras */
-.barChart {
-    margin-top: 10px;
-}
-
-.barItem {
-    margin-bottom: 15px;
-}
-
-.barLabel {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    margin-bottom: 4px;
-    color: #4a5568;
-}
-
-.barLabel span:first-child {
-    font-weight: 600;
-}
-
-.barTrack {
-    background-color: #edf2f7;
-    border-radius: 10px;
-    height: 24px;
-    overflow: hidden;
-}
-
-.barFill {
-    background-color: #2b6cb0;
-    height: 100%;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 600;
-    transition: width 0.5s ease;
-}
-
-/* Gráfico de Linha */
-.lineChart {
-    margin-top: 10px;
-}
-
-.lineChartSvg {
-    width: 100%;
-    height: 200px;
-}
-
-/* Tabela de Prazos Vencidos */
-.vencidosTable {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-}
-
-.vencidosTable th {
-    text-align: left;
-    padding: 8px;
-    background-color: #f8fafc;
-    color: #64748b;
-    font-weight: 600;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.vencidosTable td {
-    padding: 8px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #e53e3e;
-}
-
-.vencidosTable tr:hover td {
-    background-color: #fff5f5;
-}
-
-.linkVencido {
-    background: none;
-    border: none;
-    color: #e53e3e;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-/* Indicadores de progresso circulares */
-.circularProgress {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.circleSvg {
-    width: 100px;
-    height: 100px;
-}
-
-.circleBg {
-    fill: none;
-    stroke: #edf2f7;
-    stroke-width: 8;
-}
-
-.circleFill {
-    fill: none;
-    stroke: #2f855a;
-    stroke-width: 8;
-    stroke-linecap: round;
-    transition: stroke-dasharray 0.5s ease;
-}
-
-.circleText {
-    font-size: 0.7rem;
-    font-weight: 700;
-    fill: #2f855a;
-}
-
-/* Status badges */
-.statusBadgeLiquidado {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.statusBadgeAndamento {
-    background-color: #fef3c7;
-    color: #d97706;
-}
-
+/* ==================== RESPONSIVIDADE ==================== */
 @media (max-width: 1024px) {
-    .kpiGrid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .dashboardDoubleGrid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
     .kpiGrid {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .ugOption {
-        padding: 6px 16px;
-        font-size: 0.75rem;
+    .finalidadeCell {
+        max-width: 200px;
     }
 }
 
-/* Cabeçalho com seletor UG */
-.headerWithSelector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.headerWithSelector h2 {
-    margin: 0;
-    color: #1e295d;
-    font-size: 1.3rem;
-    border-left: 4px solid #2b6cb0;
-    padding-left: 15px;
-}
-
-.ugSelector {
-    flex-shrink: 0;
-}
-
-.ugToggle {
-    display: inline-flex;
-    background-color: #f1f5f9;
-    border-radius: 40px;
-    padding: 4px;
-    gap: 4px;
-    border: 1px solid #e2e8f0;
-}
-
-.ugOption {
-    padding: 8px 24px;
-    border: none;
-    border-radius: 32px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: transparent;
-    color: #64748b;
-}
-
-.ugOption.active {
-    background-color: #1e295d;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.ugOption:hover:not(.active) {
-    background-color: #e2e8f0;
+@media (max-width: 900px) {
+    .filterBarSingle {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filterGroupCheckboxes {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .checkboxGroup {
+        flex-wrap: wrap;
+    }
+    
+    .totalTopo {
+        margin: 0 10px 15px 10px;
+        padding: 10px 15px;
+    }
 }
 
 @media (max-width: 768px) {
+    .container {
+        padding: 12px;
+    }
+    
     .headerWithSelector {
         flex-direction: column;
         align-items: flex-start;
@@ -743,5 +441,34 @@
     .ugOption {
         padding: 6px 16px;
         font-size: 0.75rem;
+    }
+    
+    .reportTab {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+    }
+    
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dataTable th,
+    .dataTable td {
+        padding: 8px;
+    }
+    
+    .finalidadeCell {
+        max-width: 150px;
+    }
+    
+    .observacaoCell {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .finalidadeCell,
+    .observacaoCell {
+        max-width: 100px;
     }
 }

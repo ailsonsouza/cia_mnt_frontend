@@ -68,7 +68,7 @@
     color: #2d3748;
 }
 
-/* Painel superior com botão alinhado à direita idêntico ao modelo adotado */
+/* Painel superior com botão alinhado à direita */
 .actionPanel {
     display: flex;
     justify-content: flex-end;
@@ -93,7 +93,7 @@
     background-color: #218838;
 }
 
-/* --- BARRA DE FILTROS CENTRALIZADA --- */
+/* BARRA DE FILTROS CENTRALIZADA */
 .filterBar {
     display: flex;
     justify-content: center;
@@ -116,16 +116,12 @@
     max-width: 300px;
 }
 
-.filterGroup label {
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    color: #4a5568;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.filterGroup input:focus {
+    border-color: #2b6cb0;
 }
 
-.filterGroup input {
+/* ESTILOS PARA SELECTS NOS FILTROS */
+.filterSelect {
     padding: 8px 12px;
     border: 1px solid #cbd5e0;
     border-radius: 4px;
@@ -134,13 +130,41 @@
     transition: border-color 0.2s ease;
     width: 100%;
     box-sizing: border-box;
+    background-color: white;
+    cursor: pointer;
 }
 
-.filterGroup input:focus {
+.filterSelect:focus {
     border-color: #2b6cb0;
 }
 
-/* --- GRID DE EXIBIÇÃO --- */
+.filterSelect:hover {
+    border-color: #2b6cb0;
+}
+
+/* Botão limpar filtros */
+.btnLimparFiltros {
+    background-color: #ba2020;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    height: 35px;
+}
+
+.btnLimparFiltros:hover {
+    background-color: #cbd5e0;
+    color: #2d3748;
+}
+
+/* GRID DE EXIBIÇÃO */
 .cardGrid {
     display: flex;
     flex-wrap: wrap;
@@ -160,153 +184,7 @@
     margin: 0;
 }
 
-/* --- ESTILOS DO POP-UP INTERNO DE CADASTRO / EDIÇÃO UNIFICADO --- */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.55);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-
-.modalContent {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 6px;
-    width: 650px;
-    max-width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    font-family: Arial, sans-serif;
-    box-sizing: border-box;
-}
-
-.modalContent h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 16px;
-    color: #1e295d;
-    border-bottom: 2px solid #1e295d;
-    padding-bottom: 8px;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-.modalForm {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.formGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.formGroupFull {
-    grid-column: span 2;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.modalForm label {
-    font-size: 10px;
-    font-weight: bold;
-    color: #4a5568;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-}
-
-.modalForm input,
-.modalForm textarea {
-    padding: 8px 10px;
-    border: 1px solid #cbd5e0;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    font-family: inherit;
-}
-
-.modalForm input:focus,
-.modalForm textarea:focus {
-    border-color: #2b6cb0;
-}
-
-.modalActions {
-    grid-column: span 2;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 15px;
-    border-top: 1px solid #e2e8f0;
-    padding-top: 15px;
-}
-
-.btnSalvar {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 12px;
-}
-
-.btnSalvar:hover {
-    background-color: #218838;
-}
-
-.btnCancelar {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 12px;
-}
-
-.btnCancelar:hover {
-    background-color: #5a6268;
-}
-
-.btnLinkDoc {
-    background-color: #1a202c;
-    color: #ffffff;
-    border: none;
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: background-color 0.2s;
-}
-
-.btnLinkDoc:hover:not(:disabled) {
-    opacity: 0.9;
-}
-
-.btnLinkDoc:disabled {
-    background-color: #cbd5e0;
-    cursor: not-allowed;
-}
-
-/* --- RESPONSIVIDADE --- */
+/* RESPONSIVIDADE */
 @media (max-width: 768px) {
     .ugInfo {
         justify-content: flex-start;
@@ -320,18 +198,6 @@
     .filterGroup {
         max-width: 100%;
     }
-    
-    .modalForm {
-        grid-template-columns: 1fr;
-    }
-    
-    .formGroupFull {
-        grid-column: span 1;
-    }
-    
-    .modalActions {
-        grid-column: span 1;
-    }
 }
 
 @media (max-width: 480px) {
@@ -343,9 +209,5 @@
     .btnIncluir {
         padding: 8px 16px;
         font-size: 10px;
-    }
-    
-    .modalContent {
-        padding: 15px;
     }
 }

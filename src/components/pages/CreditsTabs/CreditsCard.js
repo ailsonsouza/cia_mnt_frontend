@@ -1,8 +1,6 @@
 import styles from '../../styles/styles_pages/styles_creditsTabs/CreditisCard.module.css';
-
-
 import { BsPencil, BsEye, BsXCircle } from 'react-icons/bs';
-import { useState, useEffect } from 'react';
+import useSaldoNE from './hooks/UseSaldoNE';
 
 function CreditsCard({ 
     numeroNE, 
@@ -20,33 +18,10 @@ function CreditsCard({
     onDetail, 
     onCancelar 
 }){
-    const [saldoAtualNE, setSaldoAtualNE] = useState(valorAtual);
-    const [carregandoSaldo, setCarregandoSaldo] = useState(true);
+    const { saldoAtual, carregando } = useSaldoNE(neId, valorAtual);
 
-    // Buscar o saldo atual considerando as NFs vinculadas
-    useEffect(() => {
-        if (neId) {
-            fetch('http://localhost:5000/credits_nf')
-                .then(res => res.json())
-                .then(nfs => {
-                    const nfsDaNe = nfs.filter(nf => nf.idNeVinculada === neId);
-                    const totalLiquidado = nfsDaNe.reduce((sum, nf) => sum + (parseFloat(nf.valor) || 0), 0);
-                    const saldo = (valorAtual || 0) - totalLiquidado;
-                    setSaldoAtualNE(saldo);
-                    setCarregandoSaldo(false);
-                })
-                .catch(() => {
-                    setSaldoAtualNE(valorAtual);
-                    setCarregandoSaldo(false);
-                });
-        } else {
-            setSaldoAtualNE(valorAtual);
-            setCarregandoSaldo(false);
-        }
-    }, [valorAtual, neId]);
-
-    const valorFormatado = typeof saldoAtualNE === 'number'
-        ? saldoAtualNE.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    const valorFormatado = typeof saldoAtual === 'number'
+        ? saldoAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
         : valorAtual;
 
     const calcularDiasDesdeGeracao = (dataGeracao) => {
@@ -125,7 +100,7 @@ function CreditsCard({
 
             <div className={styles.cardFooter}>
                 <label>VALOR ATUAL DO EMPENHO</label>
-                {carregandoSaldo ? (
+                {carregando ? (
                     <span className={styles.valueHighlight}>Carregando...</span>
                 ) : (
                     <span className={styles.valueHighlight}>{valorFormatado}</span>

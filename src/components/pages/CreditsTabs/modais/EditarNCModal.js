@@ -1,18 +1,27 @@
 import { useState } from 'react';
 import styles from '../../../styles/styles_pages/styles_creditsTabs/styles_modais/TransferModal.module.css';
 import { BsPencil, BsInfoCircleFill } from 'react-icons/bs';
+import { useAuth } from '../../../context/AuthContext';
 
 function EditarNCModal({ nc, onClose, onSuccess }) {
+    const { usuarioAtual } = useAuth();
     const [numeroNC, setNumeroNC] = useState(nc.nc || '');
-    const [valor, setValor] = useState(nc.valor?.toString() || '');
+    const [valor, setValor] = useState(nc.valorOriginal?.toString() || '');
     const [prazoEmpenho, setPrazoEmpenho] = useState(nc.prazoEmpenho || '');
     const [finalidade, setFinalidade] = useState(nc.finalidade || '');
     const [linkDrive, setLinkDrive] = useState(nc.linkDrive || '');
     const [isImediato, setIsImediato] = useState(nc.prazoEmpenho === 'EMPENHO IMEDIATO');
     const [erro, setErro] = useState('');
 
-    const valorAtualNC = nc.valor || 0;
-    const valorFormatado = valorAtualNC.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    // Verifica se o usuário atual é o criador original
+    if (nc.detentorOriginal !== usuarioAtual.secao) {
+        alert('❌ Apenas a seção que criou este crédito pode editá-lo!');
+        onClose();
+        return null;
+    }
+
+    const valorOriginalNC = nc.valorOriginal || 0;
+    const valorFormatado = valorOriginalNC.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     const handleSalvarEdicao = (e) => {
         e.preventDefault();
@@ -28,13 +37,19 @@ function EditarNCModal({ nc, onClose, onSuccess }) {
         
         const prazoFinal = isImediato ? 'EMPENHO IMEDIATO' : prazoEmpenho;
         
+        // Calcula a diferença para ajustar o saldoDisponivel
+        const diferenca = valorNumerico - valorOriginalNC;
+        
         const ncAtualizada = {
             ...nc,
             nc: numeroNC,
-            valor: valorNumerico,
+            valorOriginal: valorNumerico,
+            saldoDisponivel: nc.saldoDisponivel + diferenca,
             prazoEmpenho: prazoFinal,
             finalidade,
-            linkDrive
+            linkDrive,
+            versao: (nc.versao || 0) + 1,
+            ultimaAtualizacao: new Date().toISOString()
         };
         
         fetch(`http://localhost:5000/credits_nc/${nc.id}`, {
@@ -67,7 +82,11 @@ function EditarNCModal({ nc, onClose, onSuccess }) {
                         <div className={styles.infoText}>
                             <strong>Código:</strong> {nc.codigoUnico}
                             <br />
-                            <span>Valor atual: {valorFormatado}</span>
+                            <span>Valor Original: {valorFormatado}</span>
+                            <br />
+                            <span>Saldo Disponível: {(nc.saldoDisponivel || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                            <br />
+                            <span>Criado por: {nc.detentorOriginal}</span>
                         </div>
                     </div>
 
@@ -84,7 +103,7 @@ function EditarNCModal({ nc, onClose, onSuccess }) {
                     </div>
 
                     <div className={styles.formSection}>
-                        <label className={styles.mainLabel}>VALOR (R$)</label>
+                        <label className={styles.mainLabel}>VALOR ORIGINAL (R$)</label>
                         <div className={styles.valorInputWrapper}>
                             <span className={styles.moedaSimbolo}>R$</span>
                             <input
@@ -94,6 +113,9 @@ function EditarNCModal({ nc, onClose, onSuccess }) {
                                 value={valor}
                                 onChange={(e) => setValor(e.target.value)}
                             />
+                        </div>
+                        <div className={styles.valorDisponivel}>
+                            Nota: Alterar o valor original afetará o saldo disponível
                         </div>
                     </div>
 

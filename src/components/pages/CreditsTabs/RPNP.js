@@ -1,36 +1,27 @@
+// src/components/pages/CreditsTabs/RPNP.js
 import { useState, useEffect } from 'react';
 import styles from '../../styles/styles_pages/styles_creditsTabs/RPNP.module.css';
 import CreditsCard from './CreditsCard';
+import RPNPModal from './modais/RPNPModal';
+import { useAuth } from '../../context/AuthContext';
 
 function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
+    const { usuarioAtual } = useAuth();  // ← ADICIONADO
     const [notasEmpenho, setNotasEmpenho] = useState([]);
     const [listaNFs, setListaNFs] = useState([]);
-    const [listaItensPregao, setListaItensPregao] = useState([]); // Para buscar itens do pregão
-    const [listaPregaos, setListaPregaos] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modoModal, setModoModal] = useState('incluir');
+    const [dadosEdicao, setDadosEdicao] = useState(null);
 
-    // Estados para os filtros
+    // Filtros
     const [filtroOrdem, setFiltroOrdem] = useState('');
     const [filtroItem, setFiltroItem] = useState('');
     const [filtroFornecedor, setFiltroFornecedor] = useState('');
 
-    // Estados do Formulário
-    const [idEmEdicao, setIdEmEdicao] = useState(null);
-    const [numeroNC, setNumeroNC] = useState('');
-    const [processoNC, setProcessoNC] = useState('');
-    const [omAplicacao, setOmAplicacao] = useState('');
-    const [valorNC, setValorNC] = useState('');
-    const [finalidadeNC, setFinalidadeNC] = useState('');
-    const [linkDriveNC, setLinkDriveNC] = useState('');
-    const [numeroNE, setNumeroNE] = useState('');
-    const [idPregaoSelecionado, setIdPregaoSelecionado] = useState('');
-    const [idItemPregaoSelecionado, setIdItemPregaoSelecionado] = useState('');
-    const [descricaoItemManual, setDescricaoItemManual] = useState('');
-    const [isModoManual, setIsModoManual] = useState(false);
-    const [nomeFornecedor, setNomeFornecedor] = useState('');
-    const [cnpjFornecedor, setCnpjFornecedor] = useState('');
-    const [valorNE, setValorNE] = useState('');
-    const [linkDriveNE, setLinkDriveNE] = useState('');
+    // Opções para os selects
+    const [opcoesOrdem, setOpcoesOrdem] = useState([]);
+    const [opcoesItem, setOpcoesItem] = useState([]);
+    const [opcoesFornecedor, setOpcoesFornecedor] = useState([]);
 
     const handleUgChange = (novaUg) => {
         if (onUgChange) {
@@ -38,13 +29,26 @@ function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
         }
     };
 
-    const carregarDadosDoBanco = () => {
+    const carregarDados = () => {
         fetch('http://localhost:5000/credits_rpnp')
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
-                    const dadosFiltradosPorFonte = data.filter(item => item.fonteRecurso === fonteRecurso);
+                    // CORREÇÃO: Filtra por fonteRecurso E por detentor (usuário atual)
+                    const dadosFiltradosPorFonte = data.filter(item => 
+                        item.fonteRecurso === fonteRecurso &&
+                        item.detentor === usuarioAtual.secao  // ← APENAS O DETENTOR
+                    );
                     setNotasEmpenho(dadosFiltradosPorFonte);
+                    
+                    // Gerar opções únicas para os selects
+                    const ordensUnicas = [...new Set(dadosFiltradosPorFonte.map(item => item.numeroNE).filter(Boolean))];
+                    const itensUnicos = [...new Set(dadosFiltradosPorFonte.map(item => item.materialNE).filter(Boolean))];
+                    const fornecedoresUnicos = [...new Set(dadosFiltradosPorFonte.map(item => item.nomeFornecedor).filter(Boolean))];
+                    
+                    setOpcoesOrdem(ordensUnicas);
+                    setOpcoesItem(itensUnicos);
+                    setOpcoesFornecedor(fornecedoresUnicos);
                 }
             })
             .catch(err => console.error("Erro RPNP:", err));
@@ -53,21 +57,11 @@ function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setListaNFs(data); })
             .catch(err => console.error("Erro NFs:", err));
-
-        fetch('http://localhost:5000/credits')
-            .then(res => res.json())
-            .then(data => { if (Array.isArray(data)) setListaItensPregao(data); })
-            .catch(err => console.error("Erro Itens Pregão:", err));
-
-        fetch('http://localhost:5000/pregaos')
-            .then(res => res.json())
-            .then(data => { if (Array.isArray(data)) setListaPregaos(data); })
-            .catch(err => console.error("Erro Pregões:", err));
     };
 
     useEffect(() => {
-        carregarDadosDoBanco();
-    }, [fonteRecurso]);
+        carregarDados();
+    }, [fonteRecurso, usuarioAtual.secao]);  // ← ADICIONADO dependência do usuário
 
     const obterFluxoFinanceiroRpnp = (idRpnp) => {
         const nfsDoRpnp = listaNFs.filter(nf => nf.idNeVinculada === idRpnp);
@@ -80,117 +74,29 @@ function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
         return { emLiquidacao, liquidado };
     };
 
-    const handleMudarMaterial = (valorSelect) => {
-        setIdItemPregaoSelecionado(valorSelect);
-        if (valorSelect === 'OUTRO') {
-            setIsModoManual(true);
-            setDescricaoItemManual('');
-            setNomeFornecedor('');
-            setCnpjFornecedor('');
-        } else if (valorSelect !== '') {
-            setIsModoManual(false);
-            setDescricaoItemManual('');
-            const itemPregao = listaItensPregao.find(item => item.id === valorSelect);
-            if (itemPregao) {
-                setNomeFornecedor(itemPregao.fornecedor || '');
-                setCnpjFornecedor(itemPregao.cnpj || '');
-            }
-        } else {
-            setIsModoManual(false);
-            setDescricaoItemManual('');
-            setNomeFornecedor('');
-            setCnpjFornecedor('');
-        }
-    };
-
-    const handleSalvarRPNP = (e) => {
-        e.preventDefault();
-        const vNC = parseFloat(valorNC.toString().replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
-        const vNE = parseFloat(valorNE.toString().replace(/[^\d,.]/g, '').replace(',', '.')) || 0;
-
-        // Prepara o material final
-        let materialFinal = '';
-        let idItemVinculado = null;
-
-        if (isModoManual) {
-            materialFinal = descricaoItemManual;
-            idItemVinculado = null;
-        } else if (idItemPregaoSelecionado && idItemPregaoSelecionado !== 'OUTRO') {
-            const item = listaItensPregao.find(i => i.id === idItemPregaoSelecionado);
-            materialFinal = item ? `Item ${item.item} - ${item.descricao}` : '';
-            idItemVinculado = idItemPregaoSelecionado;
-        }
-
-        const dadosRPNP = {
-            fonteRecurso,
-            nc: numeroNC,
-            processo: processoNC,
-            omAplicacao: omAplicacao,
-            valorNC: vNC,
-            finalidade: finalidadeNC,
-            linkDrive: linkDriveNC,
-            numeroNE: numeroNE,
-            materialNE: materialFinal,
-            idItemPregaoVinculado: idItemVinculado, // NOVO CAMPO FORTE
-            idPregaoVinculado: idPregaoSelecionado,
-            nomeFornecedor: nomeFornecedor,
-            cnpjFornecedor: cnpjFornecedor,
-            valorAtual: vNE,
-            linkDriveNE: linkDriveNE
-        };
-
-        const metodo = idEmEdicao ? 'PUT' : 'POST';
-        const url = idEmEdicao ? `http://localhost:5000/credits_rpnp/${idEmEdicao}` : 'http://localhost:5000/credits_rpnp';
-
-        fetch(url, {
-            method: metodo,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(idEmEdicao ? { ...dadosRPNP, id: idEmEdicao } : { ...dadosRPNP, id: Math.random().toString(36).substr(2, 9) })
-        })
-        .then(() => {
-            alert(idEmEdicao ? 'Atualizado!' : 'Cadastrado!');
-            carregarDadosDoBanco();
-            fecharE_Limpar();
-        });
-    };
-
     const handleAbrirEdicao = (item) => {
-        setIdEmEdicao(item.id);
-        setNumeroNC(item.nc || '');
-        setProcessoNC(item.processo || '');
-        setOmAplicacao(item.omAplicacao || '');
-        setValorNC(item.valorNC || '');
-        setFinalidadeNC(item.finalidade || '');
-        setLinkDriveNC(item.linkDrive || '');
-        setNumeroNE(item.numeroNE || '');
-        setNomeFornecedor(item.nomeFornecedor || '');
-        setCnpjFornecedor(item.cnpjFornecedor || '');
-        setValorNE(item.valorAtual || '');
-        setLinkDriveNE(item.linkDriveNE || '');
-        
-        // Se tiver idItemPregaoVinculado, seleciona ele
-        if (item.idItemPregaoVinculado) {
-            setIdItemPregaoSelecionado(item.idItemPregaoVinculado);
-            setIsModoManual(false);
-            // Busca o pregão desse item
-            const itemPregao = listaItensPregao.find(i => i.id === item.idItemPregaoVinculado);
-            if (itemPregao) {
-                setIdPregaoSelecionado(itemPregao.idPregaoVinculado);
-            }
-        } else if (item.materialNE && !item.idItemPregaoVinculado) {
-            setIsModoManual(true);
-            setDescricaoItemManual(item.materialNE);
+        // Verifica se o usuário atual é o detentor do RPNP
+        if (item.detentor !== usuarioAtual.secao) {
+            alert('❌ Você não tem permissão para editar este RPNP!');
+            return;
         }
-        
+        setModoModal('editar');
+        setDadosEdicao(item);
         setIsModalOpen(true);
     };
 
-    const handleExcluirRPNP = (id, numeroIdentificador) => {
+    const handleExcluirRPNP = (id, numeroIdentificador, detentor) => {
+        // Verifica se o usuário atual é o detentor do RPNP
+        if (detentor !== usuarioAtual.secao) {
+            alert('❌ Você não tem permissão para excluir este RPNP!');
+            return;
+        }
+        
         if (!window.confirm(`Excluir RPNP Nº ${numeroIdentificador}?`)) return;
         fetch(`http://localhost:5000/credits_rpnp/${id}`, { method: 'DELETE' })
             .then(() => {
                 alert('Removido!');
-                carregarDadosDoBanco();
+                carregarDados();
             });
     };
 
@@ -200,23 +106,23 @@ function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
         }
     };
 
-    const fecharE_Limpar = () => {
-        setIdEmEdicao(null);
-        setNumeroNC(''); setProcessoNC(''); setOmAplicacao(''); setValorNC(''); setFinalidadeNC(''); setLinkDriveNC('');
-        setNumeroNE(''); setMaterialNE(''); setNomeFornecedor(''); setCnpjFornecedor(''); setValorNE(''); setLinkDriveNE('');
-        setIdPregaoSelecionado(''); setIdItemPregaoSelecionado(''); setIsModoManual(false); setDescricaoItemManual('');
+    const fecharModal = () => {
         setIsModalOpen(false);
+        setDadosEdicao(null);
+        setModoModal('incluir');
+        carregarDados();
     };
 
-    // Estado para materialNE (para compatibilidade)
-    const [materialNE, setMaterialNE] = useState('');
-
-    const itensFiltradosPorPregao = listaItensPregao.filter(i => i.idPregaoVinculado === idPregaoSelecionado);
+    const limparFiltros = () => {
+        setFiltroOrdem('');
+        setFiltroItem('');
+        setFiltroFornecedor('');
+    };
 
     const dadosFiltrados = notasEmpenho.filter((card) => {
-        return (card.numeroNE || '').toLowerCase().includes(filtroOrdem.toLowerCase()) &&
-               (card.materialNE || '').toLowerCase().includes(filtroItem.toLowerCase()) &&
-               (card.nomeFornecedor || '').toLowerCase().includes(filtroFornecedor.toLowerCase());
+        return (filtroOrdem === '' || card.numeroNE === filtroOrdem) &&
+               (filtroItem === '' || card.materialNE === filtroItem) &&
+               (filtroFornecedor === '' || card.nomeFornecedor === filtroFornecedor);
     });
 
     return (
@@ -242,107 +148,93 @@ function RPNP({ fonteRecurso, onVerDetalhes, onUgChange, ugSelecionada }) {
                 </div>
             </div>
 
-            <div className={styles.actionPanel} style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
-                <button className={styles.btnIncluir} onClick={() => setIsModalOpen(true)}>Incluir Novo RPNP</button>
-            </div>
-
+            {/* BARRA DE FILTROS COM SELECTS */}
             <div className={styles.filterBar}>
                 <div className={styles.filterGroup}>
-                    <label>Ordem de Serviço / NE</label>
-                    <input type="text" value={filtroOrdem} onChange={(e) => setFiltroOrdem(e.target.value)} />
+                    <label>NOTA DE EMPENHO</label>
+                    <select 
+                        value={filtroOrdem} 
+                        onChange={(e) => setFiltroOrdem(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">TODAS</option>
+                        {opcoesOrdem.map(opcao => (
+                            <option key={opcao} value={opcao}>{opcao}</option>
+                        ))}
+                    </select>
                 </div>
+                
                 <div className={styles.filterGroup}>
                     <label>Material / Item</label>
-                    <input type="text" value={filtroItem} onChange={(e) => setFiltroItem(e.target.value)} />
+                    <select 
+                        value={filtroItem} 
+                        onChange={(e) => setFiltroItem(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">TODOS</option>
+                        {opcoesItem.map(opcao => (
+                            <option key={opcao} value={opcao}>{opcao.length > 50 ? opcao.substring(0, 50) + '...' : opcao}</option>
+                        ))}
+                    </select>
                 </div>
+                
                 <div className={styles.filterGroup}>
                     <label>Fornecedor</label>
-                    <input type="text" value={filtroFornecedor} onChange={(e) => setFiltroFornecedor(e.target.value)} />
+                    <select 
+                        value={filtroFornecedor} 
+                        onChange={(e) => setFiltroFornecedor(e.target.value)}
+                        className={styles.filterSelect}
+                    >
+                        <option value="">TODOS</option>
+                        {opcoesFornecedor.map(opcao => (
+                            <option key={opcao} value={opcao}>{opcao}</option>
+                        ))}
+                    </select>
                 </div>
+
+                <button className={styles.btnLimparFiltros} onClick={limparFiltros} title="Limpar filtros">
+                    ✖
+                </button>
             </div>
 
             <div className={styles.cardGrid}>
-                {dadosFiltrados.map((card) => {
-                    const { emLiquidacao, liquidado } = obterFluxoFinanceiroRpnp(card.id);
-                    return (
-                        <CreditsCard
-                            key={card.id}
-                            numeroNE={card.numeroNE}
-                            finalidade={card.finalidade}
-                            material={card.materialNE}
-                            om={card.omAplicacao}
-                            fornecedor={card.nomeFornecedor}
-                            valorAtual={(card.valorAtual || 0) - emLiquidacao - liquidado}
-                            numeroNC={`NC Origem: ${card.nc || 'N/D'}`}
-                            linkDrive={card.linkDriveNE}
-                            processo={card.processo}
-                            onEdit={() => handleAbrirEdicao(card)}
-                            onDetail={() => handleAbrirDetalhar(card)}
-                            onDelete={() => handleExcluirRPNP(card.id, card.numeroNE)}
-                        />
-                    );
-                })}
+                {dadosFiltrados.length === 0 ? (
+                    <div className={styles.noResults}>
+                        Nenhum RPNP encontrado para sua seção.
+                    </div>
+                ) : (
+                    dadosFiltrados.map((card) => {
+                        const { emLiquidacao, liquidado } = obterFluxoFinanceiroRpnp(card.id);
+                        return (
+                            <CreditsCard
+                                key={card.id}
+                                numeroNE={card.numeroNE}
+                                finalidade={card.finalidade}
+                                material={card.materialNE}
+                                omAplicacao={card.omAplicacao}
+                                fornecedor={card.nomeFornecedor}
+                                valorAtual={(card.valorAtual || 0) - emLiquidacao - liquidado}
+                                numeroNC={`NC Origem: ${card.nc || 'N/D'}`}
+                                linkDrive={card.linkDriveNE}
+                                processo={card.processo}
+                                onEdit={() => handleAbrirEdicao(card)}
+                                onDetail={() => handleAbrirDetalhar(card)}
+                                onDelete={() => handleExcluirRPNP(card.id, card.numeroNE, card.detentor)}
+                            />
+                        );
+                    })
+                )}
             </div>
 
-            {isModalOpen && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent} style={{ width: '650px' }}>
-                        <h2>{idEmEdicao ? 'Editar RPNP' : 'Inserir Novo RPNP'}</h2>
-                        <form className={styles.modalForm} onSubmit={handleSalvarRPNP}>
-                            <div className={styles.formGroup}><label>Número da NC</label><input type="text" value={numeroNC} onChange={(e) => setNumeroNC(e.target.value)} required /></div>
-                            <div className={styles.formGroup}><label>Valor Total da NC</label><input type="text" value={valorNC} onChange={(e) => setValorNC(e.target.value)} required /></div>
-                            <div className={styles.formGroup}><label>Processo</label><input type="text" value={processoNC} onChange={(e) => setProcessoNC(e.target.value)} required /></div>
-                            <div className={styles.formGroup}><label>OM</label><input type="text" value={omAplicacao} onChange={(e) => setOmAplicacao(e.target.value)} required /></div>
-                            <div className={styles.formGroupFull}><label>Link NC</label><input type="url" value={linkDriveNC} onChange={(e) => setLinkDriveNC(e.target.value)} required /></div>
-                            <div className={styles.formGroupFull}><label>Finalidade</label><textarea value={finalidadeNC} onChange={(e) => setFinalidadeNC(e.target.value)} required /></div>
-                            
-                            <hr style={{ gridColumn: 'span 2', width: '100%', margin: '15px 0' }} />
-                            
-                            <div className={styles.formGroup}><label>Número da NE</label><input type="text" value={numeroNE} onChange={(e) => setNumeroNE(e.target.value)} required /></div>
-                            <div className={styles.formGroup}><label>Valor Empenho</label><input type="text" value={valorNE} onChange={(e) => setValorNE(e.target.value)} required /></div>
-                            
-                            <div className={styles.formGroupFull}>
-                                <label>Pregão</label>
-                                <select value={idPregaoSelecionado} onChange={(e) => setIdPregaoSelecionado(e.target.value)}>
-                                    <option value="">-- Selecione o Pregão --</option>
-                                    {listaPregaos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-                                </select>
-                            </div>
-                            
-                            <div className={styles.formGroupFull}>
-                                <label>Item do Pregão</label>
-                                <select value={idItemPregaoSelecionado} onChange={(e) => handleMudarMaterial(e.target.value)} disabled={!idPregaoSelecionado}>
-                                    <option value="">-- Selecione o item homologado --</option>
-                                    {itensFiltradosPorPregao.map(item => (
-                                        <option key={item.id} value={item.id}>
-                                            Item {item.item} - {item.descricao.substring(0, 55)}...
-                                        </option>
-                                    ))}
-                                    <option value="OUTRO" style={{ color: '#c53030', fontWeight: 'bold' }}>
-                                        + OUTRA MODALIDADE (CARONA/DISPENSA)
-                                    </option>
-                                </select>
-                            </div>
-
-                            {isModoManual && (
-                                <div className={styles.formGroupFull}>
-                                    <label style={{ color: '#c53030' }}>Descrição Manual do Material</label>
-                                    <textarea value={descricaoItemManual} onChange={(e) => setDescricaoItemManual(e.target.value)} required />
-                                </div>
-                            )}
-
-                            <div className={styles.formGroupFull}><label>Fornecedor</label><input type="text" value={nomeFornecedor} onChange={(e) => setNomeFornecedor(e.target.value)} required /></div>
-                            <div className={styles.formGroupFull}><label>CNPJ</label><input type="text" value={cnpjFornecedor} onChange={(e) => setCnpjFornecedor(e.target.value)} required /></div>
-                            <div className={styles.formGroupFull}><label>Link NE</label><input type="url" value={linkDriveNE} onChange={(e) => setLinkDriveNE(e.target.value)} required /></div>
-                            
-                            <div className={styles.modalActions}>
-                                <button type="submit" className={styles.btnSalvar}>Salvar</button>
-                                <button type="button" className={styles.btnCancelar} onClick={fecharE_Limpar}>Cancelar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* Modal separado */}
+            <RPNPModal
+                isOpen={isModalOpen}
+                onClose={fecharModal}
+                onSuccess={carregarDados}
+                modo={modoModal}
+                dadosIniciais={dadosEdicao}
+                fonteRecurso={fonteRecurso}
+            />
         </div>
     );
 }
